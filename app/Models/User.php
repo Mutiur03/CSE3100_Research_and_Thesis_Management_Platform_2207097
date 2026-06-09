@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Enums\UserRole;
 use Database\Factories\UserFactory;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
@@ -22,6 +23,14 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
+        'department_id',
+        'avatar',
+        'bio',
+        'phone',
+        'research_interests',
+        'is_active',
+        'last_login_at',
     ];
 
     /**
@@ -44,6 +53,56 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'role' => UserRole::class,
+            'research_interests' => 'array',
+            'is_active' => 'boolean',
+            'last_login_at' => 'datetime',
         ];
+    }
+
+    // ──────────────────────────────────────────────
+    // Role helpers
+    // ──────────────────────────────────────────────
+
+    public function hasRole(UserRole $role): bool
+    {
+        return $this->role === $role;
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->hasRole(UserRole::Admin);
+    }
+
+    public function isSupervisor(): bool
+    {
+        return $this->hasRole(UserRole::Supervisor);
+    }
+
+    public function isStudent(): bool
+    {
+        return $this->hasRole(UserRole::Student);
+    }
+
+    public function isReviewer(): bool
+    {
+        return $this->hasRole(UserRole::Reviewer);
+    }
+
+    // ──────────────────────────────────────────────
+    // Accessors
+    // ──────────────────────────────────────────────
+
+    /**
+     * Get the URL to the user's avatar or a default gravatar.
+     */
+    public function getAvatarUrlAttribute(): string
+    {
+        if ($this->avatar) {
+            return asset('storage/' . $this->avatar);
+        }
+
+        $hash = md5(strtolower(trim($this->email)));
+        return "https://www.gravatar.com/avatar/{$hash}?d=mp&s=200";
     }
 }
