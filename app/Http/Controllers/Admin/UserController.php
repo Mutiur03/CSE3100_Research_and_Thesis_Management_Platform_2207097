@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\UpdateUserRoleRequest;
+use App\Enums\UserRole;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -17,7 +18,9 @@ class UserController extends Controller
     public function index(Request $request): View
     {
         $this->authorize('viewAny', User::class);
-        $query = User::query()->orderBy('name');
+        $query = User::query()
+            ->where('role', '!=', UserRole::Admin)
+            ->orderBy('name');
 
         // Search filter
         if ($search = $request->input('search')) {
@@ -46,7 +49,8 @@ class UserController extends Controller
      */
     public function edit(User $user): View
     {
-        $this->authorize('view', $user);
+        $this->authorize('manageRole', $user);
+
         return view('admin.users.edit', [
             'user' => $user,
         ]);

@@ -38,7 +38,7 @@ class UserPolicy
      */
     public function manageRole(User $authUser, User $model): bool
     {
-        return $authUser->isAdmin();
+        return $authUser->isAdmin() && ! $model->isAdmin();
     }
 
     /**

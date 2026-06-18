@@ -14,6 +14,11 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role' => \App\Http\Middleware\RoleMiddleware::class,
             'active' => \App\Http\Middleware\EnsureAccountActive::class,
+            'setup.pending' => \App\Http\Middleware\RedirectIfSetupComplete::class,
+        ]);
+
+        $middleware->web(append: [
+            \App\Http\Middleware\EnsureSetupComplete::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

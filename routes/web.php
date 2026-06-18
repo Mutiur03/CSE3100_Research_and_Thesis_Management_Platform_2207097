@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\ProfileController;
@@ -7,8 +8,23 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Auth\VerificationController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\Setup\SetupController;
 use Illuminate\Support\Facades\Route;
+
+// ──────────────────────────────────────────────
+// Initial administrator setup (before first admin exists)
+// ──────────────────────────────────────────────
+
+Route::middleware('setup.pending')->prefix('setup')->name('setup.')->group(function () {
+    Route::get('/', [SetupController::class, 'index'])->name('index');
+    Route::post('/code', [SetupController::class, 'sendCode'])
+        ->middleware('throttle:3,1')
+        ->name('code.send');
+    Route::get('/complete', [SetupController::class, 'showCompleteForm'])->name('complete');
+    Route::post('/complete', [SetupController::class, 'complete'])
+        ->middleware('throttle:5,1')
+        ->name('complete.store');
+});
 
 // ──────────────────────────────────────────────
 // Welcome (Public)

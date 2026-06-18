@@ -6,7 +6,7 @@
     <div class="page-shell">
         <header class="page-header">
             <h2 class="page-title">User management</h2>
-            <p class="page-lead">Search, filter, and manage platform accounts.</p>
+            <p class="page-lead">Manage student, supervisor, and reviewer accounts. Administrators are provisioned through platform setup only.</p>
         </header>
 
         <div class="card mb-6">
@@ -27,8 +27,8 @@
                         <label for="role" class="field-label">Role</label>
                         <select name="role" id="role" class="select-field">
                             <option value="">All roles</option>
-                            @foreach(\App\Enums\UserRole::cases() as $role)
-                                <option value="{{ $role->value }}" {{ $roleFilter === $role->value ? 'selected' : '' }}>{{ $role->label() }}</option>
+                            @foreach(\App\Enums\UserRole::manageableCases() as $roleOption)
+                                <option value="{{ $roleOption->value }}" {{ $roleFilter === $roleOption->value ? 'selected' : '' }}>{{ $roleOption->label() }}</option>
                             @endforeach
                         </select>
                     </div>

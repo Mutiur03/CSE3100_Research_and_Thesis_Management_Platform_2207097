@@ -13,7 +13,7 @@ class UpdateUserRoleRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->isAdmin();
+        return $this->user()->can('manageRole', $this->route('user'));
     }
 
     /**
@@ -27,7 +27,7 @@ class UpdateUserRoleRequest extends FormRequest
             'role' => [
                 'required',
                 'string',
-                Rule::in(array_column(UserRole::cases(), 'value')),
+                Rule::in(UserRole::assignableByAdminValues()),
             ],
             'is_active' => ['required', 'boolean'],
         ];

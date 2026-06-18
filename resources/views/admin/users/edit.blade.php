@@ -37,9 +37,9 @@
                     <div>
                         <label for="role" class="field-label">Role</label>
                         <select name="role" id="role" class="select-field @error('role') input-error @enderror">
-                            @foreach(\App\Enums\UserRole::cases() as $role)
-                                <option value="{{ $role->value }}" {{ old('role', $user->role->value) === $role->value ? 'selected' : '' }}>
-                                    {{ $role->label() }}
+                            @foreach(\App\Enums\UserRole::manageableCases() as $roleOption)
+                                <option value="{{ $roleOption->value }}" {{ old('role', $user->role->value) === $roleOption->value ? 'selected' : '' }}>
+                                    {{ $roleOption->label() }}
                                 </option>
                             @endforeach
                         </select>

@@ -60,4 +60,32 @@ enum UserRole: string
             self::Supervisor->value,
         ];
     }
+
+    /**
+     * Roles that can be assigned from the admin user management panel.
+     * Administrators are created only through the initial /setup flow.
+     *
+     * @return array<string>
+     */
+    public static function assignableByAdminValues(): array
+    {
+        return [
+            self::Student->value,
+            self::Supervisor->value,
+            self::Reviewer->value,
+        ];
+    }
+
+    /**
+     * Roles shown in the admin user management panel.
+     *
+     * @return list<self>
+     */
+    public static function manageableCases(): array
+    {
+        return array_values(array_filter(
+            self::cases(),
+            fn (self $role) => $role !== self::Admin,
+        ));
+    }
 }

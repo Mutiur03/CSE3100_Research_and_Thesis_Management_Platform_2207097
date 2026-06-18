@@ -20,6 +20,6 @@
     </div>
 
     <p class="mt-10 text-xs leading-relaxed text-stone-500">
-        Reviewer and administrator accounts are provisioned by your department. Contact your institutional administrator if you need access.
+        Reviewer accounts are provisioned by your department administrator after platform setup is complete.
     </p>
 @endsection
