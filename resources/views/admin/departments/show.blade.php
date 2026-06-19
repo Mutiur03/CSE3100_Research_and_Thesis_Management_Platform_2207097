@@ -4,7 +4,7 @@
 
 @section('content')
     <div class="page-shell">
-        <a href="{{ route('admin.departments.index') }}" class="mb-6 inline-flex items-center gap-1 text-sm text-stone-500 hover:text-stone-800">
+        <a wire:navigate.hover href="{{ route('admin.departments.index') }}" class="mb-6 inline-flex items-center gap-1 text-sm text-stone-500 hover:text-stone-800">
             <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" /></svg>
             Back to departments
         </a>
@@ -16,7 +16,7 @@
                 <p class="page-lead">{{ $department->faculty ?? 'No faculty assigned' }}</p>
             </div>
             <div class="flex gap-2">
-                <a href="{{ route('admin.departments.edit', $department) }}" class="btn-secondary">Edit</a>
+                <a wire:navigate.hover href="{{ route('admin.departments.edit', $department) }}" class="btn-secondary">Edit</a>
                 @if($department->users_count === 0)
                     <form method="POST" action="{{ route('admin.departments.destroy', $department) }}" onsubmit="return confirm('Delete this department permanently?')">
                         @csrf
@@ -109,7 +109,7 @@
                                         <x-role-badge :role="$member->role" />
                                     </td>
                                     <td class="px-6 py-4 text-right">
-                                        <a href="{{ route('admin.users.edit', $member) }}" class="btn-secondary btn-sm">Edit</a>
+                                        <a wire:navigate.hover href="{{ route('admin.users.edit', $member) }}" class="btn-secondary btn-sm">Edit</a>
                                     </td>
                                 </tr>
                             @empty

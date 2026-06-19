@@ -32,7 +32,7 @@
         <div>
             <div class="flex items-center justify-between">
                 <label for="password" class="field-label">Password</label>
-                <a href="{{ route('password.request') }}" class="text-xs font-medium text-brand-700 hover:text-brand-800">Forgot password?</a>
+                <a wire:navigate.hover href="{{ route('password.request') }}" class="text-xs font-medium text-brand-700 hover:text-brand-800">Forgot password?</a>
             </div>
             <input
                 type="password"
@@ -59,6 +59,6 @@
 
     <p class="mt-8 text-center text-sm text-stone-500">
         No account?
-        <a href="{{ route('register') }}" class="font-medium text-brand-700 hover:text-brand-800">Request access</a>
+        <a wire:navigate.hover href="{{ route('register') }}" class="font-medium text-brand-700 hover:text-brand-800">Request access</a>
     </p>
 @endsection

@@ -35,6 +35,6 @@
     </form>
 
     <p class="mt-8 text-center text-sm text-stone-500">
-        <a href="{{ route('login') }}" class="font-medium text-brand-700 hover:text-brand-800">Back to sign in</a>
+        <a wire:navigate.hover href="{{ route('login') }}" class="font-medium text-brand-700 hover:text-brand-800">Back to sign in</a>
     </p>
 @endsection

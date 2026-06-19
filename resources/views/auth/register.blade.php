@@ -117,6 +117,6 @@
 
     <p class="mt-8 text-center text-sm text-stone-500">
         Already registered?
-        <a href="{{ route('login') }}" class="font-medium text-brand-700 hover:text-brand-800">Sign in</a>
+        <a wire:navigate.hover href="{{ route('login') }}" class="font-medium text-brand-700 hover:text-brand-800">Sign in</a>
     </p>
 @endsection

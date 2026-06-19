@@ -9,7 +9,7 @@
                 <h2 class="page-title">Department management</h2>
                 <p class="page-lead">Create departments, assign heads, and review membership.</p>
             </div>
-            <a href="{{ route('admin.departments.create') }}" class="btn-primary">New department</a>
+            <a wire:navigate.hover href="{{ route('admin.departments.create') }}" class="btn-primary">New department</a>
         </header>
 
         <div class="card mb-6">
@@ -38,7 +38,7 @@
                     <div class="flex gap-2">
                         <button type="submit" class="btn-primary">Apply</button>
                         @if($search || $facultyFilter)
-                            <a href="{{ route('admin.departments.index') }}" class="btn-secondary">Clear</a>
+                            <a wire:navigate.hover href="{{ route('admin.departments.index') }}" class="btn-secondary">Clear</a>
                         @endif
                     </div>
                 </form>
@@ -80,8 +80,8 @@
                                 </td>
                                 <td class="whitespace-nowrap px-6 py-4 text-right">
                                     <div class="flex justify-end gap-2">
-                                        <a href="{{ route('admin.departments.show', $department) }}" class="btn-secondary btn-sm">View</a>
-                                        <a href="{{ route('admin.departments.edit', $department) }}" class="btn-secondary btn-sm">Edit</a>
+                                        <a wire:navigate.hover href="{{ route('admin.departments.show', $department) }}" class="btn-secondary btn-sm">View</a>
+                                        <a wire:navigate.hover href="{{ route('admin.departments.edit', $department) }}" class="btn-secondary btn-sm">Edit</a>
                                     </div>
                                 </td>
                             </tr>

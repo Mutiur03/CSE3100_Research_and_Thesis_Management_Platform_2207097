@@ -10,11 +10,11 @@
 
     <div class="mt-8 flex flex-col gap-3 sm:flex-row">
         @auth
-            <a href="{{ route('dashboard') }}" class="btn-primary text-center">Go to dashboard</a>
+            <a wire:navigate.hover href="{{ route('dashboard') }}" class="btn-primary text-center">Go to dashboard</a>
         @else
-            <a href="{{ route('login') }}" class="btn-primary text-center">Sign in</a>
+            <a wire:navigate.hover href="{{ route('login') }}" class="btn-primary text-center">Sign in</a>
             @if (Route::has('register'))
-                <a href="{{ route('register') }}" class="btn-secondary text-center">Create account</a>
+                <a wire:navigate.hover href="{{ route('register') }}" class="btn-secondary text-center">Create account</a>
             @endif
         @endauth
     </div>

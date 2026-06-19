@@ -46,7 +46,7 @@
                     <div class="flex gap-2">
                         <button type="submit" class="btn-primary">Apply</button>
                         @if($search || $roleFilter || $departmentFilter)
-                            <a href="{{ route('admin.users.index') }}" class="btn-secondary">Clear</a>
+                            <a wire:navigate.hover href="{{ route('admin.users.index') }}" class="btn-secondary">Clear</a>
                         @endif
                     </div>
                 </form>
@@ -103,7 +103,7 @@
                                     {{ $u->last_login_at ? $u->last_login_at->diffForHumans() : 'Never' }}
                                 </td>
                                 <td class="whitespace-nowrap px-6 py-4 text-right">
-                                    <a href="{{ route('admin.users.edit', $u) }}" class="btn-secondary btn-sm">Edit</a>
+                                    <a wire:navigate.hover href="{{ route('admin.users.edit', $u) }}" class="btn-secondary btn-sm">Edit</a>
                                 </td>
                             </tr>
                         @empty

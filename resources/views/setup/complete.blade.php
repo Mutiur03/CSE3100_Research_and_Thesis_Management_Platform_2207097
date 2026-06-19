@@ -92,6 +92,6 @@
 
     <p class="mt-8 text-center text-sm text-stone-500">
         Need a new code?
-        <a href="{{ route('setup.index') }}" class="font-medium text-brand-700 hover:text-brand-800">Request another code</a>
+        <a wire:navigate.hover href="{{ route('setup.index') }}" class="font-medium text-brand-700 hover:text-brand-800">Request another code</a>
     </p>
 @endsection

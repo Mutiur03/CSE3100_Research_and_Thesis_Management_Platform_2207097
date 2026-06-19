@@ -80,13 +80,13 @@
                 </div>
 
                 <div class="relative">
-                    <button type="button" onclick="this.parentElement.classList.toggle('dropdown-open')" class="flex items-center gap-2 rounded border border-stone-200 bg-white py-1.5 pl-1.5 pr-2.5 text-sm hover:bg-stone-50">
+                    <button type="button" data-dropdown-toggle class="flex items-center gap-2 rounded border border-stone-200 bg-white py-1.5 pl-1.5 pr-2.5 text-sm hover:bg-stone-50">
                         <img src="{{ auth()->user()->avatar_url }}" alt="" class="h-7 w-7 rounded object-cover">
                         <span class="hidden font-medium text-stone-700 sm:inline">{{ auth()->user()->name }}</span>
                         <svg class="h-4 w-4 text-stone-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" /></svg>
                     </button>
                     <div class="absolute right-0 z-50 mt-1 hidden w-48 rounded border border-stone-200 bg-white py-1 shadow-lg dropdown-open:block">
-                        <a href="{{ route('profile.show') }}" class="block px-4 py-2 text-sm text-stone-700 hover:bg-stone-50">Profile settings</a>
+                        <a wire:navigate.hover href="{{ route('profile.show') }}" class="block px-4 py-2 text-sm text-stone-700 hover:bg-stone-50">Profile settings</a>
                         <hr class="my-1 border-stone-100">
                         <x-logout-button />
                     </div>
@@ -114,13 +114,20 @@
     </div>
 
     <script>
-        document.getElementById('sidebar-toggle')?.addEventListener('click', function () {
-            const sidebar = document.getElementById('sidebar');
-            sidebar.classList.toggle('hidden');
-            sidebar.classList.toggle('flex');
-        });
-
         document.addEventListener('click', function (e) {
+            const dropdownToggle = e.target.closest('[data-dropdown-toggle]');
+            if (dropdownToggle) {
+                dropdownToggle.parentElement?.classList.toggle('dropdown-open');
+                return;
+            }
+
+            if (e.target.closest('#sidebar-toggle')) {
+                const sidebar = document.getElementById('sidebar');
+                sidebar?.classList.toggle('hidden');
+                sidebar?.classList.toggle('flex');
+                return;
+            }
+
             document.querySelectorAll('.dropdown-open').forEach(function (dropdown) {
                 if (!dropdown.contains(e.target)) {
                     dropdown.classList.remove('dropdown-open');

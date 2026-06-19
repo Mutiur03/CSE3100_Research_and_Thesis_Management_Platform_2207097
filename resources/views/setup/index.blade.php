@@ -36,7 +36,7 @@
 
             <p class="text-center text-sm text-stone-500">
                 Already have a code?
-                <a href="{{ route('setup.complete') }}" class="font-medium text-brand-700 hover:text-brand-800">Complete setup</a>
+                <a wire:navigate.hover href="{{ route('setup.complete') }}" class="font-medium text-brand-700 hover:text-brand-800">Complete setup</a>
             </p>
         </div>
     @endif

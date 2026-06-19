@@ -90,7 +90,7 @@
     </div>
 
     <div class="flex justify-end gap-3">
-        <a href="{{ $department ? route('admin.departments.show', $department) : route('admin.departments.index') }}" class="btn-secondary">Cancel</a>
+        <a wire:navigate.hover href="{{ $department ? route('admin.departments.show', $department) : route('admin.departments.index') }}" class="btn-secondary">Cancel</a>
         <button type="submit" class="btn-primary">{{ $department ? 'Save changes' : 'Create department' }}</button>
     </div>
 </form>
