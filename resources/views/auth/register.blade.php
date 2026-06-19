@@ -65,6 +65,23 @@
             @enderror
         </div>
 
+        @if($departments->isNotEmpty())
+            <div>
+                <label for="department_id" class="field-label">Department</label>
+                <select name="department_id" id="department_id" class="select-field @error('department_id') input-error @enderror">
+                    <option value="">Select department (optional)</option>
+                    @foreach($departments as $department)
+                        <option value="{{ $department->id }}" {{ (string) old('department_id') === (string) $department->id ? 'selected' : '' }}>
+                            {{ $department->display_name }}
+                        </option>
+                    @endforeach
+                </select>
+                @error('department_id')
+                    <p class="field-error">{{ $message }}</p>
+                @enderror
+            </div>
+        @endif
+
         <div>
             <label for="password" class="field-label">Password</label>
             <input

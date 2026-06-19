@@ -18,10 +18,5 @@
         </button>
     </form>
 
-    <form method="POST" action="{{ route('logout') }}" class="mt-3">
-        @csrf
-        <button type="submit" class="btn-secondary w-full">
-            Sign out
-        </button>
-    </form>
+    <x-logout-button class="btn-secondary mt-3 w-full text-center" label="Sign out" />
 @endsection

@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\RegisterRequest;
+use App\Models\Department;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
@@ -18,7 +18,9 @@ class RegisterController extends Controller
      */
     public function showRegistrationForm(): View
     {
-        return view('auth.register');
+        return view('auth.register', [
+            'departments' => Department::query()->orderBy('name')->get(),
+        ]);
     }
 
     /**
@@ -31,6 +33,7 @@ class RegisterController extends Controller
             'email' => $request->email,
             'password' => $request->password,
             'role' => $request->role,
+            'department_id' => $request->input('department_id'),
         ]);
 
         event(new Registered($user));

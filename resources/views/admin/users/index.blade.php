@@ -6,7 +6,7 @@
     <div class="page-shell">
         <header class="page-header">
             <h2 class="page-title">User management</h2>
-            <p class="page-lead">Manage student, supervisor, and reviewer accounts. Administrators are provisioned through platform setup only.</p>
+            <p class="page-lead">Manage platform accounts. Promote a user to administrator from their edit page when needed.</p>
         </header>
 
         <div class="card mb-6">
@@ -32,9 +32,20 @@
                             @endforeach
                         </select>
                     </div>
+                    <div class="w-full sm:w-44">
+                        <label for="department_id" class="field-label">Department</label>
+                        <select name="department_id" id="department_id" class="select-field">
+                            <option value="">All departments</option>
+                            @foreach($departments as $department)
+                                <option value="{{ $department->id }}" {{ (string) $departmentFilter === (string) $department->id ? 'selected' : '' }}>
+                                    {{ $department->code }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
                     <div class="flex gap-2">
                         <button type="submit" class="btn-primary">Apply</button>
-                        @if($search || $roleFilter)
+                        @if($search || $roleFilter || $departmentFilter)
                             <a href="{{ route('admin.users.index') }}" class="btn-secondary">Clear</a>
                         @endif
                     </div>
@@ -49,6 +60,7 @@
                         <tr>
                             <th class="px-6 py-3">User</th>
                             <th class="px-6 py-3">Role</th>
+                            <th class="px-6 py-3">Department</th>
                             <th class="px-6 py-3">Status</th>
                             <th class="px-6 py-3">Joined</th>
                             <th class="px-6 py-3">Last login</th>
@@ -69,6 +81,9 @@
                                 </td>
                                 <td class="whitespace-nowrap px-6 py-4">
                                     <x-role-badge :role="$u->role" />
+                                </td>
+                                <td class="whitespace-nowrap px-6 py-4 text-stone-600">
+                                    {{ $u->department?->code ?? '—' }}
                                 </td>
                                 <td class="whitespace-nowrap px-6 py-4">
                                     @if($u->is_active)
@@ -93,7 +108,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="px-6 py-16 text-center">
+                                <td colspan="7" class="px-6 py-16 text-center">
                                     <p class="text-sm font-medium text-stone-700">No users found</p>
                                     <p class="mt-1 text-sm text-stone-500">Try adjusting your search or filters.</p>
                                 </td>

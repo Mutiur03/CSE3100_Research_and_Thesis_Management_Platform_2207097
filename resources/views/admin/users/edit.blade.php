@@ -11,7 +11,7 @@
 
         <header class="page-header">
             <h2 class="page-title">Edit user</h2>
-            <p class="page-lead">Update role and account status for {{ $user->name }}.</p>
+            <p class="page-lead">Update role, department, and account status for {{ $user->name }}.</p>
         </header>
 
         <div class="card mb-6">
@@ -37,13 +37,45 @@
                     <div>
                         <label for="role" class="field-label">Role</label>
                         <select name="role" id="role" class="select-field @error('role') input-error @enderror">
-                            @foreach(\App\Enums\UserRole::manageableCases() as $roleOption)
+                            @foreach(\App\Enums\UserRole::cases() as $roleOption)
                                 <option value="{{ $roleOption->value }}" {{ old('role', $user->role->value) === $roleOption->value ? 'selected' : '' }}>
                                     {{ $roleOption->label() }}
                                 </option>
                             @endforeach
                         </select>
+                        <p class="field-hint">Select Administrator to grant full platform access. The user must already have an account.</p>
                         @error('role')
+                            <p class="field-error">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div id="admin-promotion-confirm" class="{{ old('role', $user->role->value) === 'admin' ? '' : 'hidden' }} rounded border border-amber-200 bg-amber-50 px-4 py-3">
+                        <label class="flex cursor-pointer items-start gap-3 text-sm text-amber-950">
+                            <input
+                                type="checkbox"
+                                name="confirm_admin_promotion"
+                                value="1"
+                                class="mt-0.5 text-navy-800 focus:ring-navy-700/20"
+                                {{ old('confirm_admin_promotion') ? 'checked' : '' }}
+                            >
+                            <span>I confirm this user should receive administrator access.</span>
+                        </label>
+                        @error('confirm_admin_promotion')
+                            <p class="field-error mt-2">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label for="department_id" class="field-label">Department</label>
+                        <select name="department_id" id="department_id" class="select-field @error('department_id') input-error @enderror">
+                            <option value="">No department</option>
+                            @foreach($departments as $department)
+                                <option value="{{ $department->id }}" {{ (string) old('department_id', $user->department_id) === (string) $department->id ? 'selected' : '' }}>
+                                    {{ $department->display_name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('department_id')
                             <p class="field-error">{{ $message }}</p>
                         @enderror
                     </div>
@@ -73,4 +105,14 @@
             </div>
         </form>
     </div>
+
+    @push('scripts')
+    <script>
+        document.getElementById('role')?.addEventListener('change', function () {
+            const panel = document.getElementById('admin-promotion-confirm');
+            if (!panel) return;
+            panel.classList.toggle('hidden', this.value !== 'admin');
+        });
+    </script>
+    @endpush
 @endsection

@@ -12,7 +12,7 @@ class RoleMiddleware
     /**
      * Handle an incoming request.
      *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * @param  Closure(Request): (Response)  $next
      * @param  string  ...$roles  One or more role values (e.g. 'admin', 'supervisor')
      */
     public function handle(Request $request, Closure $next, string ...$roles): Response

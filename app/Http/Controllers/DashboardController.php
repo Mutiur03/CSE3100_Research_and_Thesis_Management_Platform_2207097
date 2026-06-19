@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Department;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -20,6 +21,7 @@ class DashboardController extends Controller
             $stats = [
                 'total_users' => User::count(),
                 'active_users' => User::where('is_active', true)->count(),
+                'total_departments' => Department::count(),
             ];
         }
 

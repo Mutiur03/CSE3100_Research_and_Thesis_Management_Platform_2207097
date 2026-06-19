@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\DepartmentController as AdminDepartmentController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
@@ -89,5 +90,13 @@ Route::middleware(['auth', 'verified', 'active'])->group(function () {
         Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
         Route::get('/users/{user}/edit', [AdminUserController::class, 'edit'])->name('users.edit');
         Route::put('/users/{user}', [AdminUserController::class, 'update'])->name('users.update');
+
+        Route::get('/departments', [AdminDepartmentController::class, 'index'])->name('departments.index');
+        Route::get('/departments/create', [AdminDepartmentController::class, 'create'])->name('departments.create');
+        Route::post('/departments', [AdminDepartmentController::class, 'store'])->name('departments.store');
+        Route::get('/departments/{department}', [AdminDepartmentController::class, 'show'])->name('departments.show');
+        Route::get('/departments/{department}/edit', [AdminDepartmentController::class, 'edit'])->name('departments.edit');
+        Route::put('/departments/{department}', [AdminDepartmentController::class, 'update'])->name('departments.update');
+        Route::delete('/departments/{department}', [AdminDepartmentController::class, 'destroy'])->name('departments.destroy');
     });
 });

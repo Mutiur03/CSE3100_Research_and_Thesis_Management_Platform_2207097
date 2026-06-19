@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\UpdateUserRoleRequest;
-use App\Enums\UserRole;
+use App\Models\Department;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -19,6 +20,7 @@ class UserController extends Controller
     {
         $this->authorize('viewAny', User::class);
         $query = User::query()
+            ->with('department')
             ->where('role', '!=', UserRole::Admin)
             ->orderBy('name');
 
@@ -26,7 +28,7 @@ class UserController extends Controller
         if ($search = $request->input('search')) {
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
+                    ->orWhere('email', 'like', "%{$search}%");
             });
         }
 
@@ -35,12 +37,19 @@ class UserController extends Controller
             $query->where('role', $role);
         }
 
+        // Department filter
+        if ($departmentId = $request->input('department_id')) {
+            $query->where('department_id', $departmentId);
+        }
+
         $users = $query->paginate(15)->withQueryString();
 
         return view('admin.users.index', [
             'users' => $users,
             'search' => $search,
             'roleFilter' => $role,
+            'departmentFilter' => $departmentId,
+            'departments' => Department::query()->orderBy('name', 'asc')->get(),
         ]);
     }
 
@@ -52,7 +61,8 @@ class UserController extends Controller
         $this->authorize('manageRole', $user);
 
         return view('admin.users.edit', [
-            'user' => $user,
+            'user' => $user->load('department'),
+            'departments' => Department::query()->orderBy('name', 'asc')->get(),
         ]);
     }
 
@@ -68,12 +78,27 @@ class UserController extends Controller
                 ->withErrors(['is_active' => 'You cannot deactivate your own account.']);
         }
 
+        if ($request->user()->is($user) && $request->role !== $user->role->value) {
+            return back()
+                ->withInput()
+                ->withErrors(['role' => 'You cannot change your own role.']);
+        }
+
         $user->update([
             'role' => $request->role,
             'is_active' => $request->boolean('is_active'),
+            'department_id' => $request->input('department_id'),
         ]);
 
+        if ($user->isAdmin() && $user->email_verified_at === null) {
+            $user->forceFill(['email_verified_at' => now()])->save();
+        }
+
+        $message = $user->isAdmin()
+            ? "User \"{$user->name}\" promoted to administrator successfully."
+            : "User \"{$user->name}\" updated successfully.";
+
         return redirect()->route('admin.users.index')
-            ->with('success', "User \"{$user->name}\" updated successfully.");
+            ->with('success', $message);
     }
 }

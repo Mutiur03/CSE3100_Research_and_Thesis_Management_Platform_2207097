@@ -57,7 +57,7 @@
                         <p class="stat-label">Total Projects</p>
                     </div>
                     <div class="stat-card">
-                        <p class="stat-value">0</p>
+                        <p class="stat-value">{{ $stats['total_departments'] }}</p>
                         <p class="stat-label">Departments</p>
                     </div>
                 @endif
@@ -94,6 +94,13 @@
                         <div>
                             <p class="font-medium text-stone-800">Manage users</p>
                             <p class="text-stone-500">Roles, access, and account status</p>
+                        </div>
+                        <svg class="h-4 w-4 text-stone-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" /></svg>
+                    </a>
+                    <a href="{{ route('admin.departments.index') }}" class="flex items-center justify-between px-6 py-4 text-sm transition-colors hover:bg-stone-50">
+                        <div>
+                            <p class="font-medium text-stone-800">Manage departments</p>
+                            <p class="text-stone-500">Create departments and assign heads</p>
                         </div>
                         <svg class="h-4 w-4 text-stone-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" /></svg>
                     </a>

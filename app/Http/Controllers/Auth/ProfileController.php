@@ -17,7 +17,7 @@ class ProfileController extends Controller
     public function show(Request $request): View
     {
         return view('profile.show', [
-            'user' => $request->user(),
+            'user' => $request->user()->load('department'),
         ]);
     }
 
@@ -43,7 +43,7 @@ class ProfileController extends Controller
             }
 
             $path = $request->file('avatar')->store(
-                'avatars/' . $user->id,
+                'avatars/'.$user->id,
                 'public'
             );
 

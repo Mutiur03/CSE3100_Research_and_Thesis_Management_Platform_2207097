@@ -47,7 +47,7 @@ class AdminSetupService
         $visible = Str::substr($local, 0, 1);
         $hiddenLength = max(strlen($local) - 1, 3);
 
-        return $visible . str_repeat('*', $hiddenLength) . '@' . $domain;
+        return $visible.str_repeat('*', $hiddenLength).'@'.$domain;
     }
 
     public function sendSetupCode(): void

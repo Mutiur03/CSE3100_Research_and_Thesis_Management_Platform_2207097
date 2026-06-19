@@ -63,17 +63,13 @@ enum UserRole: string
 
     /**
      * Roles that can be assigned from the admin user management panel.
-     * Administrators are created only through the initial /setup flow.
+     * Includes administrator for promotion by an existing admin.
      *
      * @return array<string>
      */
     public static function assignableByAdminValues(): array
     {
-        return [
-            self::Student->value,
-            self::Supervisor->value,
-            self::Reviewer->value,
-        ];
+        return array_column(self::cases(), 'value');
     }
 
     /**

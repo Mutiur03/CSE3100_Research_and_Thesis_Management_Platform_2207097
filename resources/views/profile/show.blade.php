@@ -57,6 +57,14 @@
                     </div>
 
                     <div>
+                        <span class="field-label">Department</span>
+                        <p class="mt-1.5 text-sm text-stone-700">
+                            {{ $user->department?->display_name ?? 'Not assigned' }}
+                        </p>
+                        <p class="field-hint">Contact an administrator to change your department.</p>
+                    </div>
+
+                    <div>
                         <label for="phone" class="field-label">Phone number</label>
                         <input type="tel" name="phone" id="phone" value="{{ old('phone', $user->phone) }}" class="input-field @error('phone') input-error @enderror" placeholder="+880 1XXX-XXXXXX">
                         @error('phone')

@@ -19,7 +19,7 @@ class AdminSetupCodeMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: config('app.name') . ' — Administrator Setup Code',
+            subject: config('app.name').' — Administrator Setup Code',
         );
     }
 
