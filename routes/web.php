@@ -10,6 +10,8 @@ use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Auth\VerificationController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Setup\SetupController;
+use App\Http\Controllers\Student\ProposalController as StudentProposalController;
+use App\Http\Controllers\Supervisor\ProposalController as SupervisorProposalController;
 use Illuminate\Support\Facades\Route;
 
 // ──────────────────────────────────────────────
@@ -81,6 +83,25 @@ Route::middleware(['auth', 'verified', 'active'])->group(function () {
     // Profile
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+
+    // Student proposals
+    Route::middleware('role:student')->prefix('student')->name('student.')->group(function () {
+        Route::get('/proposals', [StudentProposalController::class, 'index'])->name('proposals.index');
+        Route::get('/proposals/create', [StudentProposalController::class, 'create'])->name('proposals.create');
+        Route::post('/proposals', [StudentProposalController::class, 'store'])->name('proposals.store');
+        Route::get('/proposals/{proposal}', [StudentProposalController::class, 'show'])->name('proposals.show');
+        Route::get('/proposals/{proposal}/edit', [StudentProposalController::class, 'edit'])->name('proposals.edit');
+        Route::put('/proposals/{proposal}', [StudentProposalController::class, 'update'])->name('proposals.update');
+        Route::delete('/proposals/{proposal}', [StudentProposalController::class, 'destroy'])->name('proposals.destroy');
+        Route::post('/proposals/{proposal}/submit', [StudentProposalController::class, 'submit'])->name('proposals.submit');
+    });
+
+    // Supervisor proposal reviews
+    Route::middleware('role:supervisor')->prefix('supervisor')->name('supervisor.')->group(function () {
+        Route::get('/proposals', [SupervisorProposalController::class, 'index'])->name('proposals.index');
+        Route::get('/proposals/{proposal}', [SupervisorProposalController::class, 'show'])->name('proposals.show');
+        Route::post('/proposals/{proposal}/review', [SupervisorProposalController::class, 'review'])->name('proposals.review');
+    });
 
     // ──────────────────────────────────────────
     // Admin Routes

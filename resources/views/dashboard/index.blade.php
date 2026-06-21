@@ -17,10 +17,10 @@
             <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 @if($user->isStudent())
                     @foreach([
-                        ['My Proposals', 0],
-                        ['Active Projects', 0],
+                        ['My Proposals', $stats['my_proposals'] ?? 0],
+                        ['Pending Review', $stats['pending_review'] ?? 0],
+                        ['Approved', $stats['approved_proposals'] ?? 0],
                         ['Milestones Due', 0],
-                        ['Upcoming Meetings', 0],
                     ] as [$label, $value])
                         <div class="stat-card">
                             <p class="stat-value">{{ $value }}</p>
@@ -31,10 +31,10 @@
 
                 @if($user->isSupervisor())
                     @foreach([
-                        ['My Students', 0],
-                        ['Pending Reviews', 0],
+                        ['Pending Reviews', $stats['pending_reviews'] ?? 0],
+                        ['Supervised Proposals', $stats['supervised_proposals'] ?? 0],
+                        ['Approved', $stats['approved_proposals'] ?? 0],
                         ['Active Projects', 0],
-                        ['Supervision Requests', 0],
                     ] as [$label, $value])
                         <div class="stat-card">
                             <p class="stat-value">{{ $value }}</p>
@@ -53,8 +53,8 @@
                         <p class="stat-label">Active Accounts</p>
                     </div>
                     <div class="stat-card">
-                        <p class="stat-value">0</p>
-                        <p class="stat-label">Total Projects</p>
+                        <p class="stat-value">{{ $stats['total_proposals'] ?? 0 }}</p>
+                        <p class="stat-label">Total Proposals</p>
                     </div>
                     <div class="stat-card">
                         <p class="stat-value">{{ $stats['total_departments'] }}</p>
@@ -88,6 +88,26 @@
                     </div>
                     <svg class="h-4 w-4 text-stone-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" /></svg>
                 </a>
+
+                @if($user->isStudent())
+                    <a wire:navigate.hover href="{{ route('student.proposals.index') }}" class="flex items-center justify-between px-6 py-4 text-sm transition-colors hover:bg-stone-50">
+                        <div>
+                            <p class="font-medium text-stone-800">My proposals</p>
+                            <p class="text-stone-500">Create drafts and submit for supervisor review</p>
+                        </div>
+                        <svg class="h-4 w-4 text-stone-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" /></svg>
+                    </a>
+                @endif
+
+                @if($user->isSupervisor())
+                    <a wire:navigate.hover href="{{ route('supervisor.proposals.index') }}" class="flex items-center justify-between px-6 py-4 text-sm transition-colors hover:bg-stone-50">
+                        <div>
+                            <p class="font-medium text-stone-800">Review proposals</p>
+                            <p class="text-stone-500">Approve, reject, or request revisions</p>
+                        </div>
+                        <svg class="h-4 w-4 text-stone-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" /></svg>
+                    </a>
+                @endif
 
                 @if($user->isAdmin())
                     <a wire:navigate.hover href="{{ route('admin.users.index') }}" class="flex items-center justify-between px-6 py-4 text-sm transition-colors hover:bg-stone-50">

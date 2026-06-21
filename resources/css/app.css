@@ -162,7 +162,7 @@
 /* ── Auth panel ─────────────────────────────── */
 
 @utility auth-panel {
-    @apply relative flex min-h-screen flex-col justify-between bg-navy-900 px-10 py-12 text-white lg:px-14;
+    @apply relative hidden min-h-screen flex-col overflow-hidden bg-navy-900 text-white lg:flex lg:flex-1;
 }
 
 @utility auth-form-wrap {
