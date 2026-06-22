@@ -43,6 +43,15 @@
             </div>
         @endif
 
+        @if($proposal->status === \App\Enums\ProposalStatus::Approved && $proposal->thesis)
+            <div class="mb-6 space-y-2">
+                <x-alert type="success" message="Your proposal was approved. A thesis project has been created for you." />
+                <a wire:navigate.hover href="{{ route('student.theses.show', $proposal->thesis) }}" class="inline-flex text-sm font-medium text-emerald-800 hover:text-emerald-900">
+                    View thesis project →
+                </a>
+            </div>
+        @endif
+
         <div class="grid gap-6 lg:grid-cols-3">
             <div class="space-y-6 lg:col-span-2">
                 <div class="card">

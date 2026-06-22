@@ -113,6 +113,16 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Proposal::class, 'supervisor_id');
     }
 
+    public function thesesAsStudent(): HasMany
+    {
+        return $this->hasMany(Thesis::class, 'student_id');
+    }
+
+    public function thesesAsSupervisor(): HasMany
+    {
+        return $this->hasMany(Thesis::class, 'supervisor_id');
+    }
+
     // ──────────────────────────────────────────────
     // Accessors
     // ──────────────────────────────────────────────

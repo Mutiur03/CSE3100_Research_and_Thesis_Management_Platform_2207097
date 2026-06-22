@@ -7,6 +7,7 @@ use Database\Factories\ProposalFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * @mixin IdeHelperProposal
@@ -58,6 +59,11 @@ class Proposal extends Model
     public function department(): BelongsTo
     {
         return $this->belongsTo(Department::class);
+    }
+
+    public function thesis(): HasOne
+    {
+        return $this->hasOne(Thesis::class);
     }
 
     public function isEditable(): bool

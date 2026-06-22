@@ -19,8 +19,8 @@
                     @foreach([
                         ['My Proposals', $stats['my_proposals'] ?? 0],
                         ['Pending Review', $stats['pending_review'] ?? 0],
-                        ['Approved', $stats['approved_proposals'] ?? 0],
-                        ['Milestones Due', 0],
+                        ['Milestones Due', $stats['milestones_due'] ?? 0],
+                        ['Active Theses', $stats['active_theses'] ?? 0],
                     ] as [$label, $value])
                         <div class="stat-card">
                             <p class="stat-value">{{ $value }}</p>
@@ -33,8 +33,8 @@
                     @foreach([
                         ['Pending Reviews', $stats['pending_reviews'] ?? 0],
                         ['Supervised Proposals', $stats['supervised_proposals'] ?? 0],
-                        ['Approved', $stats['approved_proposals'] ?? 0],
-                        ['Active Projects', 0],
+                        ['Overdue Milestones', $stats['overdue_milestones'] ?? 0],
+                        ['Active Projects', $stats['active_projects'] ?? 0],
                     ] as [$label, $value])
                         <div class="stat-card">
                             <p class="stat-value">{{ $value }}</p>
@@ -55,6 +55,10 @@
                     <div class="stat-card">
                         <p class="stat-value">{{ $stats['total_proposals'] ?? 0 }}</p>
                         <p class="stat-label">Total Proposals</p>
+                    </div>
+                    <div class="stat-card">
+                        <p class="stat-value">{{ $stats['active_theses'] ?? 0 }}</p>
+                        <p class="stat-label">Active Theses</p>
                     </div>
                     <div class="stat-card">
                         <p class="stat-value">{{ $stats['total_departments'] }}</p>
@@ -97,6 +101,13 @@
                         </div>
                         <svg class="h-4 w-4 text-stone-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" /></svg>
                     </a>
+                    <a wire:navigate.hover href="{{ route('student.theses.index') }}" class="flex items-center justify-between px-6 py-4 text-sm transition-colors hover:bg-stone-50">
+                        <div>
+                            <p class="font-medium text-stone-800">My theses</p>
+                            <p class="text-stone-500">Track active research projects</p>
+                        </div>
+                        <svg class="h-4 w-4 text-stone-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" /></svg>
+                    </a>
                 @endif
 
                 @if($user->isSupervisor())
@@ -104,6 +115,13 @@
                         <div>
                             <p class="font-medium text-stone-800">Review proposals</p>
                             <p class="text-stone-500">Approve, reject, or request revisions</p>
+                        </div>
+                        <svg class="h-4 w-4 text-stone-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" /></svg>
+                    </a>
+                    <a wire:navigate.hover href="{{ route('supervisor.theses.index') }}" class="flex items-center justify-between px-6 py-4 text-sm transition-colors hover:bg-stone-50">
+                        <div>
+                            <p class="font-medium text-stone-800">Supervised theses</p>
+                            <p class="text-stone-500">View active student research projects</p>
                         </div>
                         <svg class="h-4 w-4 text-stone-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" /></svg>
                     </a>

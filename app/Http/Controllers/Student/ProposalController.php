@@ -9,6 +9,7 @@ use App\Http\Requests\Proposal\StoreProposalRequest;
 use App\Http\Requests\Proposal\UpdateProposalRequest;
 use App\Models\Proposal;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -61,7 +62,7 @@ class ProposalController extends Controller
     {
         $this->authorize('view', $proposal);
 
-        $proposal->load(['supervisor', 'department']);
+        $proposal->load(['supervisor', 'department', 'thesis']);
 
         return view('student.proposals.show', [
             'proposal' => $proposal,
@@ -114,7 +115,7 @@ class ProposalController extends Controller
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Collection<int, User>
+     * @return Collection<int, User>
      */
     private function availableSupervisors()
     {

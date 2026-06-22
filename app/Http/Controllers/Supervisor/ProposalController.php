@@ -6,6 +6,7 @@ use App\Enums\ProposalStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Supervisor\ReviewProposalRequest;
 use App\Models\Proposal;
+use App\Models\Thesis;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -48,7 +49,7 @@ class ProposalController extends Controller
             $proposal->update(['status' => ProposalStatus::UnderReview]);
         }
 
-        $proposal->load(['student', 'department']);
+        $proposal->load(['student', 'department', 'thesis']);
 
         return view('supervisor.proposals.show', [
             'proposal' => $proposal->fresh(),
@@ -70,6 +71,10 @@ class ProposalController extends Controller
             'review_notes' => $request->input('review_notes'),
             'reviewed_at' => now(),
         ]);
+
+        if ($status === ProposalStatus::Approved) {
+            Thesis::createFromApprovedProposal($proposal->fresh());
+        }
 
         $message = match ($status) {
             ProposalStatus::Approved => 'Proposal approved successfully.',

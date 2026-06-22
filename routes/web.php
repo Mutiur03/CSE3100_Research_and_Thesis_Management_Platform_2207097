@@ -10,8 +10,12 @@ use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Auth\VerificationController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Setup\SetupController;
+use App\Http\Controllers\Student\MilestoneController as StudentMilestoneController;
 use App\Http\Controllers\Student\ProposalController as StudentProposalController;
+use App\Http\Controllers\Student\ThesisController as StudentThesisController;
+use App\Http\Controllers\Supervisor\MilestoneController as SupervisorMilestoneController;
 use App\Http\Controllers\Supervisor\ProposalController as SupervisorProposalController;
+use App\Http\Controllers\Supervisor\ThesisController as SupervisorThesisController;
 use Illuminate\Support\Facades\Route;
 
 // ──────────────────────────────────────────────
@@ -94,6 +98,10 @@ Route::middleware(['auth', 'verified', 'active'])->group(function () {
         Route::put('/proposals/{proposal}', [StudentProposalController::class, 'update'])->name('proposals.update');
         Route::delete('/proposals/{proposal}', [StudentProposalController::class, 'destroy'])->name('proposals.destroy');
         Route::post('/proposals/{proposal}/submit', [StudentProposalController::class, 'submit'])->name('proposals.submit');
+
+        Route::get('/theses', [StudentThesisController::class, 'index'])->name('theses.index');
+        Route::get('/theses/{thesis}', [StudentThesisController::class, 'show'])->name('theses.show');
+        Route::post('/theses/{thesis}/milestones/{milestone}/complete', [StudentMilestoneController::class, 'complete'])->name('theses.milestones.complete');
     });
 
     // Supervisor proposal reviews
@@ -101,6 +109,12 @@ Route::middleware(['auth', 'verified', 'active'])->group(function () {
         Route::get('/proposals', [SupervisorProposalController::class, 'index'])->name('proposals.index');
         Route::get('/proposals/{proposal}', [SupervisorProposalController::class, 'show'])->name('proposals.show');
         Route::post('/proposals/{proposal}/review', [SupervisorProposalController::class, 'review'])->name('proposals.review');
+
+        Route::get('/theses', [SupervisorThesisController::class, 'index'])->name('theses.index');
+        Route::get('/theses/{thesis}', [SupervisorThesisController::class, 'show'])->name('theses.show');
+        Route::post('/theses/{thesis}/milestones', [SupervisorMilestoneController::class, 'store'])->name('theses.milestones.store');
+        Route::put('/theses/{thesis}/milestones/{milestone}', [SupervisorMilestoneController::class, 'update'])->name('theses.milestones.update');
+        Route::delete('/theses/{thesis}/milestones/{milestone}', [SupervisorMilestoneController::class, 'destroy'])->name('theses.milestones.destroy');
     });
 
     // ──────────────────────────────────────────
