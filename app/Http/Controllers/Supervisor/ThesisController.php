@@ -38,7 +38,7 @@ class ThesisController extends Controller
     {
         $this->authorize('view', $thesis);
 
-        $thesis->load(['student', 'department', 'proposal', 'milestones']);
+        $thesis->load(['student', 'department', 'proposal', 'milestones', 'documents.versions.uploader', 'documents.uploader']);
 
         return view('supervisor.theses.show', [
             'thesis' => $thesis,

@@ -97,6 +97,8 @@
                             </table>
                         </div>
                     @endif
+
+                <x-thesis-documents :thesis="$thesis" route-prefix="student" />
                 </div>
             </div>
 

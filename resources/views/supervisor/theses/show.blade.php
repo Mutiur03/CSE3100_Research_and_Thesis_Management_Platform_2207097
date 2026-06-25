@@ -173,6 +173,8 @@
                             Milestones can only be added while the thesis is active.
                         </div>
                     @endif
+
+                <x-thesis-documents :thesis="$thesis" route-prefix="supervisor" />
                 </div>
             </div>
 

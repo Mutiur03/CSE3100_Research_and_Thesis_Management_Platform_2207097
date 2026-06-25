@@ -13,9 +13,11 @@ use App\Http\Controllers\Setup\SetupController;
 use App\Http\Controllers\Student\MilestoneController as StudentMilestoneController;
 use App\Http\Controllers\Student\ProposalController as StudentProposalController;
 use App\Http\Controllers\Student\ThesisController as StudentThesisController;
+use App\Http\Controllers\Student\ThesisDocumentController as StudentThesisDocumentController;
 use App\Http\Controllers\Supervisor\MilestoneController as SupervisorMilestoneController;
 use App\Http\Controllers\Supervisor\ProposalController as SupervisorProposalController;
 use App\Http\Controllers\Supervisor\ThesisController as SupervisorThesisController;
+use App\Http\Controllers\Supervisor\ThesisDocumentController as SupervisorThesisDocumentController;
 use Illuminate\Support\Facades\Route;
 
 // ──────────────────────────────────────────────
@@ -102,6 +104,9 @@ Route::middleware(['auth', 'verified', 'active'])->group(function () {
         Route::get('/theses', [StudentThesisController::class, 'index'])->name('theses.index');
         Route::get('/theses/{thesis}', [StudentThesisController::class, 'show'])->name('theses.show');
         Route::post('/theses/{thesis}/milestones/{milestone}/complete', [StudentMilestoneController::class, 'complete'])->name('theses.milestones.complete');
+        Route::post('/theses/{thesis}/documents', [StudentThesisDocumentController::class, 'store'])->name('theses.documents.store');
+        Route::post('/theses/{thesis}/documents/{document}/versions', [StudentThesisDocumentController::class, 'storeVersion'])->name('theses.documents.versions.store');
+        Route::get('/theses/{thesis}/documents/{document}/versions/{version}/download', [StudentThesisDocumentController::class, 'download'])->name('theses.documents.versions.download');
     });
 
     // Supervisor proposal reviews
@@ -115,6 +120,9 @@ Route::middleware(['auth', 'verified', 'active'])->group(function () {
         Route::post('/theses/{thesis}/milestones', [SupervisorMilestoneController::class, 'store'])->name('theses.milestones.store');
         Route::put('/theses/{thesis}/milestones/{milestone}', [SupervisorMilestoneController::class, 'update'])->name('theses.milestones.update');
         Route::delete('/theses/{thesis}/milestones/{milestone}', [SupervisorMilestoneController::class, 'destroy'])->name('theses.milestones.destroy');
+        Route::post('/theses/{thesis}/documents', [SupervisorThesisDocumentController::class, 'store'])->name('theses.documents.store');
+        Route::post('/theses/{thesis}/documents/{document}/versions', [SupervisorThesisDocumentController::class, 'storeVersion'])->name('theses.documents.versions.store');
+        Route::get('/theses/{thesis}/documents/{document}/versions/{version}/download', [SupervisorThesisDocumentController::class, 'download'])->name('theses.documents.versions.download');
     });
 
     // ──────────────────────────────────────────

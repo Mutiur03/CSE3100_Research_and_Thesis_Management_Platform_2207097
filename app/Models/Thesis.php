@@ -69,6 +69,11 @@ class Thesis extends Model
         return $this->hasMany(Milestone::class)->orderBy('sort_order')->orderBy('due_date');
     }
 
+    public function documents(): HasMany
+    {
+        return $this->hasMany(ThesisDocument::class)->latest();
+    }
+
     public function isActive(): bool
     {
         return $this->status === ThesisStatus::Active;
