@@ -22,6 +22,7 @@ class MilestoneController extends Controller
             ...$request->validated(),
             'status' => MilestoneStatus::Pending,
             'sort_order' => $sortOrder + 1,
+            'created_by' => $request->user()->id,
         ]);
 
         return redirect()->route('supervisor.theses.show', $thesis)

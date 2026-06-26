@@ -42,6 +42,15 @@ class MilestoneFactory extends Factory
         return $this->state(fn (array $attributes) => [
             'due_date' => fake()->dateTimeBetween('-1 month', '-1 day'),
             'status' => MilestoneStatus::Pending,
+            'progress_percentage' => 0,
+        ]);
+    }
+
+    public function inProgress(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'status' => MilestoneStatus::InProgress,
+            'progress_percentage' => 50,
         ]);
     }
 }

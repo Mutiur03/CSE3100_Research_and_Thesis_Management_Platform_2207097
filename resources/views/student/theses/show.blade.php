@@ -45,61 +45,9 @@
                     </div>
                 @endif
 
-                <div class="card overflow-hidden">
-                    <div class="card-section">
-                        <h3 class="text-sm font-semibold text-stone-900">Milestones</h3>
-                        <p class="mt-0.5 text-sm text-stone-500">Track progress on supervisor-defined deliverables.</p>
-                    </div>
-
-                    @if($thesis->milestones->isEmpty())
-                        <div class="card-body text-sm text-stone-500">
-                            No milestones yet. Your supervisor will add deliverables and due dates here.
-                        </div>
-                    @else
-                        <div class="overflow-x-auto">
-                            <table class="data-table">
-                                <thead class="table-head">
-                                    <tr>
-                                        <th class="px-6 py-3">Milestone</th>
-                                        <th class="px-6 py-3">Due</th>
-                                        <th class="px-6 py-3">Status</th>
-                                        <th class="px-6 py-3 text-right">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-stone-100 bg-white">
-                                    @foreach($thesis->milestones as $milestone)
-                                        <tr class="{{ $milestone->isOverdue() ? 'bg-amber-50/60' : 'hover:bg-stone-50/80' }}">
-                                            <td class="px-6 py-4">
-                                                <p class="font-medium {{ $milestone->isOverdue() ? 'text-amber-900' : 'text-stone-800' }}">{{ $milestone->title }}</p>
-                                                @if($milestone->description)
-                                                    <p class="mt-1 text-sm text-stone-500">{{ $milestone->description }}</p>
-                                                @endif
-                                            </td>
-                                            <td class="whitespace-nowrap px-6 py-4 text-stone-600">
-                                                {{ $milestone->due_date->format('M j, Y') }}
-                                            </td>
-                                            <td class="px-6 py-4">
-                                                <x-milestone-status-badge :status="$milestone->status" :overdue="$milestone->isOverdue()" />
-                                            </td>
-                                            <td class="whitespace-nowrap px-6 py-4 text-right">
-                                                @can('complete', $milestone)
-                                                    <form method="POST" action="{{ route('student.theses.milestones.complete', [$thesis, $milestone]) }}" class="inline" onsubmit="return confirm('Mark this milestone as complete?')">
-                                                        @csrf
-                                                        <button type="submit" class="btn-primary btn-sm">Mark complete</button>
-                                                    </form>
-                                                @elseif($milestone->status === \App\Enums\MilestoneStatus::Completed && $milestone->completed_at)
-                                                    <span class="text-xs text-stone-500">Done {{ $milestone->completed_at->format('M j, Y') }}</span>
-                                                @endif
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    @endif
+                <x-milestone-tracker :thesis="$thesis" route-prefix="student" />
 
                 <x-thesis-documents :thesis="$thesis" route-prefix="student" />
-                </div>
             </div>
 
             <div class="space-y-6">

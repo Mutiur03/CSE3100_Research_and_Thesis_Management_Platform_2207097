@@ -2,10 +2,11 @@
 
 @php
     $statusEnum = $status instanceof \App\Enums\MilestoneStatus ? $status : \App\Enums\MilestoneStatus::from($status);
-    $classes = $overdue && $statusEnum === \App\Enums\MilestoneStatus::Pending
+    $isOpen = in_array($statusEnum, \App\Enums\MilestoneStatus::openCases(), true);
+    $classes = $overdue && $isOpen
         ? 'bg-amber-50 text-amber-900 ring-1 ring-amber-200'
         : $statusEnum->color();
-    $label = $overdue && $statusEnum === \App\Enums\MilestoneStatus::Pending
+    $label = $overdue && $isOpen
         ? 'Overdue'
         : $statusEnum->label();
 @endphp

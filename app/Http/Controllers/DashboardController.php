@@ -36,7 +36,7 @@ class DashboardController extends Controller
                     ->whereIn('status', ThesisStatus::activeCases())
                     ->count(),
                 'milestones_due' => Milestone::query()
-                    ->where('status', MilestoneStatus::Pending)
+                    ->whereIn('status', MilestoneStatus::openCases())
                     ->whereDate('due_date', '<=', now()->addDays(7))
                     ->whereHas('thesis', fn ($query) => $query
                         ->where('student_id', $user->id)
@@ -58,7 +58,7 @@ class DashboardController extends Controller
                     ->whereIn('status', ThesisStatus::activeCases())
                     ->count(),
                 'overdue_milestones' => Milestone::query()
-                    ->where('status', MilestoneStatus::Pending)
+                    ->whereIn('status', MilestoneStatus::openCases())
                     ->whereDate('due_date', '<', now()->startOfDay())
                     ->whereHas('thesis', fn ($query) => $query
                         ->where('supervisor_id', $user->id)

@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Enums\MilestoneStatus;
 use App\Models\Milestone;
 use App\Models\Thesis;
 use App\Models\User;
@@ -27,12 +28,14 @@ class MilestonePolicy
 
     public function update(User $user, Milestone $milestone): bool
     {
-        return $this->create($user, $milestone->thesis);
+        return $this->create($user, $milestone->thesis)
+            && in_array($milestone->status, MilestoneStatus::openCases(), true);
     }
 
     public function delete(User $user, Milestone $milestone): bool
     {
-        return $this->create($user, $milestone->thesis);
+        return $this->create($user, $milestone->thesis)
+            && in_array($milestone->status, MilestoneStatus::openCases(), true);
     }
 
     public function complete(User $user, Milestone $milestone): bool
