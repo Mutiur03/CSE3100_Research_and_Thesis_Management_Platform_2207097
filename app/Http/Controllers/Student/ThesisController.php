@@ -32,6 +32,8 @@ class ThesisController extends Controller
             'supervisor', 'department', 'proposal',
             'milestones.tasks.assignee',
             'milestones.dependency',
+            'meetings.organizer',
+            'meetings.attendees.user',
             'documents.versions.uploader', 'documents.uploader',
         ]);
 

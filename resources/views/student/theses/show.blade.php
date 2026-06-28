@@ -48,6 +48,8 @@
                 <x-milestone-tracker :thesis="$thesis" route-prefix="student" />
 
                 <x-thesis-documents :thesis="$thesis" route-prefix="student" />
+
+                <x-thesis-meetings :thesis="$thesis" route-prefix="student" />
             </div>
 
             <div class="space-y-6">

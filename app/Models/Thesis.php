@@ -74,6 +74,11 @@ class Thesis extends Model
         return $this->hasMany(ThesisDocument::class)->latest();
     }
 
+    public function meetings(): HasMany
+    {
+        return $this->hasMany(Meeting::class)->orderBy('scheduled_at');
+    }
+
     public function isActive(): bool
     {
         return $this->status === ThesisStatus::Active;
