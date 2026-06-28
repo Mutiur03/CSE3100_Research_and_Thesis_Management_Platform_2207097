@@ -14,12 +14,14 @@ use App\Http\Controllers\Student\MilestoneController as StudentMilestoneControll
 use App\Http\Controllers\Student\MilestoneTaskController as StudentMilestoneTaskController;
 use App\Http\Controllers\Student\MeetingController as StudentMeetingController;
 use App\Http\Controllers\Student\ProposalController as StudentProposalController;
+use App\Http\Controllers\Student\ThesisCommentController as StudentThesisCommentController;
 use App\Http\Controllers\Student\ThesisController as StudentThesisController;
 use App\Http\Controllers\Student\ThesisDocumentController as StudentThesisDocumentController;
 use App\Http\Controllers\Supervisor\MilestoneController as SupervisorMilestoneController;
 use App\Http\Controllers\Supervisor\MilestoneTaskController as SupervisorMilestoneTaskController;
 use App\Http\Controllers\Supervisor\MeetingController as SupervisorMeetingController;
 use App\Http\Controllers\Supervisor\ProposalController as SupervisorProposalController;
+use App\Http\Controllers\Supervisor\ThesisCommentController as SupervisorThesisCommentController;
 use App\Http\Controllers\Supervisor\ThesisController as SupervisorThesisController;
 use App\Http\Controllers\Supervisor\ThesisDocumentController as SupervisorThesisDocumentController;
 use Illuminate\Support\Facades\Route;
@@ -110,6 +112,8 @@ Route::middleware(['auth', 'verified', 'active'])->group(function () {
         Route::post('/theses/{thesis}/milestones/{milestone}/complete', [StudentMilestoneController::class, 'complete'])->name('theses.milestones.complete');
         Route::patch('/theses/{thesis}/milestones/{milestone}/tasks/{task}', [StudentMilestoneTaskController::class, 'updateStatus'])->name('theses.milestones.tasks.update-status');
         Route::patch('/theses/{thesis}/meetings/{meeting}/rsvp', [StudentMeetingController::class, 'updateRsvp'])->name('theses.meetings.rsvp');
+        Route::post('/theses/{thesis}/comments', [StudentThesisCommentController::class, 'store'])->name('theses.comments.store');
+        Route::delete('/theses/{thesis}/comments/{comment}', [StudentThesisCommentController::class, 'destroy'])->name('theses.comments.destroy');
         Route::post('/theses/{thesis}/documents', [StudentThesisDocumentController::class, 'store'])->name('theses.documents.store');
         Route::post('/theses/{thesis}/documents/{document}/versions', [StudentThesisDocumentController::class, 'storeVersion'])->name('theses.documents.versions.store');
         Route::get('/theses/{thesis}/documents/{document}/versions/{version}/download', [StudentThesisDocumentController::class, 'download'])->name('theses.documents.versions.download');
@@ -132,6 +136,8 @@ Route::middleware(['auth', 'verified', 'active'])->group(function () {
         Route::post('/theses/{thesis}/meetings', [SupervisorMeetingController::class, 'store'])->name('theses.meetings.store');
         Route::put('/theses/{thesis}/meetings/{meeting}', [SupervisorMeetingController::class, 'update'])->name('theses.meetings.update');
         Route::delete('/theses/{thesis}/meetings/{meeting}', [SupervisorMeetingController::class, 'destroy'])->name('theses.meetings.destroy');
+        Route::post('/theses/{thesis}/comments', [SupervisorThesisCommentController::class, 'store'])->name('theses.comments.store');
+        Route::delete('/theses/{thesis}/comments/{comment}', [SupervisorThesisCommentController::class, 'destroy'])->name('theses.comments.destroy');
         Route::post('/theses/{thesis}/documents', [SupervisorThesisDocumentController::class, 'store'])->name('theses.documents.store');
         Route::post('/theses/{thesis}/documents/{document}/versions', [SupervisorThesisDocumentController::class, 'storeVersion'])->name('theses.documents.versions.store');
         Route::get('/theses/{thesis}/documents/{document}/versions/{version}/download', [SupervisorThesisDocumentController::class, 'download'])->name('theses.documents.versions.download');

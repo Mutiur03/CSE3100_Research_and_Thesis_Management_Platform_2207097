@@ -47,6 +47,8 @@
                 <x-thesis-documents :thesis="$thesis" route-prefix="supervisor" />
 
                 <x-thesis-meetings :thesis="$thesis" route-prefix="supervisor" />
+
+                <x-thesis-discussion :thesis="$thesis" route-prefix="supervisor" />
             </div>
 
             <div class="space-y-6">

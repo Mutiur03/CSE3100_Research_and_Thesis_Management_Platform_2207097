@@ -44,6 +44,11 @@ class ThesisController extends Controller
             'milestones.dependency',
             'meetings.organizer',
             'meetings.attendees.user',
+            'comments' => fn ($query) => $query->topLevel()->visibleTo(auth()->user())->with([
+                'user',
+                'mentions',
+                'replies' => fn ($replyQuery) => $replyQuery->visibleTo(auth()->user())->with(['user', 'mentions']),
+            ]),
             'documents.versions.uploader', 'documents.uploader',
         ]);
 

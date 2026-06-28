@@ -50,6 +50,8 @@
                 <x-thesis-documents :thesis="$thesis" route-prefix="student" />
 
                 <x-thesis-meetings :thesis="$thesis" route-prefix="student" />
+
+                <x-thesis-discussion :thesis="$thesis" route-prefix="student" />
             </div>
 
             <div class="space-y-6">
