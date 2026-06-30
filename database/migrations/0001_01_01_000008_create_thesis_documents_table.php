@@ -37,7 +37,7 @@ return new class extends Migration
             $table->foreignId('uploaded_by')->constrained('users')->restrictOnDelete();
             $table->timestamp('created_at')->useCurrent();
 
-            $table->unique(['thesis_document_id', 'version_number']);
+            $table->unique(['thesis_document_id', 'version_number'], 'tdoc_ver_doc_id_num_unique');
         });
     }
 

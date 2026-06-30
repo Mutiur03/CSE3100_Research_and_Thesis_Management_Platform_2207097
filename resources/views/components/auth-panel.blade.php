@@ -4,11 +4,9 @@
 
     <div class="relative z-10 flex flex-1 items-center px-10 py-12 lg:px-16 xl:px-20">
         <div class="max-w-xl">
-            <div class="mb-12 flex h-12 w-12 items-center justify-center rounded-lg bg-brand-600 shadow-lg shadow-brand-950/50">
-                <svg class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" /></svg>
-            </div>
+            <x-logo size="lg" variant="full" class="mb-12" />
 
-            <p class="text-sm font-medium uppercase tracking-[0.2em] text-brand-300">ResearchHub</p>
+            <p class="text-sm font-medium uppercase tracking-[0.2em] text-brand-300">{{ config('app.name', 'ResearchHub') }}</p>
             <h1 class="mt-4 font-display text-4xl font-normal leading-[1.15] tracking-tight text-white xl:text-5xl">
                 Research &amp; Thesis Management
             </h1>
@@ -34,5 +32,5 @@
         </div>
     </div>
 
-    <p class="relative z-10 shrink-0 border-t border-white/5 px-10 py-6 text-xs text-navy-400 lg:px-16 xl:px-20">&copy; {{ date('Y') }} ResearchHub. Authorized institutional use only.</p>
+    <p class="relative z-10 shrink-0 border-t border-white/5 px-10 py-6 text-xs text-navy-400 lg:px-16 xl:px-20">&copy; {{ date('Y') }} {{ config('app.name', 'ResearchHub') }}. Authorized institutional use only.</p>
 </div>
