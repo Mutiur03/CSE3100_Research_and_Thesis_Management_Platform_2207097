@@ -7,11 +7,16 @@ use App\Models\Thesis;
 use App\Models\ThesisDocument;
 use App\Models\ThesisDocumentVersion;
 use App\Models\User;
+use App\Services\ThesisNotificationService;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 
 class ThesisDocumentService
 {
+    public function __construct(
+        private readonly ThesisNotificationService $notifications,
+    ) {}
+
     /**
      * @param  array{title: string, description?: string|null, category: DocumentCategory|string, change_summary?: string|null}  $data
      */
@@ -34,7 +39,11 @@ class ThesisDocumentService
                 $data['change_summary'] ?? null,
             );
 
-            return $document->fresh(['versions', 'uploader']);
+            $document = $document->fresh(['versions', 'uploader']);
+
+            $this->notifications->notifyDocumentUploaded($thesis, $user, $document);
+
+            return $document;
         });
     }
 
@@ -69,6 +78,12 @@ class ThesisDocumentService
             ]);
 
             $document->update(['current_version' => $versionNumber]);
+
+            $this->notifications->notifyDocumentUploaded(
+                $document->thesis,
+                $user,
+                $document->fresh(),
+            );
 
             return $version;
         });

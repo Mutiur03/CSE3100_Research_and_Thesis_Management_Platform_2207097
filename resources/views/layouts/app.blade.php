@@ -101,8 +101,11 @@
                     </div>
                 </div>
 
-                <div class="relative">
-                    <button type="button" data-dropdown-toggle class="flex items-center gap-2 rounded border border-stone-200 bg-white py-1.5 pl-1.5 pr-2.5 text-sm hover:bg-stone-50">
+                <div class="flex items-center gap-3">
+                    <x-notification-bell :unread-count="auth()->user()->unreadNotificationsCount()" />
+
+                    <div class="relative">
+                        <button type="button" data-dropdown-toggle class="flex items-center gap-2 rounded border border-stone-200 bg-white py-1.5 pl-1.5 pr-2.5 text-sm hover:bg-stone-50">
                         <img src="{{ auth()->user()->avatar_url }}" alt="" class="h-7 w-7 rounded object-cover">
                         <span class="hidden font-medium text-stone-700 sm:inline">{{ auth()->user()->name }}</span>
                         <svg class="h-4 w-4 text-stone-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" /></svg>
@@ -111,6 +114,7 @@
                         <a wire:navigate.hover href="{{ route('profile.show') }}" class="block px-4 py-2 text-sm text-stone-700 hover:bg-stone-50">Profile settings</a>
                         <hr class="my-1 border-stone-100">
                         <x-logout-button />
+                        </div>
                     </div>
                 </div>
             </header>

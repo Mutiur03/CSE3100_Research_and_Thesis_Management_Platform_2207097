@@ -9,10 +9,15 @@ use App\Http\Requests\Meeting\StoreMeetingRequest;
 use App\Http\Requests\Meeting\UpdateMeetingRequest;
 use App\Models\Meeting;
 use App\Models\Thesis;
+use App\Services\ThesisNotificationService;
 use Illuminate\Http\RedirectResponse;
 
 class MeetingController extends Controller
 {
+    public function __construct(
+        private readonly ThesisNotificationService $notifications,
+    ) {}
+
     public function store(StoreMeetingRequest $request, Thesis $thesis): RedirectResponse
     {
         $this->authorize('create', [Meeting::class, $thesis]);
@@ -25,6 +30,8 @@ class MeetingController extends Controller
         ]);
 
         $this->syncDefaultAttendees($meeting, $thesis);
+
+        $this->notifications->notifyMeetingScheduled($meeting->fresh(['thesis.student', 'thesis.supervisor', 'attendees.user']));
 
         return redirect()->route('supervisor.theses.show', $thesis)
             ->with('success', 'Meeting scheduled successfully.');

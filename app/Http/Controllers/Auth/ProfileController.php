@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\UpdateProfileRequest;
+use App\Enums\NotificationCategory;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -18,6 +19,7 @@ class ProfileController extends Controller
     {
         return view('profile.show', [
             'user' => $request->user()->load('department'),
+            'notificationCategories' => NotificationCategory::cases(),
         ]);
     }
 
@@ -51,6 +53,10 @@ class ProfileController extends Controller
         }
 
         $user->update($data);
+
+        $user->syncNotificationPreferences(
+            $request->input('notification_preferences', []),
+        );
 
         return redirect()->route('profile.show')
             ->with('success', 'Profile updated successfully.');

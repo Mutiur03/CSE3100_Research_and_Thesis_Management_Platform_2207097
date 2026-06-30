@@ -9,6 +9,7 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Auth\VerificationController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Setup\SetupController;
 use App\Http\Controllers\Student\MilestoneController as StudentMilestoneController;
 use App\Http\Controllers\Student\MilestoneTaskController as StudentMilestoneTaskController;
@@ -95,6 +96,11 @@ Route::middleware(['auth', 'verified', 'active'])->group(function () {
     // Profile
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+
+    // Notifications
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('/notifications/{notification}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.read-all');
 
     // Student proposals
     Route::middleware('role:student')->prefix('student')->name('student.')->group(function () {

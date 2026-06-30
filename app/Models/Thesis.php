@@ -90,6 +90,13 @@ class Thesis extends Model
         return $this->status === ThesisStatus::Active;
     }
 
+    public function showUrlFor(User $user): string
+    {
+        return $user->isStudent()
+            ? route('student.theses.show', $this)
+            : route('supervisor.theses.show', $this);
+    }
+
     public static function createFromApprovedProposal(Proposal $proposal): self
     {
         if ($proposal->status !== ProposalStatus::Approved) {

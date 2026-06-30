@@ -7,12 +7,17 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Supervisor\ReviewProposalRequest;
 use App\Models\Proposal;
 use App\Models\Thesis;
+use App\Services\ThesisNotificationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class ProposalController extends Controller
 {
+    public function __construct(
+        private readonly ThesisNotificationService $notifications,
+    ) {}
+
     public function index(Request $request): View
     {
         $this->authorize('viewAny', Proposal::class);
@@ -75,6 +80,8 @@ class ProposalController extends Controller
         if ($status === ProposalStatus::Approved) {
             Thesis::createFromApprovedProposal($proposal->fresh());
         }
+
+        $this->notifications->notifyProposalReviewed($proposal->fresh(['student', 'supervisor']));
 
         $message = match ($status) {
             ProposalStatus::Approved => 'Proposal approved successfully.',

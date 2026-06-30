@@ -4,18 +4,23 @@ namespace App\Console\Commands;
 
 use App\Enums\MilestoneStatus;
 use App\Enums\ThesisStatus;
-use App\Mail\MilestoneReminderMail;
 use App\Models\Milestone;
 use App\Models\User;
+use App\Services\ThesisNotificationService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Mail;
 
 class SendMilestoneReminders extends Command
 {
     protected $signature = 'milestones:send-reminders';
 
-    protected $description = 'Email students and supervisors about overdue and upcoming milestones';
+    protected $description = 'Notify students and supervisors about overdue and upcoming milestones';
+
+    public function __construct(
+        private readonly ThesisNotificationService $notifications,
+    ) {
+        parent::__construct();
+    }
 
     public function handle(): int
     {
@@ -59,7 +64,7 @@ class SendMilestoneReminders extends Command
                     return;
                 }
 
-                Mail::to($user)->send(new MilestoneReminderMail($user, $userOverdue, $userDueSoon));
+                $this->notifications->notifyMilestoneReminders($user, $userDueSoon, $userOverdue);
                 $sent++;
             });
 

@@ -9,6 +9,7 @@ use App\Http\Requests\Proposal\StoreProposalRequest;
 use App\Http\Requests\Proposal\UpdateProposalRequest;
 use App\Models\Proposal;
 use App\Models\User;
+use App\Services\ThesisNotificationService;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -16,6 +17,10 @@ use Illuminate\View\View;
 
 class ProposalController extends Controller
 {
+    public function __construct(
+        private readonly ThesisNotificationService $notifications,
+    ) {}
+
     public function index(Request $request): View
     {
         $this->authorize('viewAny', Proposal::class);
@@ -109,6 +114,8 @@ class ProposalController extends Controller
             'reviewed_at' => null,
             'review_notes' => null,
         ]);
+
+        $this->notifications->notifyProposalSubmitted($proposal->fresh(['student', 'supervisor']));
 
         return redirect()->route('student.proposals.show', $proposal)
             ->with('success', 'Proposal submitted to your supervisor for review.');

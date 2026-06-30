@@ -28,6 +28,8 @@ class UpdateProfileRequest extends FormRequest
             'phone' => ['nullable', 'string', 'max:20'],
             'research_interests' => ['nullable', 'string', 'max:1000'],
             'avatar' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'notification_preferences' => ['nullable', 'array'],
+            'notification_preferences.*' => ['nullable', 'boolean'],
         ];
     }
 

@@ -9,6 +9,10 @@ use Illuminate\Support\Collection;
 
 class CommentService
 {
+    public function __construct(
+        private readonly ThesisNotificationService $notifications,
+    ) {}
+
     /**
      * @return Collection<int, User>
      */
@@ -51,7 +55,11 @@ class CommentService
             $comment->mentions()->sync($mentionIds);
         }
 
-        return $comment->load(['user', 'mentions', 'replies.user']);
+        $comment = $comment->load(['user', 'mentions', 'replies.user']);
+
+        $this->notifications->notifyCommentPosted($comment, $thesis);
+
+        return $comment;
     }
 
     public function formatBody(string $body, Thesis $thesis): string
