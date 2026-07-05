@@ -1,59 +1,124 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Research & Thesis Management Platform
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A centralized web platform for managing the full academic thesis lifecycle — from proposal submission through supervision, milestones, document versioning, meetings, discussion, external review, and final submission.
 
-## About Laravel
+Built with **Laravel 12**, **Blade**, **Tailwind CSS**, and **Livewire** (SPA navigation).
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Features
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+| Module | Description |
+|--------|-------------|
+| **Authentication** | Registration, login, email verification, password reset |
+| **Admin setup** | Secure first-admin bootstrap via emailed setup code |
+| **Roles** | Student, Supervisor, Reviewer, Admin |
+| **Proposals** | Students draft and submit; supervisors approve/reject/request revision |
+| **Theses** | Auto-created from approved proposals |
+| **Milestones & tasks** | Supervisor-defined schedule with student completion tracking |
+| **Documents** | Upload and version control (chapters, appendices, final thesis) |
+| **Meetings** | Supervision/committee/defense scheduling with student RSVP |
+| **Discussion** | Threaded comments with @mentions and supervisor private notes |
+| **Notifications** | In-app + email with per-category user preferences |
+| **External review** | Admin/supervisor assigns reviewers; reviewers submit decisions |
+| **Final submission** | Students submit final thesis after uploading a final document |
+| **Admin oversight** | User/department management, thesis status control, reviewer assignment |
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Requirements
 
-## Learning Laravel
+- PHP 8.2+
+- Composer
+- Node.js 18+
+- SQLite (default) or MySQL/PostgreSQL
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+## Quick start (local showcase)
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+```bash
+# 1. Install dependencies
+composer install
+npm install
 
-## Laravel Sponsors
+# 2. Environment
+copy .env.example .env   # Windows
+php artisan key:generate
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+# 3. Database
+php artisan migrate
+php artisan storage:link
 
-### Premium Partners
+# 4. Load demo data (recommended for presentation)
+php artisan db:seed --class=DemoSeeder
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+# 5. Build assets and run
+npm run build
+composer dev
+```
 
-## Contributing
+Open **http://127.0.0.1:8000** and sign in with a demo account below.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### Demo accounts
 
-## Code of Conduct
+All demo accounts use password: **`password`**
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+| Role | Email |
+|------|-------|
+| Admin | `admin@researchhub.test` |
+| Supervisor | `supervisor@researchhub.test` |
+| Student | `student@researchhub.test` |
+| Reviewer | `reviewer@researchhub.test` |
+| Student (pending proposal) | `student2@researchhub.test` |
 
-## Security Vulnerabilities
+> **Note:** Demo seeder creates the admin directly. The `/setup` flow is only needed on a fresh install without demo data.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### Fresh install (without demo seeder)
+
+1. Set `SETUP_ADMIN_EMAIL=your@email.com` in `.env`
+2. Visit `/setup` and request a setup code
+3. With `MAIL_MAILER=log`, find the code in `storage/logs/laravel.log`
+4. Complete admin registration at `/setup/complete`
+
+## Showcase demo script (~12 min)
+
+1. **Admin** — dashboard stats, departments, users, assign reviewer on thesis
+2. **Student** — active thesis, milestones, upload document, submit final thesis
+3. **Supervisor** — review pending proposal (student2), manage milestones/meetings, assign reviewer
+4. **Reviewer** — open assigned review, submit approve/reject/revision decision
+5. **Cross-cutting** — notifications, profile preferences, run `php artisan test`
+
+## Running tests
+
+```bash
+php artisan test
+```
+
+109+ automated feature tests cover auth, proposals, milestones, documents, meetings, comments, notifications, and thesis reviews.
+
+## Scheduled tasks
+
+Milestone reminder emails run daily at 08:00:
+
+```bash
+php artisan milestones:send-reminders
+```
+
+In production, configure a cron entry: `* * * * * php artisan schedule:run`
+
+## Project structure
+
+```
+app/
+├── Enums/           # Status enums (Proposal, Thesis, Review, Milestone, etc.)
+├── Http/Controllers/ # Role-based controllers
+├── Models/          # Eloquent models
+├── Policies/        # Authorization policies
+├── Services/        # Business logic (documents, reviews, notifications)
+└── Notifications/   # In-app + mail notifications
+database/
+├── migrations/      # Schema
+├── factories/       # Test factories
+└── seeders/         # DemoSeeder for showcase
+resources/views/     # Blade templates + components
+tests/Feature/       # Feature tests
+```
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+MIT

@@ -55,6 +55,12 @@
             </div>
 
             <div class="space-y-6">
+                @if($thesis->reviews->isNotEmpty())
+                    <x-thesis-review-summary :thesis="$thesis" />
+                @endif
+
+                <x-thesis-final-submission :thesis="$thesis" />
+
                 <div class="card">
                     <div class="card-section">
                         <h3 class="text-sm font-semibold text-stone-900">Timeline</h3>

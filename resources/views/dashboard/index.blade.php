@@ -61,6 +61,10 @@
                         <p class="stat-label">Active Theses</p>
                     </div>
                     <div class="stat-card">
+                        <p class="stat-value">{{ $stats['pending_reviews'] ?? 0 }}</p>
+                        <p class="stat-label">Pending Reviews</p>
+                    </div>
+                    <div class="stat-card">
                         <p class="stat-value">{{ $stats['total_departments'] }}</p>
                         <p class="stat-label">Departments</p>
                     </div>

@@ -34,6 +34,30 @@
             <div class="space-y-6">
                 <x-thesis-reviewers-panel :thesis="$thesis" :available-reviewers="$availableReviewers" route-prefix="admin" />
 
+                @if($thesis->reviews->isNotEmpty())
+                    <x-thesis-review-summary :thesis="$thesis" />
+                @endif
+
+                <div class="card">
+                    <div class="card-section">
+                        <h3 class="text-sm font-semibold text-stone-900">Project status</h3>
+                        <p class="mt-0.5 text-sm text-stone-500">Administrative control over this thesis.</p>
+                    </div>
+                    <form method="POST" action="{{ route('admin.theses.status.update', $thesis) }}" class="card-body space-y-4">
+                        @csrf
+                        @method('PATCH')
+                        <div>
+                            <label for="status" class="field-label">Status</label>
+                            <select name="status" id="status" required class="select-field">
+                                @foreach(\App\Enums\ThesisStatus::cases() as $status)
+                                    <option value="{{ $status->value }}" @selected($thesis->status === $status)>{{ $status->label() }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <button type="submit" class="btn-primary">Update status</button>
+                    </form>
+                </div>
+
                 <div class="card">
                     <div class="card-section">
                         <h3 class="text-sm font-semibold text-stone-900">Timeline</h3>

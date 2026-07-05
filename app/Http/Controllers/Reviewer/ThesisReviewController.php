@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Reviewer\SubmitThesisReviewRequest;
 use App\Models\ThesisReview;
 use App\Services\ThesisNotificationService;
+use App\Services\ThesisReviewService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -16,6 +17,7 @@ class ThesisReviewController extends Controller
 {
     public function __construct(
         private readonly ThesisNotificationService $notifications,
+        private readonly ThesisReviewService $reviews,
     ) {}
 
     public function index(Request $request): View
@@ -86,6 +88,8 @@ class ThesisReviewController extends Controller
         ]);
 
         $this->notifications->notifyThesisReviewSubmitted($thesisReview->fresh(['thesis.student', 'thesis.supervisor', 'reviewer']));
+
+        $this->reviews->syncThesisAfterReviewSubmission($thesisReview->thesis->fresh('reviews'));
 
         return redirect()->route('reviewer.reviews.index')
             ->with('success', 'Your review has been submitted successfully.');

@@ -2,7 +2,11 @@
 
 namespace App\Models;
 
+use App\Enums\DocumentCategory;
 use App\Enums\ProposalStatus;
+use App\Enums\ThesisReviewDecision;
+use App\Enums\ThesisReviewOutcome;
+use App\Enums\ThesisReviewStatus;
 use App\Enums\ThesisStatus;
 use Database\Factories\ThesisFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -31,6 +35,7 @@ class Thesis extends Model
         'status',
         'started_at',
         'completed_at',
+        'final_submitted_at',
     ];
 
     /**
@@ -42,6 +47,7 @@ class Thesis extends Model
             'status' => ThesisStatus::class,
             'started_at' => 'datetime',
             'completed_at' => 'datetime',
+            'final_submitted_at' => 'datetime',
         ];
     }
 
@@ -93,6 +99,51 @@ class Thesis extends Model
     public function isActive(): bool
     {
         return $this->status === ThesisStatus::Active;
+    }
+
+    public function isFinalSubmitted(): bool
+    {
+        return $this->final_submitted_at !== null;
+    }
+
+    public function hasFinalDocument(): bool
+    {
+        return $this->documents()
+            ->where('category', DocumentCategory::Final)
+            ->exists();
+    }
+
+    public function reviewOutcome(): ?ThesisReviewOutcome
+    {
+        $reviews = $this->relationLoaded('reviews')
+            ? $this->reviews
+            : $this->reviews()->get();
+
+        if ($reviews->isEmpty()) {
+            return null;
+        }
+
+        if ($reviews->contains(fn (ThesisReview $review) => in_array($review->status, ThesisReviewStatus::openCases(), true))) {
+            return $reviews->every(fn (ThesisReview $review) => $review->status === ThesisReviewStatus::Pending)
+                ? ThesisReviewOutcome::Pending
+                : ThesisReviewOutcome::InProgress;
+        }
+
+        $decisions = $reviews->pluck('decision');
+
+        if ($decisions->contains(ThesisReviewDecision::Reject)) {
+            return ThesisReviewOutcome::Rejected;
+        }
+
+        if ($decisions->contains(ThesisReviewDecision::RequestRevision)) {
+            return ThesisReviewOutcome::RevisionNeeded;
+        }
+
+        if ($decisions->every(fn (?ThesisReviewDecision $decision) => $decision === ThesisReviewDecision::Approve)) {
+            return ThesisReviewOutcome::Approved;
+        }
+
+        return ThesisReviewOutcome::Mixed;
     }
 
     public function showUrlFor(User $user): string

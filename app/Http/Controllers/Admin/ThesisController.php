@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Enums\ThesisStatus;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\UpdateThesisStatusRequest;
 use App\Http\Requests\AssignThesisReviewerRequest;
 use App\Models\Thesis;
 use App\Models\ThesisReview;
@@ -89,5 +90,23 @@ class ThesisController extends Controller
 
         return redirect()->route('admin.theses.show', $thesis)
             ->with('success', 'Reviewer assignment removed.');
+    }
+
+    public function updateStatus(UpdateThesisStatusRequest $request, Thesis $thesis): RedirectResponse
+    {
+        $status = ThesisStatus::from($request->validated('status'));
+
+        $attributes = ['status' => $status];
+
+        if ($status === ThesisStatus::Completed) {
+            $attributes['completed_at'] = $thesis->completed_at ?? now();
+        } elseif ($status === ThesisStatus::Active) {
+            $attributes['completed_at'] = null;
+        }
+
+        $thesis->update($attributes);
+
+        return redirect()->route('admin.theses.show', $thesis)
+            ->with('success', 'Thesis status updated successfully.');
     }
 }

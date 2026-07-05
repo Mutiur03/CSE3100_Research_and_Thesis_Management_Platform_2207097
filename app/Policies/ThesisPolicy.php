@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Enums\ThesisReviewOutcome;
 use App\Models\Thesis;
 use App\Models\User;
 
@@ -44,5 +45,27 @@ class ThesisPolicy
         }
 
         return $user->isSupervisor() && $thesis->supervisor_id === $user->id;
+    }
+
+    public function submitFinal(User $user, Thesis $thesis): bool
+    {
+        return $user->isStudent()
+            && $thesis->student_id === $user->id
+            && $thesis->isActive()
+            && ! $thesis->isFinalSubmitted()
+            && $thesis->hasFinalDocument();
+    }
+
+    public function updateStatus(User $user, Thesis $thesis): bool
+    {
+        return $user->isAdmin();
+    }
+
+    public function reopenReviews(User $user, Thesis $thesis): bool
+    {
+        return $user->isSupervisor()
+            && $thesis->supervisor_id === $user->id
+            && $thesis->isActive()
+            && $thesis->reviewOutcome() === ThesisReviewOutcome::RevisionNeeded;
     }
 }

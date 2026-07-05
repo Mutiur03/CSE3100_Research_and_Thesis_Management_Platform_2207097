@@ -7,11 +7,16 @@ use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
 use App\Models\Thesis;
 use App\Models\User;
+use App\Services\ThesisReviewService;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class ThesisController extends Controller
 {
+    public function __construct(
+        private readonly ThesisReviewService $reviews,
+    ) {}
     public function index(Request $request): View
     {
         $this->authorize('viewAny', Thesis::class);
@@ -66,5 +71,20 @@ class ThesisController extends Controller
             'thesis' => $thesis,
             'availableReviewers' => $availableReviewers,
         ]);
+    }
+
+    public function reopenReviews(Thesis $thesis): RedirectResponse
+    {
+        $this->authorize('reopenReviews', $thesis);
+
+        $count = $this->reviews->reopenRevisionReviews($thesis);
+
+        if ($count === 0) {
+            return redirect()->route('supervisor.theses.show', $thesis)
+                ->with('error', 'No revision reviews available to reopen.');
+        }
+
+        return redirect()->route('supervisor.theses.show', $thesis)
+            ->with('success', 'Reviewer assignments reopened for revision.');
     }
 }

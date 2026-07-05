@@ -37,6 +37,10 @@ class ThesisReviewSubmittedNotification extends PlatformNotification
             return route('supervisor.theses.show', $this->review->thesis);
         }
 
+        if ($notifiable->isStudent()) {
+            return route('student.theses.show', $this->review->thesis);
+        }
+
         return route('admin.theses.show', $this->review->thesis);
     }
 }

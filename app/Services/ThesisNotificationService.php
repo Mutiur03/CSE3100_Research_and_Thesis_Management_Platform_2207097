@@ -12,6 +12,7 @@ use App\Models\ThesisReview;
 use App\Models\User;
 use App\Notifications\CommentMentionNotification;
 use App\Notifications\DocumentUploadedNotification;
+use App\Notifications\FinalThesisSubmittedNotification;
 use App\Notifications\MeetingScheduledNotification;
 use App\Notifications\ProposalReviewedNotification;
 use App\Notifications\ProposalSubmittedNotification;
@@ -140,5 +141,20 @@ class ThesisNotificationService
             ->each(fn (User $admin) => $admin->notify(
                 new \App\Notifications\ThesisReviewSubmittedNotification($review),
             ));
+    }
+
+    public function notifyFinalThesisSubmitted(Thesis $thesis, User $student): void
+    {
+        $thesis->loadMissing(['supervisor']);
+
+        if ($thesis->supervisor) {
+            $thesis->supervisor->notify(new FinalThesisSubmittedNotification($thesis, $student));
+        }
+
+        User::query()
+            ->where('role', UserRole::Admin)
+            ->where('is_active', true)
+            ->when($thesis->department_id, fn ($query) => $query->where('department_id', $thesis->department_id))
+            ->each(fn (User $admin) => $admin->notify(new FinalThesisSubmittedNotification($thesis, $student)));
     }
 }

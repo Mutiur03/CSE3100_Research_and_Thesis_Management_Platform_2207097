@@ -2,7 +2,10 @@
 
 namespace App\Services;
 
+use App\Enums\ThesisReviewDecision;
+use App\Enums\ThesisReviewOutcome;
 use App\Enums\ThesisReviewStatus;
+use App\Enums\ThesisStatus;
 use App\Enums\UserRole;
 use App\Models\Thesis;
 use App\Models\ThesisReview;
@@ -56,5 +59,37 @@ class ThesisReviewService
     public function remove(ThesisReview $review): void
     {
         $review->delete();
+    }
+
+    public function syncThesisAfterReviewSubmission(Thesis $thesis): void
+    {
+        $thesis->load('reviews');
+
+        if (! $thesis->isActive()) {
+            return;
+        }
+
+        if ($thesis->reviewOutcome() === ThesisReviewOutcome::Approved) {
+            $thesis->update([
+                'status' => ThesisStatus::Completed,
+                'completed_at' => now(),
+            ]);
+        }
+    }
+
+    public function reopenRevisionReviews(Thesis $thesis): int
+    {
+        if ($thesis->reviewOutcome() !== ThesisReviewOutcome::RevisionNeeded) {
+            return 0;
+        }
+
+        return $thesis->reviews()
+            ->where('decision', ThesisReviewDecision::RequestRevision)
+            ->update([
+                'status' => ThesisReviewStatus::Pending,
+                'decision' => null,
+                'review_notes' => null,
+                'submitted_at' => null,
+            ]);
     }
 }

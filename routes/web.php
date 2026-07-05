@@ -119,6 +119,7 @@ Route::middleware(['auth', 'verified', 'active'])->group(function () {
 
         Route::get('/theses', [StudentThesisController::class, 'index'])->name('theses.index');
         Route::get('/theses/{thesis}', [StudentThesisController::class, 'show'])->name('theses.show');
+        Route::post('/theses/{thesis}/submit-final', [StudentThesisController::class, 'submitFinal'])->name('theses.submit-final');
         Route::post('/theses/{thesis}/milestones/{milestone}/complete', [StudentMilestoneController::class, 'complete'])->name('theses.milestones.complete');
         Route::patch('/theses/{thesis}/milestones/{milestone}/tasks/{task}', [StudentMilestoneTaskController::class, 'updateStatus'])->name('theses.milestones.tasks.update-status');
         Route::patch('/theses/{thesis}/meetings/{meeting}/rsvp', [StudentMeetingController::class, 'updateRsvp'])->name('theses.meetings.rsvp');
@@ -137,6 +138,7 @@ Route::middleware(['auth', 'verified', 'active'])->group(function () {
 
         Route::get('/theses', [SupervisorThesisController::class, 'index'])->name('theses.index');
         Route::get('/theses/{thesis}', [SupervisorThesisController::class, 'show'])->name('theses.show');
+        Route::post('/theses/{thesis}/reviews/reopen', [SupervisorThesisController::class, 'reopenReviews'])->name('theses.reviews.reopen');
         Route::post('/theses/{thesis}/milestones', [SupervisorMilestoneController::class, 'store'])->name('theses.milestones.store');
         Route::put('/theses/{thesis}/milestones/{milestone}', [SupervisorMilestoneController::class, 'update'])->name('theses.milestones.update');
         Route::delete('/theses/{thesis}/milestones/{milestone}', [SupervisorMilestoneController::class, 'destroy'])->name('theses.milestones.destroy');
@@ -182,6 +184,7 @@ Route::middleware(['auth', 'verified', 'active'])->group(function () {
 
         Route::get('/theses', [AdminThesisController::class, 'index'])->name('theses.index');
         Route::get('/theses/{thesis}', [AdminThesisController::class, 'show'])->name('theses.show');
+        Route::patch('/theses/{thesis}/status', [AdminThesisController::class, 'updateStatus'])->name('theses.status.update');
         Route::post('/theses/{thesis}/reviewers', [AdminThesisController::class, 'assignReviewer'])->name('theses.reviewers.store');
         Route::delete('/theses/{thesis}/reviewers/{thesisReview}', [AdminThesisController::class, 'removeReviewer'])->name('theses.reviewers.destroy');
     });

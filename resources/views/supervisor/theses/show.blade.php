@@ -54,6 +54,10 @@
             <div class="space-y-6">
                 <x-thesis-reviewers-panel :thesis="$thesis" :available-reviewers="$availableReviewers" route-prefix="supervisor" />
 
+                @if($thesis->reviews->isNotEmpty())
+                    <x-thesis-review-summary :thesis="$thesis" />
+                @endif
+
                 <div class="card">
                     <div class="card-section">
                         <h3 class="text-sm font-semibold text-stone-900">Timeline</h3>
