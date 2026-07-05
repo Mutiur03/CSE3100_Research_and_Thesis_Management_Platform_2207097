@@ -9,6 +9,7 @@ enum NotificationCategory: string
     case Meetings = 'meetings';
     case Comments = 'comments';
     case Milestones = 'milestones';
+    case Reviews = 'reviews';
 
     public function label(): string
     {
@@ -18,6 +19,7 @@ enum NotificationCategory: string
             self::Meetings => 'Meetings',
             self::Comments => 'Comments & mentions',
             self::Milestones => 'Milestone reminders',
+            self::Reviews => 'Thesis reviews',
         };
     }
 

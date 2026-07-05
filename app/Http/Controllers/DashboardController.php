@@ -4,11 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Enums\MilestoneStatus;
 use App\Enums\ProposalStatus;
+use App\Enums\ThesisReviewStatus;
 use App\Enums\ThesisStatus;
 use App\Models\Department;
 use App\Models\Milestone;
 use App\Models\Proposal;
 use App\Models\Thesis;
+use App\Models\ThesisReview;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -74,6 +76,19 @@ class DashboardController extends Controller
                 'total_departments' => Department::count(),
                 'total_proposals' => Proposal::count(),
                 'active_theses' => Thesis::whereIn('status', ThesisStatus::activeCases())->count(),
+                'pending_reviews' => ThesisReview::whereIn('status', ThesisReviewStatus::openCases())->count(),
+            ];
+        }
+
+        if ($user->isReviewer()) {
+            $stats = [
+                'assigned_reviews' => $user->thesisReviewsAsReviewer()->count(),
+                'pending_reviews' => $user->thesisReviewsAsReviewer()
+                    ->whereIn('status', ThesisReviewStatus::openCases())
+                    ->count(),
+                'completed_reviews' => $user->thesisReviewsAsReviewer()
+                    ->where('status', ThesisReviewStatus::Submitted)
+                    ->count(),
             ];
         }
 

@@ -171,6 +171,11 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Thesis::class, 'supervisor_id');
     }
 
+    public function thesisReviewsAsReviewer(): HasMany
+    {
+        return $this->hasMany(ThesisReview::class, 'reviewer_id');
+    }
+
     // ──────────────────────────────────────────────
     // Accessors
     // ──────────────────────────────────────────────

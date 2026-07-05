@@ -8,6 +8,7 @@ use App\Models\Meeting;
 use App\Models\Proposal;
 use App\Models\Thesis;
 use App\Models\ThesisDocument;
+use App\Models\ThesisReview;
 use App\Models\User;
 use App\Notifications\CommentMentionNotification;
 use App\Notifications\DocumentUploadedNotification;
@@ -112,5 +113,32 @@ class ThesisNotificationService
         if ($overdue->isNotEmpty()) {
             $user->notify(new \App\Notifications\MilestoneOverdueNotification($overdue));
         }
+    }
+
+    public function notifyThesisReviewAssigned(ThesisReview $review): void
+    {
+        $review->loadMissing(['thesis.student', 'thesis.supervisor', 'reviewer']);
+
+        $review->reviewer->notify(new \App\Notifications\ThesisReviewAssignedNotification($review));
+    }
+
+    public function notifyThesisReviewSubmitted(ThesisReview $review): void
+    {
+        $review->loadMissing(['thesis.student', 'thesis.supervisor', 'reviewer']);
+
+        collect([$review->thesis->supervisor, $review->thesis->student])
+            ->filter(fn (?User $user) => $user && $user->is_active)
+            ->unique('id')
+            ->each(fn (User $recipient) => $recipient->notify(
+                new \App\Notifications\ThesisReviewSubmittedNotification($review),
+            ));
+
+        User::query()
+            ->where('role', UserRole::Admin)
+            ->where('is_active', true)
+            ->when($review->thesis->department_id, fn ($query) => $query->where('department_id', $review->thesis->department_id))
+            ->each(fn (User $admin) => $admin->notify(
+                new \App\Notifications\ThesisReviewSubmittedNotification($review),
+            ));
     }
 }

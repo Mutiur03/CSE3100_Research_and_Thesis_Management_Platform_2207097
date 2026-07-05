@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Supervisor;
 
 use App\Enums\ThesisStatus;
+use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
 use App\Models\Thesis;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -40,6 +42,7 @@ class ThesisController extends Controller
 
         $thesis->load([
             'student', 'department', 'proposal',
+            'reviews.reviewer', 'reviews.assigner',
             'milestones.tasks.assignee',
             'milestones.dependency',
             'meetings.organizer',
@@ -52,8 +55,16 @@ class ThesisController extends Controller
             'documents.versions.uploader', 'documents.uploader',
         ]);
 
+        $availableReviewers = User::query()
+            ->where('role', UserRole::Reviewer)
+            ->where('is_active', true)
+            ->whereNotIn('id', $thesis->reviews->pluck('reviewer_id'))
+            ->orderBy('name')
+            ->get();
+
         return view('supervisor.theses.show', [
             'thesis' => $thesis,
+            'availableReviewers' => $availableReviewers,
         ]);
     }
 }

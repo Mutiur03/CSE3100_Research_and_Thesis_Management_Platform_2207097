@@ -85,6 +85,11 @@ class Thesis extends Model
         return $this->morphMany(Comment::class, 'commentable')->latest();
     }
 
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(ThesisReview::class)->latest('assigned_at');
+    }
+
     public function isActive(): bool
     {
         return $this->status === ThesisStatus::Active;
@@ -92,9 +97,19 @@ class Thesis extends Model
 
     public function showUrlFor(User $user): string
     {
-        return $user->isStudent()
-            ? route('student.theses.show', $this)
-            : route('supervisor.theses.show', $this);
+        if ($user->isStudent()) {
+            return route('student.theses.show', $this);
+        }
+
+        if ($user->isReviewer()) {
+            $review = $this->reviews()->where('reviewer_id', $user->id)->first();
+
+            return $review
+                ? route('reviewer.reviews.show', $review)
+                : route('reviewer.reviews.index');
+        }
+
+        return route('supervisor.theses.show', $this);
     }
 
     public static function createFromApprovedProposal(Proposal $proposal): self

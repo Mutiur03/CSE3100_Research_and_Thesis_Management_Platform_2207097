@@ -9,7 +9,7 @@ class ThesisPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->isStudent() || $user->isSupervisor() || $user->isAdmin();
+        return $user->isStudent() || $user->isSupervisor() || $user->isAdmin() || $user->isReviewer();
     }
 
     public function view(User $user, Thesis $thesis): bool
@@ -26,6 +26,23 @@ class ThesisPolicy
             return $thesis->supervisor_id === $user->id;
         }
 
+        if ($user->isReviewer()) {
+            return $thesis->reviews()->where('reviewer_id', $user->id)->exists();
+        }
+
         return false;
+    }
+
+    public function assignReviewers(User $user, Thesis $thesis): bool
+    {
+        if (! $thesis->isActive()) {
+            return false;
+        }
+
+        if ($user->isAdmin()) {
+            return true;
+        }
+
+        return $user->isSupervisor() && $thesis->supervisor_id === $user->id;
     }
 }

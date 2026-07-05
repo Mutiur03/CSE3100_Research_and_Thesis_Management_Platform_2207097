@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\DepartmentController as AdminDepartmentController;
+use App\Http\Controllers\Admin\ThesisController as AdminThesisController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\LoginController;
@@ -10,6 +11,8 @@ use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Auth\VerificationController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\Reviewer\ThesisDocumentController as ReviewerThesisDocumentController;
+use App\Http\Controllers\Reviewer\ThesisReviewController as ReviewerThesisReviewController;
 use App\Http\Controllers\Setup\SetupController;
 use App\Http\Controllers\Student\MilestoneController as StudentMilestoneController;
 use App\Http\Controllers\Student\MilestoneTaskController as StudentMilestoneTaskController;
@@ -25,6 +28,7 @@ use App\Http\Controllers\Supervisor\ProposalController as SupervisorProposalCont
 use App\Http\Controllers\Supervisor\ThesisCommentController as SupervisorThesisCommentController;
 use App\Http\Controllers\Supervisor\ThesisController as SupervisorThesisController;
 use App\Http\Controllers\Supervisor\ThesisDocumentController as SupervisorThesisDocumentController;
+use App\Http\Controllers\Supervisor\ThesisReviewerController as SupervisorThesisReviewerController;
 use Illuminate\Support\Facades\Route;
 
 // ──────────────────────────────────────────────
@@ -147,6 +151,16 @@ Route::middleware(['auth', 'verified', 'active'])->group(function () {
         Route::post('/theses/{thesis}/documents', [SupervisorThesisDocumentController::class, 'store'])->name('theses.documents.store');
         Route::post('/theses/{thesis}/documents/{document}/versions', [SupervisorThesisDocumentController::class, 'storeVersion'])->name('theses.documents.versions.store');
         Route::get('/theses/{thesis}/documents/{document}/versions/{version}/download', [SupervisorThesisDocumentController::class, 'download'])->name('theses.documents.versions.download');
+        Route::post('/theses/{thesis}/reviewers', [SupervisorThesisReviewerController::class, 'store'])->name('theses.reviewers.store');
+        Route::delete('/theses/{thesis}/reviewers/{thesisReview}', [SupervisorThesisReviewerController::class, 'destroy'])->name('theses.reviewers.destroy');
+    });
+
+    // Reviewer thesis reviews
+    Route::middleware('role:reviewer')->prefix('reviewer')->name('reviewer.')->group(function () {
+        Route::get('/reviews', [ReviewerThesisReviewController::class, 'index'])->name('reviews.index');
+        Route::get('/reviews/{thesisReview}', [ReviewerThesisReviewController::class, 'show'])->name('reviews.show');
+        Route::post('/reviews/{thesisReview}/submit', [ReviewerThesisReviewController::class, 'submit'])->name('reviews.submit');
+        Route::get('/theses/{thesis}/documents/{document}/versions/{version}/download', [ReviewerThesisDocumentController::class, 'download'])->name('theses.documents.versions.download');
     });
 
     // ──────────────────────────────────────────
@@ -165,5 +179,10 @@ Route::middleware(['auth', 'verified', 'active'])->group(function () {
         Route::get('/departments/{department}/edit', [AdminDepartmentController::class, 'edit'])->name('departments.edit');
         Route::put('/departments/{department}', [AdminDepartmentController::class, 'update'])->name('departments.update');
         Route::delete('/departments/{department}', [AdminDepartmentController::class, 'destroy'])->name('departments.destroy');
+
+        Route::get('/theses', [AdminThesisController::class, 'index'])->name('theses.index');
+        Route::get('/theses/{thesis}', [AdminThesisController::class, 'show'])->name('theses.show');
+        Route::post('/theses/{thesis}/reviewers', [AdminThesisController::class, 'assignReviewer'])->name('theses.reviewers.store');
+        Route::delete('/theses/{thesis}/reviewers/{thesisReview}', [AdminThesisController::class, 'removeReviewer'])->name('theses.reviewers.destroy');
     });
 });
