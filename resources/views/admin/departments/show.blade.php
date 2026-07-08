@@ -33,7 +33,7 @@
             </div>
         @enderror
 
-        <section class="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+        <section class="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <div class="stat-card">
                 <p class="stat-value">{{ $department->users_count }}</p>
                 <p class="stat-label">Total members</p>
@@ -45,10 +45,6 @@
             <div class="stat-card">
                 <p class="stat-value">{{ $department->supervisors_count }}</p>
                 <p class="stat-label">Supervisors</p>
-            </div>
-            <div class="stat-card">
-                <p class="stat-value">{{ $department->reviewers_count }}</p>
-                <p class="stat-label">Reviewers</p>
             </div>
             <div class="stat-card">
                 <p class="stat-value">{{ $department->admins_count }}</p>

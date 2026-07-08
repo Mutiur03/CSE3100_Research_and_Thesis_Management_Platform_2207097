@@ -73,16 +73,6 @@ class UserFactory extends Factory
     }
 
     /**
-     * Set the user as a reviewer.
-     */
-    public function reviewer(): static
-    {
-        return $this->state(fn (array $attributes) => [
-            'role' => UserRole::Reviewer,
-        ]);
-    }
-
-    /**
      * Set the user as an admin.
      */
     public function admin(): static

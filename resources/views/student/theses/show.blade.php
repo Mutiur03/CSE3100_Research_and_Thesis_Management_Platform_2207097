@@ -55,10 +55,6 @@
             </div>
 
             <div class="space-y-6">
-                @if($thesis->reviews->isNotEmpty())
-                    <x-thesis-review-summary :thesis="$thesis" />
-                @endif
-
                 <x-thesis-final-submission :thesis="$thesis" />
 
                 <div class="card">

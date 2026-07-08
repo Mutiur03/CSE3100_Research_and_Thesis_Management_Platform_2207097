@@ -4,22 +4,45 @@ namespace App\Http\Controllers\Supervisor;
 
 use App\Enums\MilestoneStatus;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Milestone\StoreMilestoneRequest;
-use App\Http\Requests\Milestone\UpdateMilestoneRequest;
 use App\Models\Milestone;
 use App\Models\Thesis;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\Validator as ValidatorContract;
 
 class MilestoneController extends Controller
 {
-    public function store(StoreMilestoneRequest $request, Thesis $thesis): RedirectResponse
+    public function store(Request $request, Thesis $thesis): RedirectResponse
     {
-        $this->authorize('create', [Milestone::class, $thesis]);
+        abort_unless($thesis->supervisor_id === $request->user()->id, 403);
+
+        $validator = Validator::make($request->all(), [
+            'title' => ['required', 'string', 'max:255'],
+            'description' => ['nullable', 'string', 'max:2000'],
+            'due_date' => ['required', 'date', 'after_or_equal:today'],
+            'depends_on_id' => [
+                'nullable',
+                'integer',
+                Rule::exists('milestones', 'id')->where(fn ($query) => $query->where('thesis_id', $thesis->id)),
+            ],
+        ]);
+
+        $validator->after(function (ValidatorContract $validator) use ($request): void {
+            $dependsOnId = $request->input('depends_on_id');
+
+            if ($dependsOnId && Milestone::wouldCreateDependencyCycle(0, (int) $dependsOnId)) {
+                $validator->errors()->add('depends_on_id', 'Invalid milestone dependency.');
+            }
+        });
+
+        $validated = $validator->validate();
 
         $sortOrder = $thesis->milestones()->max('sort_order') ?? 0;
 
         $thesis->milestones()->create([
-            ...$request->validated(),
+            ...$validated,
             'status' => MilestoneStatus::Pending,
             'sort_order' => $sortOrder + 1,
             'created_by' => $request->user()->id,
@@ -29,13 +52,44 @@ class MilestoneController extends Controller
             ->with('success', 'Milestone added successfully.');
     }
 
-    public function update(UpdateMilestoneRequest $request, Thesis $thesis, Milestone $milestone): RedirectResponse
+    public function update(Request $request, Thesis $thesis, Milestone $milestone): RedirectResponse
     {
-        $this->authorize('update', $milestone);
-
         abort_unless($milestone->thesis_id === $thesis->id, 404);
+        abort_unless($thesis->supervisor_id === $request->user()->id, 403);
+        abort_unless(in_array($milestone->status, MilestoneStatus::openCases(), true), 403);
 
-        $milestone->update($request->validated());
+        $validator = Validator::make($request->all(), [
+            'title' => ['required', 'string', 'max:255'],
+            'description' => ['nullable', 'string', 'max:2000'],
+            'due_date' => ['required', 'date', 'after_or_equal:today'],
+            'depends_on_id' => [
+                'nullable',
+                'integer',
+                Rule::exists('milestones', 'id')->where(fn ($query) => $query->where('thesis_id', $thesis->id)),
+            ],
+        ]);
+
+        $validator->after(function (ValidatorContract $validator) use ($request, $milestone): void {
+            $dependsOnId = $request->input('depends_on_id');
+
+            if (! $dependsOnId) {
+                return;
+            }
+
+            if ((int) $dependsOnId === $milestone->id) {
+                $validator->errors()->add('depends_on_id', 'A milestone cannot depend on itself.');
+
+                return;
+            }
+
+            if (Milestone::wouldCreateDependencyCycle($milestone->id, (int) $dependsOnId)) {
+                $validator->errors()->add('depends_on_id', 'This dependency would create a cycle.');
+            }
+        });
+
+        $validated = $validator->validate();
+
+        $milestone->update($validated);
 
         return redirect()->route('supervisor.theses.show', $thesis)
             ->with('success', 'Milestone updated successfully.');
@@ -43,9 +97,9 @@ class MilestoneController extends Controller
 
     public function destroy(Thesis $thesis, Milestone $milestone): RedirectResponse
     {
-        $this->authorize('delete', $milestone);
-
         abort_unless($milestone->thesis_id === $thesis->id, 404);
+        abort_unless($thesis->supervisor_id === auth()->id(), 403);
+        abort_unless(in_array($milestone->status, MilestoneStatus::openCases(), true), 403);
 
         $milestone->delete();
 

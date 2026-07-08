@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Database\Factories\CommentFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -10,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
 
 /**
  * @mixin IdeHelperComment
@@ -67,11 +68,6 @@ class Comment extends Model
         return $this->belongsToMany(User::class, 'comment_mentions')->withTimestamps();
     }
 
-    public function isReply(): bool
-    {
-        return $this->parent_id !== null;
-    }
-
     /**
      * @param  Builder<self>  $query
      */
@@ -88,5 +84,110 @@ class Comment extends Model
     public function scopeTopLevel(Builder $query): void
     {
         $query->whereNull('parent_id');
+    }
+
+    public function isVisibleTo(User $user): bool
+    {
+        if ($this->is_private && $user->isStudent()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * @return Collection<int, User>
+     */
+    public static function mentionableUsers(Thesis $thesis): Collection
+    {
+        return User::query()
+            ->whereIn('id', [$thesis->student_id, $thesis->supervisor_id])
+            ->get();
+    }
+
+    /**
+     * @return list<int>
+     */
+    public static function parseMentionedUserIds(string $body, Thesis $thesis): array
+    {
+        $participants = self::mentionableUsers($thesis);
+        $mentionedIds = [];
+
+        foreach ($participants as $user) {
+            if (self::bodyMentionsUser($body, $user)) {
+                $mentionedIds[] = $user->id;
+            }
+        }
+
+        return array_values(array_unique($mentionedIds));
+    }
+
+    public static function store(Thesis $thesis, User $author, string $body, ?int $parentId = null, bool $isPrivate = false): self
+    {
+        $comment = $thesis->comments()->create([
+            'user_id' => $author->id,
+            'parent_id' => $parentId,
+            'body' => $body,
+            'is_private' => $isPrivate,
+        ]);
+
+        $mentionIds = self::parseMentionedUserIds($body, $thesis);
+
+        if ($mentionIds !== []) {
+            $comment->mentions()->sync($mentionIds);
+        }
+
+        return $comment->load(['user', 'mentions', 'replies.user']);
+    }
+
+    public static function formatBody(string $body, Thesis $thesis): string
+    {
+        $escaped = e($body);
+        $participants = self::mentionableUsers($thesis);
+
+        foreach ($participants as $user) {
+            $patterns = self::mentionPatternsForUser($user);
+
+            foreach ($patterns as $pattern) {
+                $escaped = preg_replace(
+                    $pattern,
+                    '<span class="font-semibold text-navy-700">$0</span>',
+                    $escaped,
+                ) ?? $escaped;
+            }
+        }
+
+        return nl2br($escaped);
+    }
+
+    private static function bodyMentionsUser(string $body, User $user): bool
+    {
+        foreach (self::mentionPatternsForUser($user) as $pattern) {
+            if (preg_match($pattern, $body) === 1) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private static function mentionPatternsForUser(User $user): array
+    {
+        $patterns = [];
+
+        if ($user->email) {
+            $patterns[] = '/@'.preg_quote($user->email, '/').'/';
+        }
+
+        $nameHandle = str_replace(' ', '', $user->name);
+
+        if ($nameHandle !== '') {
+            $patterns[] = '/@'.preg_quote($nameHandle, '/').'/';
+        }
+
+        return $patterns;
     }
 }

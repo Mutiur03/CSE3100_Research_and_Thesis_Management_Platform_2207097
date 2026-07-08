@@ -4,11 +4,11 @@ namespace App\Http\Controllers\Admin;
 
 use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Admin\UpdateUserRoleRequest;
 use App\Models\Department;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class UserController extends Controller
@@ -18,7 +18,6 @@ class UserController extends Controller
      */
     public function index(Request $request): View
     {
-        $this->authorize('viewAny', User::class);
         $query = User::query()
             ->with('department')
             ->where('role', '!=', UserRole::Admin)
@@ -58,7 +57,7 @@ class UserController extends Controller
      */
     public function edit(User $user): View
     {
-        $this->authorize('manageRole', $user);
+        abort_unless(! $user->isAdmin(), 403);
 
         return view('admin.users.edit', [
             'user' => $user->load('department'),
@@ -69,13 +68,30 @@ class UserController extends Controller
     /**
      * Update the user's role and active status.
      */
-    public function update(UpdateUserRoleRequest $request, User $user): RedirectResponse
+    public function update(Request $request, User $user): RedirectResponse
     {
-        $this->authorize('manageRole', $user);
+        abort_unless(! $user->isAdmin(), 403);
+
+        $request->validate([
+            'role' => [
+                'required',
+                'string',
+                Rule::in(UserRole::assignableByAdminValues()),
+            ],
+            'is_active' => ['required', 'boolean'],
+            'department_id' => ['nullable', 'integer', 'exists:departments,id'],
+            'confirm_admin_promotion' => [
+                Rule::excludeIf(fn () => $request->input('role') !== UserRole::Admin->value),
+                'required',
+                'accepted',
+            ],
+        ], [
+            'confirm_admin_promotion.accepted' => 'You must confirm administrator promotion before saving.',
+            'confirm_admin_promotion.required' => 'You must confirm administrator promotion before saving.',
+        ]);
+
         if ($request->user()->is($user) && ! $request->boolean('is_active')) {
-            return back()
-                ->withInput()
-                ->withErrors(['is_active' => 'You cannot deactivate your own account.']);
+            abort(403);
         }
 
         if ($request->user()->is($user) && $request->role !== $user->role->value) {

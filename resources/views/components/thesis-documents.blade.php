@@ -4,7 +4,7 @@
 ])
 
 @php
-    $canUpload = auth()->user()->can('create', [\App\Models\ThesisDocument::class, $thesis]);
+    $canUpload = auth()->user()->isStudent() || auth()->user()->isSupervisor();
 @endphp
 
 <div class="card overflow-hidden">
@@ -106,15 +106,15 @@
                                     Download latest
                                 </a>
                             @endif
-                            @can('addVersion', $document)
+                            @if($canUpload)
                                 <button type="button" class="btn-secondary btn-sm" onclick="document.getElementById('version-form-{{ $document->id }}').classList.toggle('hidden')">
                                     New version
                                 </button>
-                            @endcan
+                            @endif
                         </div>
                     </div>
 
-                    @can('addVersion', $document)
+                    @if($canUpload)
                         <div id="version-form-{{ $document->id }}" class="{{ $errors->hasAny(['file', 'change_summary']) && (string) request('document') === (string) $document->id ? '' : 'hidden' }} mt-4 rounded border border-stone-200 bg-stone-50 p-4">
                             <form method="POST" action="{{ route($routePrefix.'.theses.documents.versions.store', [$thesis, $document]) }}?document={{ $document->id }}" enctype="multipart/form-data" class="space-y-3">
                                 @csrf
@@ -135,7 +135,7 @@
                                 <button type="submit" class="btn-primary btn-sm">Upload version</button>
                             </form>
                         </div>
-                    @endcan
+                    @endif
 
                     @if($document->versions->count() > 1)
                         <details class="mt-4">

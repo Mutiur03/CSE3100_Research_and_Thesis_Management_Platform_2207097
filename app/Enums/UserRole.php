@@ -6,7 +6,6 @@ enum UserRole: string
 {
     case Student = 'student';
     case Supervisor = 'supervisor';
-    case Reviewer = 'reviewer';
     case Admin = 'admin';
 
     /**
@@ -17,7 +16,6 @@ enum UserRole: string
         return match ($this) {
             self::Student => 'Student',
             self::Supervisor => 'Supervisor',
-            self::Reviewer => 'Reviewer',
             self::Admin => 'Admin',
         };
     }
@@ -30,21 +28,7 @@ enum UserRole: string
         return match ($this) {
             self::Student => 'bg-stone-100 text-stone-700 ring-1 ring-stone-200',
             self::Supervisor => 'bg-navy-50 text-navy-800 ring-1 ring-navy-200',
-            self::Reviewer => 'bg-amber-50 text-amber-900 ring-1 ring-amber-200',
             self::Admin => 'bg-brand-50 text-brand-800 ring-1 ring-brand-200',
-        };
-    }
-
-    /**
-     * Icon name for the role (used in UI).
-     */
-    public function icon(): string
-    {
-        return match ($this) {
-            self::Student => 'academic-cap',
-            self::Supervisor => 'user-group',
-            self::Reviewer => 'clipboard-document-check',
-            self::Admin => 'shield-check',
         };
     }
 

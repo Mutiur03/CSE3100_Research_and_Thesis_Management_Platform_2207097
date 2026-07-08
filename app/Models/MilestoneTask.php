@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Enums\MilestoneStatus;
+use App\Enums\MilestoneTaskPriority;
 use App\Enums\MilestoneTaskStatus;
 use Database\Factories\MilestoneTaskFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -36,7 +36,7 @@ class MilestoneTask extends Model
     {
         return [
             'status' => MilestoneTaskStatus::class,
-            'priority' => \App\Enums\MilestoneTaskPriority::class,
+            'priority' => MilestoneTaskPriority::class,
             'due_date' => 'date',
             'completed_at' => 'datetime',
         ];
@@ -52,13 +52,22 @@ class MilestoneTask extends Model
         return $this->belongsTo(User::class, 'assigned_to');
     }
 
-    public function creator(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'created_by');
-    }
-
     public function isOwnedByStudent(User $user): bool
     {
         return $this->assigned_to === $user->id;
+    }
+
+    public function syncStatus(MilestoneTaskStatus $status): void
+    {
+        $attributes = ['status' => $status];
+
+        if ($status === MilestoneTaskStatus::Completed) {
+            $attributes['completed_at'] = now();
+        } else {
+            $attributes['completed_at'] = null;
+        }
+
+        $this->update($attributes);
+        $this->milestone->recalculateProgress();
     }
 }

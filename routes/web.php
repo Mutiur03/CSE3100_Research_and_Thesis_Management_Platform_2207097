@@ -10,9 +10,6 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\Auth\VerificationController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\NotificationController;
-use App\Http\Controllers\Reviewer\ThesisDocumentController as ReviewerThesisDocumentController;
-use App\Http\Controllers\Reviewer\ThesisReviewController as ReviewerThesisReviewController;
 use App\Http\Controllers\Setup\SetupController;
 use App\Http\Controllers\Student\MilestoneController as StudentMilestoneController;
 use App\Http\Controllers\Student\MilestoneTaskController as StudentMilestoneTaskController;
@@ -28,7 +25,6 @@ use App\Http\Controllers\Supervisor\ProposalController as SupervisorProposalCont
 use App\Http\Controllers\Supervisor\ThesisCommentController as SupervisorThesisCommentController;
 use App\Http\Controllers\Supervisor\ThesisController as SupervisorThesisController;
 use App\Http\Controllers\Supervisor\ThesisDocumentController as SupervisorThesisDocumentController;
-use App\Http\Controllers\Supervisor\ThesisReviewerController as SupervisorThesisReviewerController;
 use Illuminate\Support\Facades\Route;
 
 // ──────────────────────────────────────────────
@@ -101,11 +97,6 @@ Route::middleware(['auth', 'verified', 'active'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
 
-    // Notifications
-    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
-    Route::get('/notifications/{notification}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
-    Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.read-all');
-
     // Student proposals
     Route::middleware('role:student')->prefix('student')->name('student.')->group(function () {
         Route::get('/proposals', [StudentProposalController::class, 'index'])->name('proposals.index');
@@ -138,7 +129,6 @@ Route::middleware(['auth', 'verified', 'active'])->group(function () {
 
         Route::get('/theses', [SupervisorThesisController::class, 'index'])->name('theses.index');
         Route::get('/theses/{thesis}', [SupervisorThesisController::class, 'show'])->name('theses.show');
-        Route::post('/theses/{thesis}/reviews/reopen', [SupervisorThesisController::class, 'reopenReviews'])->name('theses.reviews.reopen');
         Route::post('/theses/{thesis}/milestones', [SupervisorMilestoneController::class, 'store'])->name('theses.milestones.store');
         Route::put('/theses/{thesis}/milestones/{milestone}', [SupervisorMilestoneController::class, 'update'])->name('theses.milestones.update');
         Route::delete('/theses/{thesis}/milestones/{milestone}', [SupervisorMilestoneController::class, 'destroy'])->name('theses.milestones.destroy');
@@ -153,16 +143,6 @@ Route::middleware(['auth', 'verified', 'active'])->group(function () {
         Route::post('/theses/{thesis}/documents', [SupervisorThesisDocumentController::class, 'store'])->name('theses.documents.store');
         Route::post('/theses/{thesis}/documents/{document}/versions', [SupervisorThesisDocumentController::class, 'storeVersion'])->name('theses.documents.versions.store');
         Route::get('/theses/{thesis}/documents/{document}/versions/{version}/download', [SupervisorThesisDocumentController::class, 'download'])->name('theses.documents.versions.download');
-        Route::post('/theses/{thesis}/reviewers', [SupervisorThesisReviewerController::class, 'store'])->name('theses.reviewers.store');
-        Route::delete('/theses/{thesis}/reviewers/{thesisReview}', [SupervisorThesisReviewerController::class, 'destroy'])->name('theses.reviewers.destroy');
-    });
-
-    // Reviewer thesis reviews
-    Route::middleware('role:reviewer')->prefix('reviewer')->name('reviewer.')->group(function () {
-        Route::get('/reviews', [ReviewerThesisReviewController::class, 'index'])->name('reviews.index');
-        Route::get('/reviews/{thesisReview}', [ReviewerThesisReviewController::class, 'show'])->name('reviews.show');
-        Route::post('/reviews/{thesisReview}/submit', [ReviewerThesisReviewController::class, 'submit'])->name('reviews.submit');
-        Route::get('/theses/{thesis}/documents/{document}/versions/{version}/download', [ReviewerThesisDocumentController::class, 'download'])->name('theses.documents.versions.download');
     });
 
     // ──────────────────────────────────────────
@@ -185,7 +165,5 @@ Route::middleware(['auth', 'verified', 'active'])->group(function () {
         Route::get('/theses', [AdminThesisController::class, 'index'])->name('theses.index');
         Route::get('/theses/{thesis}', [AdminThesisController::class, 'show'])->name('theses.show');
         Route::patch('/theses/{thesis}/status', [AdminThesisController::class, 'updateStatus'])->name('theses.status.update');
-        Route::post('/theses/{thesis}/reviewers', [AdminThesisController::class, 'assignReviewer'])->name('theses.reviewers.store');
-        Route::delete('/theses/{thesis}/reviewers/{thesisReview}', [AdminThesisController::class, 'removeReviewer'])->name('theses.reviewers.destroy');
     });
 });

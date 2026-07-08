@@ -2,13 +2,15 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Auth\RegisterRequest;
 use App\Models\Department;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rules\Password;
 use Illuminate\View\View;
 
 class RegisterController extends Controller
@@ -26,14 +28,24 @@ class RegisterController extends Controller
     /**
      * Handle an incoming registration request.
      */
-    public function register(RegisterRequest $request): RedirectResponse
+    public function register(Request $request): RedirectResponse
     {
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'password' => ['required', 'confirmed', Password::defaults()],
+            'role' => ['required', 'string', 'in:'.implode(',', UserRole::registrableValues())],
+            'department_id' => ['nullable', 'integer', 'exists:departments,id'],
+        ], [
+            'role.in' => 'You can only register as a Student or Supervisor.',
+        ]);
+
         $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => $request->password,
-            'role' => $request->role,
-            'department_id' => $request->input('department_id'),
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => $validated['password'],
+            'role' => $validated['role'],
+            'department_id' => $validated['department_id'] ?? null,
         ]);
 
         event(new Registered($user));

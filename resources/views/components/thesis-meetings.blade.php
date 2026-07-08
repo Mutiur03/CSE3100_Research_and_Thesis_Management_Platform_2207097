@@ -4,7 +4,7 @@
 ])
 
 @php
-    $canSchedule = auth()->user()->can('create', [\App\Models\Meeting::class, $thesis]);
+    $canSchedule = auth()->user()->isSupervisor();
     $isSupervisor = $routePrefix === 'supervisor';
     $showScheduleForm = $errors->hasAny(['title', 'type', 'scheduled_at', 'duration_minutes', 'location', 'meeting_link', 'agenda', 'description']) && ! request('meeting');
 @endphp
@@ -153,7 +153,7 @@
                             @endif
                         </div>
                         <div class="flex shrink-0 flex-wrap gap-2">
-                            @if($isSupervisor && auth()->user()->can('update', $meeting))
+                            @if($isSupervisor)
                                 <button type="button" class="btn-secondary btn-sm" onclick="document.getElementById('edit-meeting-{{ $meeting->id }}').classList.toggle('hidden')">
                                     Edit
                                 </button>
@@ -166,7 +166,7 @@
                         </div>
                     </div>
 
-                    @if(!$isSupervisor && $myAttendee && auth()->user()->can('respond', $meeting))
+                    @if(!$isSupervisor && $myAttendee)
                         <form method="POST" action="{{ route('student.theses.meetings.rsvp', [$thesis, $meeting]) }}" class="mt-4 flex flex-wrap items-end gap-3 border-t border-stone-100 pt-4">
                             @csrf
                             @method('PATCH')
@@ -182,7 +182,7 @@
                         </form>
                     @endif
 
-                    @if($isSupervisor && auth()->user()->can('update', $meeting))
+                    @if($isSupervisor)
                         <div id="edit-meeting-{{ $meeting->id }}" class="{{ $showEditForm ? '' : 'hidden' }} mt-4 border-t border-stone-100 pt-4">
                             <form method="POST" action="{{ route('supervisor.theses.meetings.update', [$thesis, $meeting]) }}" class="space-y-4">
                                 @csrf

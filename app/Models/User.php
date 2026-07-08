@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Enums\NotificationCategory;
 use App\Enums\UserRole;
 use Database\Factories\UserFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -37,7 +36,6 @@ class User extends Authenticatable implements MustVerifyEmail
         'research_interests',
         'is_active',
         'last_login_at',
-        'notification_preferences',
     ];
 
     /**
@@ -64,7 +62,6 @@ class User extends Authenticatable implements MustVerifyEmail
             'research_interests' => 'array',
             'is_active' => 'boolean',
             'last_login_at' => 'datetime',
-            'notification_preferences' => 'array',
         ];
     }
 
@@ -92,54 +89,9 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasRole(UserRole::Student);
     }
 
-    public function isReviewer(): bool
+    public static function needsSetup(): bool
     {
-        return $this->hasRole(UserRole::Reviewer);
-    }
-
-    /**
-     * @return list<string>
-     */
-    public function deliveryChannelsFor(NotificationCategory $category): array
-    {
-        $channels = [];
-
-        if ($category->supportsDatabase()) {
-            $channels[] = 'database';
-        }
-
-        if ($category->supportsEmail() && $this->prefersEmailFor($category)) {
-            $channels[] = 'mail';
-        }
-
-        return $channels;
-    }
-
-    public function prefersEmailFor(NotificationCategory $category): bool
-    {
-        $preferences = $this->notification_preferences ?? NotificationCategory::defaults();
-
-        return (bool) ($preferences[$category->value] ?? true);
-    }
-
-    /**
-     * @param  array<string, bool>  $preferences
-     */
-    public function syncNotificationPreferences(array $preferences): void
-    {
-        $merged = array_merge(NotificationCategory::defaults(), $preferences);
-
-        $this->update([
-            'notification_preferences' => collect($merged)
-                ->only(array_map(fn (NotificationCategory $category) => $category->value, NotificationCategory::cases()))
-                ->map(fn ($value) => (bool) $value)
-                ->all(),
-        ]);
-    }
-
-    public function unreadNotificationsCount(): int
-    {
-        return $this->unreadNotifications()->count();
+        return ! self::query()->where('role', UserRole::Admin)->exists();
     }
 
     // ──────────────────────────────────────────────
@@ -169,11 +121,6 @@ class User extends Authenticatable implements MustVerifyEmail
     public function thesesAsSupervisor(): HasMany
     {
         return $this->hasMany(Thesis::class, 'supervisor_id');
-    }
-
-    public function thesisReviewsAsReviewer(): HasMany
-    {
-        return $this->hasMany(ThesisReview::class, 'reviewer_id');
     }
 
     // ──────────────────────────────────────────────

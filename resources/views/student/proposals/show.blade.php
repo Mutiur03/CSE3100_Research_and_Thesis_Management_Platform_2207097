@@ -18,22 +18,22 @@
                 </p>
             </div>
             <div class="flex flex-wrap gap-2">
-                @can('update', $proposal)
+                @if(in_array($proposal->status, \App\Enums\ProposalStatus::editableCases(), true))
                     <a wire:navigate.hover href="{{ route('student.proposals.edit', $proposal) }}" class="btn-secondary">Edit</a>
-                @endcan
-                @can('submit', $proposal)
+                @endif
+                @if(in_array($proposal->status, \App\Enums\ProposalStatus::editableCases(), true))
                     <form method="POST" action="{{ route('student.proposals.submit', $proposal) }}" onsubmit="return confirm('Submit this proposal to your supervisor for review?')">
                         @csrf
                         <button type="submit" class="btn-primary">Submit for review</button>
                     </form>
-                @endcan
-                @can('delete', $proposal)
+                @endif
+                @if($proposal->status === \App\Enums\ProposalStatus::Draft)
                     <form method="POST" action="{{ route('student.proposals.destroy', $proposal) }}" onsubmit="return confirm('Delete this draft permanently?')">
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="btn-secondary text-red-700">Delete draft</button>
                     </form>
-                @endcan
+                @endif
             </div>
         </header>
 

@@ -63,15 +63,4 @@ class Meeting extends Model
     {
         return $this->hasMany(MeetingAttendee::class);
     }
-
-    public function endsAt(): \Illuminate\Support\Carbon
-    {
-        return $this->scheduled_at->copy()->addMinutes($this->duration_minutes);
-    }
-
-    public function isUpcoming(): bool
-    {
-        return $this->status === MeetingStatus::Scheduled
-            && $this->scheduled_at->isFuture();
-    }
 }

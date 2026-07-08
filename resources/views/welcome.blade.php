@@ -20,6 +20,6 @@
     </div>
 
     <p class="mt-10 text-xs leading-relaxed text-stone-500">
-        Reviewer accounts are provisioned by your department administrator after platform setup is complete.
+        Students and supervisors can self-register. Administrator accounts are created during platform setup.
     </p>
 @endsection

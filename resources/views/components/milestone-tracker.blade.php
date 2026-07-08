@@ -90,16 +90,16 @@
                             </div>
                             <div class="flex shrink-0 flex-wrap gap-2">
                                 @if($canManage)
-                                    @can('update', $milestone)
+                                    @if(auth()->user()->isSupervisor())
                                         <a wire:navigate.hover href="{{ route($routePrefix.'.theses.show', [$thesis, 'edit' => $milestone->id]) }}" class="btn-secondary btn-sm">Edit</a>
                                         <form method="POST" action="{{ route($routePrefix.'.theses.milestones.destroy', [$thesis, $milestone]) }}" class="inline" onsubmit="return confirm('Delete this milestone?')">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btn-secondary btn-sm text-red-700">Delete</button>
                                         </form>
-                                    @endcan
+                                    @endif
                                 @else
-                                    @can('complete', $milestone)
+                                    @if($milestone->isCompletable())
                                         <form method="POST" action="{{ route('student.theses.milestones.complete', [$thesis, $milestone]) }}" class="inline" onsubmit="return confirm('Mark this milestone as complete?')">
                                             @csrf
                                             <button type="submit" class="btn-primary btn-sm">Mark complete</button>
@@ -168,7 +168,7 @@
                                                             @method('DELETE')
                                                             <button type="submit" class="btn-secondary btn-sm text-red-700">Delete</button>
                                                         </form>
-                                                    @elseif(auth()->user()->can('updateStatus', $task))
+                                                    @elseif(auth()->user()->isStudent())
                                                         <form method="POST" action="{{ route('student.theses.milestones.tasks.update-status', [$thesis, $milestone, $task]) }}" class="inline-flex items-center gap-2">
                                                             @csrf
                                                             @method('PATCH')
@@ -188,7 +188,7 @@
                         @endif
 
                         @if($canManage)
-                            @can('create', [\App\Models\MilestoneTask::class, $milestone])
+                            @if(auth()->user()->isSupervisor())
                                 <details class="mt-4">
                                     <summary class="cursor-pointer text-sm font-medium text-navy-700">Add task</summary>
                                     <form method="POST" action="{{ route('supervisor.theses.milestones.tasks.store', [$thesis, $milestone]) }}" class="mt-3 space-y-3 rounded border border-stone-200 bg-stone-50 p-4">
@@ -218,7 +218,7 @@
                                         <button type="submit" class="btn-primary btn-sm">Add task</button>
                                     </form>
                                 </details>
-                            @endcan
+                            @endif
                         @endif
                     @endif
                 </div>
@@ -229,7 +229,7 @@
     @endif
 
     @if($canManage)
-        @can('create', [\App\Models\Milestone::class, $thesis])
+        @if(auth()->user()->isSupervisor())
             <div class="border-t border-stone-100 {{ $thesis->milestones->isNotEmpty() ? 'px-6 py-4' : 'card-body' }}">
                 <form method="POST" action="{{ route('supervisor.theses.milestones.store', $thesis) }}" class="space-y-4">
                     @csrf

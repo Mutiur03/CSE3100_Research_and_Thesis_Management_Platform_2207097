@@ -4,7 +4,6 @@ use App\Http\Middleware\EnsureAccountActive;
 use App\Http\Middleware\EnsureSetupComplete;
 use App\Http\Middleware\RedirectIfSetupComplete;
 use App\Http\Middleware\RoleMiddleware;
-use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -28,7 +27,4 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
-    })
-    ->withSchedule(function (Schedule $schedule): void {
-        $schedule->command('milestones:send-reminders')->dailyAt('08:00');
     })->create();

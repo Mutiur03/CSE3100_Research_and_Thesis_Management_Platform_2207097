@@ -61,26 +61,9 @@
                         <p class="stat-label">Active Theses</p>
                     </div>
                     <div class="stat-card">
-                        <p class="stat-value">{{ $stats['pending_reviews'] ?? 0 }}</p>
-                        <p class="stat-label">Pending Reviews</p>
-                    </div>
-                    <div class="stat-card">
                         <p class="stat-value">{{ $stats['total_departments'] }}</p>
                         <p class="stat-label">Departments</p>
                     </div>
-                @endif
-
-                @if($user->isReviewer())
-                    @foreach([
-                        ['Assigned Reviews', $stats['assigned_reviews'] ?? 0],
-                        ['Pending Reviews', $stats['pending_reviews'] ?? 0],
-                        ['Completed Reviews', $stats['completed_reviews'] ?? 0],
-                    ] as [$label, $value])
-                        <div class="stat-card">
-                            <p class="stat-value">{{ $value }}</p>
-                            <p class="stat-label">{{ $label }}</p>
-                        </div>
-                    @endforeach
                 @endif
             </div>
         </section>
@@ -133,16 +116,6 @@
                     </a>
                 @endif
 
-                @if($user->isReviewer())
-                    <a wire:navigate.hover href="{{ route('reviewer.reviews.index') }}" class="flex items-center justify-between px-6 py-4 text-sm transition-colors hover:bg-stone-50">
-                        <div>
-                            <p class="font-medium text-stone-800">Assigned reviews</p>
-                            <p class="text-stone-500">Review thesis projects assigned to you</p>
-                        </div>
-                        <svg class="h-4 w-4 text-stone-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" /></svg>
-                    </a>
-                @endif
-
                 @if($user->isAdmin())
                     <a wire:navigate.hover href="{{ route('admin.users.index') }}" class="flex items-center justify-between px-6 py-4 text-sm transition-colors hover:bg-stone-50">
                         <div>
@@ -161,7 +134,7 @@
                     <a wire:navigate.hover href="{{ route('admin.theses.index') }}" class="flex items-center justify-between px-6 py-4 text-sm transition-colors hover:bg-stone-50">
                         <div>
                             <p class="font-medium text-stone-800">Manage theses</p>
-                            <p class="text-stone-500">Assign external reviewers to thesis projects</p>
+                            <p class="text-stone-500">Oversee thesis projects and status</p>
                         </div>
                         <svg class="h-4 w-4 text-stone-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" /></svg>
                     </a>

@@ -4,23 +4,17 @@ namespace App\Http\Controllers\Supervisor;
 
 use App\Enums\ProposalStatus;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Supervisor\ReviewProposalRequest;
 use App\Models\Proposal;
 use App\Models\Thesis;
-use App\Services\ThesisNotificationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class ProposalController extends Controller
 {
-    public function __construct(
-        private readonly ThesisNotificationService $notifications,
-    ) {}
-
     public function index(Request $request): View
     {
-        $this->authorize('viewAny', Proposal::class);
 
         $statusFilter = $request->input('status');
 
@@ -48,7 +42,7 @@ class ProposalController extends Controller
 
     public function show(Proposal $proposal): View
     {
-        $this->authorize('view', $proposal);
+        abort_unless($proposal->supervisor_id === auth()->id(), 403);
 
         if ($proposal->status === ProposalStatus::Submitted) {
             $proposal->update(['status' => ProposalStatus::UnderReview]);
@@ -61,9 +55,19 @@ class ProposalController extends Controller
         ]);
     }
 
-    public function review(ReviewProposalRequest $request, Proposal $proposal): RedirectResponse
+    public function review(Request $request, Proposal $proposal): RedirectResponse
     {
-        $this->authorize('review', $proposal);
+        abort_unless($proposal->supervisor_id === $request->user()->id, 403);
+
+        $request->validate([
+            'decision' => ['required', Rule::in(['approve', 'reject', 'request_revision'])],
+            'review_notes' => [
+                Rule::requiredIf(fn () => in_array($request->input('decision'), ['reject', 'request_revision'], true)),
+                'nullable',
+                'string',
+                'max:5000',
+            ],
+        ]);
 
         $status = match ($request->input('decision')) {
             'approve' => ProposalStatus::Approved,
@@ -80,8 +84,6 @@ class ProposalController extends Controller
         if ($status === ProposalStatus::Approved) {
             Thesis::createFromApprovedProposal($proposal->fresh());
         }
-
-        $this->notifications->notifyProposalReviewed($proposal->fresh(['student', 'supervisor']));
 
         $message = match ($status) {
             ProposalStatus::Approved => 'Proposal approved successfully.',

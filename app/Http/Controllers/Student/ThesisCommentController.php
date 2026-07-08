@@ -3,28 +3,42 @@
 namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Comment\StoreThesisCommentRequest;
 use App\Models\Comment;
 use App\Models\Thesis;
-use App\Services\CommentService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class ThesisCommentController extends Controller
 {
-    public function __construct(
-        private readonly CommentService $comments,
-    ) {}
-
-    public function store(StoreThesisCommentRequest $request, Thesis $thesis): RedirectResponse
+    public function store(Request $request, Thesis $thesis): RedirectResponse
     {
-        $this->authorize('create', [Comment::class, $thesis]);
+        abort_unless($thesis->student_id === $request->user()->id, 403);
 
-        $this->comments->store(
+        if ($request->user()->isStudent()) {
+            $request->merge(['is_private' => false]);
+        }
+
+        $validated = $request->validate([
+            'body' => ['required', 'string', 'max:5000'],
+            'parent_id' => [
+                'nullable',
+                'integer',
+                Rule::exists('comments', 'id')->where(function ($query) use ($thesis) {
+                    $query->where('commentable_type', Thesis::class)
+                        ->where('commentable_id', $thesis->id)
+                        ->whereNull('parent_id');
+                }),
+            ],
+            'is_private' => ['sometimes', 'boolean'],
+        ]);
+
+        Comment::store(
             $thesis,
             $request->user(),
-            $request->validated('body'),
-            $request->validated('parent_id'),
-            $request->isPrivate(),
+            $validated['body'],
+            $validated['parent_id'] ?? null,
+            $request->user()->isSupervisor() && $request->boolean('is_private'),
         );
 
         return redirect()->route('student.theses.show', $thesis)
@@ -37,8 +51,7 @@ class ThesisCommentController extends Controller
             $comment->commentable_type === Thesis::class && $comment->commentable_id === $thesis->id,
             404,
         );
-
-        $this->authorize('delete', $comment);
+        abort_unless($thesis->student_id === auth()->id(), 403);
 
         $comment->delete();
 

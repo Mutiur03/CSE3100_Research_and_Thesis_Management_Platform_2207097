@@ -1,6 +1,6 @@
 @php
-    $canReply = auth()->user()->can('create', [\App\Models\Comment::class, $thesis]);
-    $canDelete = auth()->user()->can('delete', $comment);
+    $canReply = auth()->user()->isStudent() || auth()->user()->isSupervisor();
+    $canDelete = auth()->id() === $comment->user_id || auth()->user()->isSupervisor();
 @endphp
 
 <div class="{{ $depth > 0 ? 'border-t border-stone-100 bg-stone-50/60 pl-6' : '' }} px-6 py-5">

@@ -4,20 +4,18 @@ namespace App\Http\Controllers\Admin;
 
 use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Admin\StoreDepartmentRequest;
-use App\Http\Requests\Admin\UpdateDepartmentRequest;
 use App\Models\Department;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class DepartmentController extends Controller
 {
     public function index(Request $request): View
     {
-        $this->authorize('viewAny', Department::class);
 
         $query = Department::query()
             ->with('head')
@@ -53,18 +51,29 @@ class DepartmentController extends Controller
 
     public function create(): View
     {
-        $this->authorize('create', Department::class);
 
         return view('admin.departments.create', [
             'eligibleHeads' => $this->eligibleHeads(),
         ]);
     }
 
-    public function store(StoreDepartmentRequest $request): RedirectResponse
+    public function store(Request $request): RedirectResponse
     {
-        $this->authorize('create', Department::class);
+        if ($request->filled('code')) {
+            $request->merge([
+                'code' => strtoupper($request->input('code')),
+            ]);
+        }
 
-        $department = Department::create($request->validated());
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'code' => ['required', 'string', 'max:20', 'alpha_num', 'unique:departments,code'],
+            'faculty' => ['nullable', 'string', 'max:255'],
+            'head_id' => ['nullable', 'integer', 'exists:users,id', $this->eligibleHeadRule()],
+            'description' => ['nullable', 'string', 'max:2000'],
+        ]);
+
+        $department = Department::create($validated);
         $this->syncHeadAffiliation($department);
 
         return redirect()->route('admin.departments.show', $department)
@@ -73,14 +82,12 @@ class DepartmentController extends Controller
 
     public function show(Department $department): View
     {
-        $this->authorize('view', $department);
 
         $department->load('head');
         $department->loadCount([
             'users',
             'users as students_count' => fn ($q) => $q->where('role', UserRole::Student),
             'users as supervisors_count' => fn ($q) => $q->where('role', UserRole::Supervisor),
-            'users as reviewers_count' => fn ($q) => $q->where('role', UserRole::Reviewer),
             'users as admins_count' => fn ($q) => $q->where('role', UserRole::Admin),
         ]);
 
@@ -96,7 +103,6 @@ class DepartmentController extends Controller
 
     public function edit(Department $department): View
     {
-        $this->authorize('update', $department);
 
         return view('admin.departments.edit', [
             'department' => $department,
@@ -104,11 +110,29 @@ class DepartmentController extends Controller
         ]);
     }
 
-    public function update(UpdateDepartmentRequest $request, Department $department): RedirectResponse
+    public function update(Request $request, Department $department): RedirectResponse
     {
-        $this->authorize('update', $department);
+        if ($request->filled('code')) {
+            $request->merge([
+                'code' => strtoupper($request->input('code')),
+            ]);
+        }
 
-        $department->update($request->validated());
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'code' => [
+                'required',
+                'string',
+                'max:20',
+                'alpha_num',
+                Rule::unique('departments', 'code')->ignore($department),
+            ],
+            'faculty' => ['nullable', 'string', 'max:255'],
+            'head_id' => ['nullable', 'integer', 'exists:users,id', $this->eligibleHeadRule()],
+            'description' => ['nullable', 'string', 'max:2000'],
+        ]);
+
+        $department->update($validated);
         $this->syncHeadAffiliation($department);
 
         return redirect()->route('admin.departments.show', $department)
@@ -117,7 +141,6 @@ class DepartmentController extends Controller
 
     public function destroy(Department $department): RedirectResponse
     {
-        $this->authorize('delete', $department);
 
         if ($department->users()->exists()) {
             return back()->withErrors([
@@ -154,5 +177,23 @@ class DepartmentController extends Controller
         if ($head && $head->department_id !== $department->id) {
             $head->update(['department_id' => $department->id]);
         }
+    }
+
+    /**
+     * @return \Closure(string, mixed, \Closure): void
+     */
+    private function eligibleHeadRule(): \Closure
+    {
+        return function (string $attribute, mixed $value, \Closure $fail): void {
+            if ($value === null) {
+                return;
+            }
+
+            $head = User::find($value);
+
+            if (! $head || ! in_array($head->role, [UserRole::Supervisor, UserRole::Admin], true)) {
+                $fail('The department head must be a supervisor or administrator.');
+            }
+        };
     }
 }

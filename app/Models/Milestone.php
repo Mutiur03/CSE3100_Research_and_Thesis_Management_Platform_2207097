@@ -57,16 +57,6 @@ class Milestone extends Model
         return $this->belongsTo(self::class, 'depends_on_id');
     }
 
-    public function dependents(): HasMany
-    {
-        return $this->hasMany(self::class, 'depends_on_id');
-    }
-
-    public function creator(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'created_by');
-    }
-
     public function tasks(): HasMany
     {
         return $this->hasMany(MilestoneTask::class)->orderBy('id');

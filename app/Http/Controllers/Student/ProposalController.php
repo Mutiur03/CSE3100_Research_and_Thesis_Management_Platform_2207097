@@ -5,11 +5,8 @@ namespace App\Http\Controllers\Student;
 use App\Enums\ProposalStatus;
 use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Proposal\StoreProposalRequest;
-use App\Http\Requests\Proposal\UpdateProposalRequest;
 use App\Models\Proposal;
 use App\Models\User;
-use App\Services\ThesisNotificationService;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -17,13 +14,8 @@ use Illuminate\View\View;
 
 class ProposalController extends Controller
 {
-    public function __construct(
-        private readonly ThesisNotificationService $notifications,
-    ) {}
-
     public function index(Request $request): View
     {
-        $this->authorize('viewAny', Proposal::class);
 
         $proposals = Proposal::query()
             ->where('student_id', $request->user()->id)
@@ -38,7 +30,6 @@ class ProposalController extends Controller
 
     public function create(Request $request): View
     {
-        $this->authorize('create', Proposal::class);
 
         return view('student.proposals.create', [
             'supervisors' => $this->availableSupervisors(),
@@ -46,14 +37,20 @@ class ProposalController extends Controller
         ]);
     }
 
-    public function store(StoreProposalRequest $request): RedirectResponse
+    public function store(Request $request): RedirectResponse
     {
-        $this->authorize('create', Proposal::class);
+        $validated = $request->validate([
+            'title' => ['required', 'string', 'max:255'],
+            'abstract' => ['required', 'string', 'max:5000'],
+            'objectives' => ['nullable', 'string', 'max:5000'],
+            'methodology' => ['nullable', 'string', 'max:5000'],
+            'supervisor_id' => ['required', 'integer', 'exists:users,id', $this->supervisorRule()],
+        ]);
 
         $student = $request->user();
 
         $proposal = Proposal::create([
-            ...$request->validated(),
+            ...$validated,
             'student_id' => $student->id,
             'department_id' => $student->department_id,
             'status' => ProposalStatus::Draft,
@@ -65,7 +62,7 @@ class ProposalController extends Controller
 
     public function show(Proposal $proposal): View
     {
-        $this->authorize('view', $proposal);
+        abort_unless($proposal->student_id === auth()->id(), 403);
 
         $proposal->load(['supervisor', 'department', 'thesis']);
 
@@ -76,7 +73,8 @@ class ProposalController extends Controller
 
     public function edit(Proposal $proposal): View
     {
-        $this->authorize('update', $proposal);
+        abort_unless($proposal->student_id === auth()->id(), 403);
+        abort_unless($proposal->isEditable(), 403);
 
         return view('student.proposals.edit', [
             'proposal' => $proposal,
@@ -84,11 +82,20 @@ class ProposalController extends Controller
         ]);
     }
 
-    public function update(UpdateProposalRequest $request, Proposal $proposal): RedirectResponse
+    public function update(Request $request, Proposal $proposal): RedirectResponse
     {
-        $this->authorize('update', $proposal);
+        abort_unless($proposal->student_id === $request->user()->id, 403);
+        abort_unless($proposal->isEditable(), 403);
 
-        $proposal->update($request->validated());
+        $validated = $request->validate([
+            'title' => ['required', 'string', 'max:255'],
+            'abstract' => ['required', 'string', 'max:5000'],
+            'objectives' => ['nullable', 'string', 'max:5000'],
+            'methodology' => ['nullable', 'string', 'max:5000'],
+            'supervisor_id' => ['required', 'integer', 'exists:users,id', $this->supervisorRule()],
+        ]);
+
+        $proposal->update($validated);
 
         return redirect()->route('student.proposals.show', $proposal)
             ->with('success', 'Proposal updated successfully.');
@@ -96,7 +103,8 @@ class ProposalController extends Controller
 
     public function destroy(Proposal $proposal): RedirectResponse
     {
-        $this->authorize('delete', $proposal);
+        abort_unless($proposal->student_id === auth()->id(), 403);
+        abort_unless($proposal->status === ProposalStatus::Draft, 403);
 
         $proposal->delete();
 
@@ -106,7 +114,8 @@ class ProposalController extends Controller
 
     public function submit(Request $request, Proposal $proposal): RedirectResponse
     {
-        $this->authorize('submit', $proposal);
+        abort_unless($proposal->student_id === $request->user()->id, 403);
+        abort_unless($proposal->isSubmittable(), 403);
 
         $proposal->update([
             'status' => ProposalStatus::Submitted,
@@ -114,8 +123,6 @@ class ProposalController extends Controller
             'reviewed_at' => null,
             'review_notes' => null,
         ]);
-
-        $this->notifications->notifyProposalSubmitted($proposal->fresh(['student', 'supervisor']));
 
         return redirect()->route('student.proposals.show', $proposal)
             ->with('success', 'Proposal submitted to your supervisor for review.');
@@ -131,5 +138,19 @@ class ProposalController extends Controller
             ->where('is_active', true)
             ->orderBy('name')
             ->get(['id', 'name', 'email', 'department_id']);
+    }
+
+    /**
+     * @return \Closure(string, mixed, \Closure): void
+     */
+    private function supervisorRule(): \Closure
+    {
+        return function (string $attribute, mixed $value, \Closure $fail): void {
+            $supervisor = User::find($value);
+
+            if (! $supervisor || ! $supervisor->isSupervisor() || ! $supervisor->is_active) {
+                $fail('Please select an active supervisor.');
+            }
+        };
     }
 }

@@ -1,123 +1,59 @@
 # Research & Thesis Management Platform
 
-A centralized web platform for managing the full academic thesis lifecycle — from proposal submission through supervision, milestones, document versioning, meetings, discussion, external review, and final submission.
+A centralized web platform for managing the academic thesis lifecycle — from proposal submission through supervision, milestones, document versioning, meetings, discussion, and final submission.
 
-Built with **Laravel 12**, **Blade**, **Tailwind CSS**, and **Livewire** (SPA navigation).
+Built with **Laravel 12**, **Blade**, **Tailwind CSS**, and **Livewire** (SPA-style navigation via `wire:navigate`).
 
-## Features
+## Documentation
 
-| Module | Description |
-|--------|-------------|
-| **Authentication** | Registration, login, email verification, password reset |
-| **Admin setup** | Secure first-admin bootstrap via emailed setup code |
-| **Roles** | Student, Supervisor, Reviewer, Admin |
-| **Proposals** | Students draft and submit; supervisors approve/reject/request revision |
-| **Theses** | Auto-created from approved proposals |
-| **Milestones & tasks** | Supervisor-defined schedule with student completion tracking |
-| **Documents** | Upload and version control (chapters, appendices, final thesis) |
-| **Meetings** | Supervision/committee/defense scheduling with student RSVP |
-| **Discussion** | Threaded comments with @mentions and supervisor private notes |
-| **Notifications** | In-app + email with per-category user preferences |
-| **External review** | Admin/supervisor assigns reviewers; reviewers submit decisions |
-| **Final submission** | Students submit final thesis after uploading a final document |
-| **Admin oversight** | User/department management, thesis status control, reviewer assignment |
+Full guides live in [`docs/`](docs/README.md):
 
-## Requirements
+| Guide | Description |
+|-------|-------------|
+| [Teacher Presentation](docs/TEACHER_PRESENTATION.md) | What it can do, what’s next, how to demo for your teacher |
+| [User Guide](docs/USER_GUIDE.md) | How to use the platform by role |
+| [Roles & Permissions](docs/USER_GUIDE_ROLES.md) | Who can do what |
+| [System Guide](docs/SYSTEM_GUIDE.md) | Architecture, setup, Laravel internals |
+| [Showcase script](docs/USER_GUIDE.md#3-the-thesis-lifecycle) | Demo flow (see User Guide + DemoSeeder below) |
+| [Project Blueprint](docs/PROJECT_BLUEPRINT.md) | Vision and implementation status |
+| [Module execution](docs/AGENTIC_MODULE_EXECUTION.md) | Build order for remaining modules |
 
-- PHP 8.2+
-- Composer
-- Node.js 18+
-- SQLite (default) or MySQL/PostgreSQL
-
-## Quick start (local showcase)
+## Quick start (showcase)
 
 ```bash
-# 1. Install dependencies
 composer install
 npm install
-
-# 2. Environment
-copy .env.example .env   # Windows
+copy .env.example .env          # Windows — use cp on macOS/Linux
 php artisan key:generate
-
-# 3. Database
 php artisan migrate
 php artisan storage:link
-
-# 4. Load demo data (recommended for presentation)
 php artisan db:seed --class=DemoSeeder
-
-# 5. Build assets and run
 npm run build
 composer dev
 ```
 
-Open **http://127.0.0.1:8000** and sign in with a demo account below.
+Open **http://127.0.0.1:8000**
 
-### Demo accounts
-
-All demo accounts use password: **`password`**
+### Demo accounts (password: `password`)
 
 | Role | Email |
 |------|-------|
 | Admin | `admin@researchhub.test` |
 | Supervisor | `supervisor@researchhub.test` |
 | Student | `student@researchhub.test` |
-| Reviewer | `reviewer@researchhub.test` |
 | Student (pending proposal) | `student2@researchhub.test` |
 
-> **Note:** Demo seeder creates the admin directly. The `/setup` flow is only needed on a fresh install without demo data.
+Reset demo: `php artisan migrate:fresh --seed --seeder=DemoSeeder`
 
-### Fresh install (without demo seeder)
+Details: [docs/setup section in SYSTEM_GUIDE.md](docs/SYSTEM_GUIDE.md#1-quick-start-install--first-login)
 
-1. Set `SETUP_ADMIN_EMAIL=your@email.com` in `.env`
-2. Visit `/setup` and request a setup code
-3. With `MAIL_MAILER=log`, find the code in `storage/logs/laravel.log`
-4. Complete admin registration at `/setup/complete`
-
-## Showcase demo script (~12 min)
-
-1. **Admin** — dashboard stats, departments, users, assign reviewer on thesis
-2. **Student** — active thesis, milestones, upload document, submit final thesis
-3. **Supervisor** — review pending proposal (student2), manage milestones/meetings, assign reviewer
-4. **Reviewer** — open assigned review, submit approve/reject/revision decision
-5. **Cross-cutting** — notifications, profile preferences, run `php artisan test`
-
-## Running tests
+## Tests
 
 ```bash
-php artisan test
+composer test
 ```
 
-109+ automated feature tests cover auth, proposals, milestones, documents, meetings, comments, notifications, and thesis reviews.
-
-## Scheduled tasks
-
-Milestone reminder emails run daily at 08:00:
-
-```bash
-php artisan milestones:send-reminders
-```
-
-In production, configure a cron entry: `* * * * * php artisan schedule:run`
-
-## Project structure
-
-```
-app/
-├── Enums/           # Status enums (Proposal, Thesis, Review, Milestone, etc.)
-├── Http/Controllers/ # Role-based controllers
-├── Models/          # Eloquent models
-├── Policies/        # Authorization policies
-├── Services/        # Business logic (documents, reviews, notifications)
-└── Notifications/   # In-app + mail notifications
-database/
-├── migrations/      # Schema
-├── factories/       # Test factories
-└── seeders/         # DemoSeeder for showcase
-resources/views/     # Blade templates + components
-tests/Feature/       # Feature tests
-```
+**104** automated tests.
 
 ## License
 

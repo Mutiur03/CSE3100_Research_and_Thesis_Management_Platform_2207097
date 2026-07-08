@@ -40,7 +40,6 @@
                             <th class="px-6 py-3">Student</th>
                             <th class="px-6 py-3">Supervisor</th>
                             <th class="px-6 py-3">Status</th>
-                            <th class="px-6 py-3">Reviewers</th>
                             <th class="px-6 py-3 text-right">Actions</th>
                         </tr>
                     </thead>
@@ -53,14 +52,13 @@
                                 <td class="px-6 py-4">
                                     <x-thesis-status-badge :status="$thesis->status" />
                                 </td>
-                                <td class="px-6 py-4 text-stone-600">{{ $thesis->reviews_count }}</td>
                                 <td class="px-6 py-4 text-right">
                                     <a wire:navigate.hover href="{{ route('admin.theses.show', $thesis) }}" class="btn-secondary btn-sm">Manage</a>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="px-6 py-12 text-center text-sm text-stone-500">No theses found.</td>
+                                <td colspan="5" class="px-6 py-12 text-center text-sm text-stone-500">No theses found.</td>
                             </tr>
                         @endforelse
                     </tbody>

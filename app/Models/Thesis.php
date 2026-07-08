@@ -4,9 +4,6 @@ namespace App\Models;
 
 use App\Enums\DocumentCategory;
 use App\Enums\ProposalStatus;
-use App\Enums\ThesisReviewDecision;
-use App\Enums\ThesisReviewOutcome;
-use App\Enums\ThesisReviewStatus;
 use App\Enums\ThesisStatus;
 use Database\Factories\ThesisFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -91,11 +88,6 @@ class Thesis extends Model
         return $this->morphMany(Comment::class, 'commentable')->latest();
     }
 
-    public function reviews(): HasMany
-    {
-        return $this->hasMany(ThesisReview::class)->latest('assigned_at');
-    }
-
     public function isActive(): bool
     {
         return $this->status === ThesisStatus::Active;
@@ -113,51 +105,10 @@ class Thesis extends Model
             ->exists();
     }
 
-    public function reviewOutcome(): ?ThesisReviewOutcome
-    {
-        $reviews = $this->relationLoaded('reviews')
-            ? $this->reviews
-            : $this->reviews()->get();
-
-        if ($reviews->isEmpty()) {
-            return null;
-        }
-
-        if ($reviews->contains(fn (ThesisReview $review) => in_array($review->status, ThesisReviewStatus::openCases(), true))) {
-            return $reviews->every(fn (ThesisReview $review) => $review->status === ThesisReviewStatus::Pending)
-                ? ThesisReviewOutcome::Pending
-                : ThesisReviewOutcome::InProgress;
-        }
-
-        $decisions = $reviews->pluck('decision');
-
-        if ($decisions->contains(ThesisReviewDecision::Reject)) {
-            return ThesisReviewOutcome::Rejected;
-        }
-
-        if ($decisions->contains(ThesisReviewDecision::RequestRevision)) {
-            return ThesisReviewOutcome::RevisionNeeded;
-        }
-
-        if ($decisions->every(fn (?ThesisReviewDecision $decision) => $decision === ThesisReviewDecision::Approve)) {
-            return ThesisReviewOutcome::Approved;
-        }
-
-        return ThesisReviewOutcome::Mixed;
-    }
-
     public function showUrlFor(User $user): string
     {
         if ($user->isStudent()) {
             return route('student.theses.show', $this);
-        }
-
-        if ($user->isReviewer()) {
-            $review = $this->reviews()->where('reviewer_id', $user->id)->first();
-
-            return $review
-                ? route('reviewer.reviews.show', $review)
-                : route('reviewer.reviews.index');
         }
 
         return route('supervisor.theses.show', $this);

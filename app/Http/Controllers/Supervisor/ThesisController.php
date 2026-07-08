@@ -3,23 +3,15 @@
 namespace App\Http\Controllers\Supervisor;
 
 use App\Enums\ThesisStatus;
-use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
 use App\Models\Thesis;
-use App\Models\User;
-use App\Services\ThesisReviewService;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class ThesisController extends Controller
 {
-    public function __construct(
-        private readonly ThesisReviewService $reviews,
-    ) {}
     public function index(Request $request): View
     {
-        $this->authorize('viewAny', Thesis::class);
 
         $statusFilter = $request->input('status');
 
@@ -43,11 +35,10 @@ class ThesisController extends Controller
 
     public function show(Thesis $thesis): View
     {
-        $this->authorize('view', $thesis);
+        abort_unless($thesis->supervisor_id === auth()->id(), 403);
 
         $thesis->load([
             'student', 'department', 'proposal',
-            'reviews.reviewer', 'reviews.assigner',
             'milestones.tasks.assignee',
             'milestones.dependency',
             'meetings.organizer',
@@ -60,31 +51,8 @@ class ThesisController extends Controller
             'documents.versions.uploader', 'documents.uploader',
         ]);
 
-        $availableReviewers = User::query()
-            ->where('role', UserRole::Reviewer)
-            ->where('is_active', true)
-            ->whereNotIn('id', $thesis->reviews->pluck('reviewer_id'))
-            ->orderBy('name')
-            ->get();
-
         return view('supervisor.theses.show', [
             'thesis' => $thesis,
-            'availableReviewers' => $availableReviewers,
         ]);
-    }
-
-    public function reopenReviews(Thesis $thesis): RedirectResponse
-    {
-        $this->authorize('reopenReviews', $thesis);
-
-        $count = $this->reviews->reopenRevisionReviews($thesis);
-
-        if ($count === 0) {
-            return redirect()->route('supervisor.theses.show', $thesis)
-                ->with('error', 'No revision reviews available to reopen.');
-        }
-
-        return redirect()->route('supervisor.theses.show', $thesis)
-            ->with('success', 'Reviewer assignments reopened for revision.');
     }
 }

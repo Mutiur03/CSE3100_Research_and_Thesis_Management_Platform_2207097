@@ -8,7 +8,6 @@ use App\Enums\MeetingStatus;
 use App\Enums\MeetingType;
 use App\Enums\MilestoneStatus;
 use App\Enums\ProposalStatus;
-use App\Enums\ThesisReviewStatus;
 use App\Enums\UserRole;
 use App\Models\Comment;
 use App\Models\Department;
@@ -18,7 +17,6 @@ use App\Models\Proposal;
 use App\Models\Thesis;
 use App\Models\ThesisDocument;
 use App\Models\ThesisDocumentVersion;
-use App\Models\ThesisReview;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -70,16 +68,6 @@ class DemoSeeder extends Seeder
             'email_verified_at' => now(),
             'is_active' => true,
             'research_interests' => ['Machine Learning', 'Data Science'],
-        ]);
-
-        $reviewer = User::query()->create([
-            'name' => 'Prof. Ahmed Hossain',
-            'email' => 'reviewer@researchhub.test',
-            'password' => $password,
-            'role' => UserRole::Reviewer,
-            'department_id' => $department->id,
-            'email_verified_at' => now(),
-            'is_active' => true,
         ]);
 
         $pendingStudent = User::query()->create([
@@ -145,7 +133,7 @@ class DemoSeeder extends Seeder
         Milestone::query()->create([
             'thesis_id' => $thesis->id,
             'title' => 'Final thesis draft',
-            'description' => 'Complete written thesis and prepare for external review.',
+            'description' => 'Complete written thesis and prepare for final submission.',
             'due_date' => now()->addMonth(),
             'status' => MilestoneStatus::Pending,
             'progress_percentage' => 0,
@@ -182,14 +170,6 @@ class DemoSeeder extends Seeder
             'is_private' => false,
         ]);
 
-        ThesisReview::query()->create([
-            'thesis_id' => $thesis->id,
-            'reviewer_id' => $reviewer->id,
-            'status' => ThesisReviewStatus::Pending,
-            'assigned_by' => $supervisor->id,
-            'assigned_at' => now()->subDays(2),
-        ]);
-
         $this->command?->info('Demo data seeded successfully.');
         $this->command?->newLine();
         $this->command?->info('Demo accounts (password: '.self::PASSWORD.')');
@@ -199,7 +179,6 @@ class DemoSeeder extends Seeder
                 ['Admin', $admin->email],
                 ['Supervisor', $supervisor->email],
                 ['Student', $student->email],
-                ['Reviewer', $reviewer->email],
                 ['Student (pending proposal)', $pendingStudent->email],
             ],
         );

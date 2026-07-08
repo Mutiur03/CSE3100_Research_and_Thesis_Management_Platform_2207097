@@ -6,7 +6,6 @@ use Database\Factories\ThesisDocumentVersionFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Facades\Storage;
 
 class ThesisDocumentVersion extends Model
 {
@@ -66,10 +65,5 @@ class ThesisDocumentVersion extends Model
         }
 
         return $bytes.' B';
-    }
-
-    public function deleteStoredFile(): void
-    {
-        Storage::disk('public')->delete($this->file_path);
     }
 }

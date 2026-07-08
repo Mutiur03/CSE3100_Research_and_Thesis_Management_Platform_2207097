@@ -61,7 +61,7 @@
             </div>
 
             <div class="space-y-6">
-                @can('review', $proposal)
+                @if(in_array($proposal->status, \App\Enums\ProposalStatus::reviewableCases(), true))
                     <div class="card">
                         <div class="card-section">
                             <h3 class="text-sm font-semibold text-stone-900">Decision</h3>
@@ -99,7 +99,7 @@
                             <button type="submit" class="btn-primary w-full">Submit decision</button>
                         </form>
                     </div>
-                @endcan
+                @endif
 
                 <div class="card">
                     <div class="card-section">

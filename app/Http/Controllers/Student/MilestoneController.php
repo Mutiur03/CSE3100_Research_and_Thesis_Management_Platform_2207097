@@ -5,18 +5,17 @@ namespace App\Http\Controllers\Student;
 use App\Enums\MilestoneStatus;
 use App\Enums\ThesisStatus;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Milestone\CompleteMilestoneRequest;
 use App\Models\Milestone;
 use App\Models\Thesis;
 use Illuminate\Http\RedirectResponse;
 
 class MilestoneController extends Controller
 {
-    public function complete(CompleteMilestoneRequest $request, Thesis $thesis, Milestone $milestone): RedirectResponse
+    public function complete(Thesis $thesis, Milestone $milestone): RedirectResponse
     {
         abort_unless($milestone->thesis_id === $thesis->id, 404);
-
-        $this->authorize('complete', $milestone);
+        abort_unless($thesis->student_id === auth()->id(), 403);
+        abort_unless($milestone->isCompletable(), 403);
 
         $milestone->update([
             'status' => MilestoneStatus::Completed,

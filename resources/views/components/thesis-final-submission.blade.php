@@ -12,12 +12,12 @@
             </div>
         @elseif($thesis->hasFinalDocument())
             <p>Upload a document with category <strong>Final thesis</strong>, then submit it here.</p>
-            @can('submitFinal', $thesis)
+            @if(auth()->user()->isStudent())
                 <form method="POST" action="{{ route('student.theses.submit-final', $thesis) }}" onsubmit="return confirm('Submit your final thesis for review?')">
                     @csrf
                     <button type="submit" class="btn-primary w-full">Submit final thesis</button>
                 </form>
-            @endcan
+            @endif
         @else
             <p>Upload a document with category <strong>Final thesis</strong> in the documents section before submitting.</p>
         @endif

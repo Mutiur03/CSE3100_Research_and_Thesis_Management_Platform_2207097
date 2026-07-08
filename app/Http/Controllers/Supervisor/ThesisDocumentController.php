@@ -2,31 +2,40 @@
 
 namespace App\Http\Controllers\Supervisor;
 
+use App\Enums\DocumentCategory;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\ThesisDocument\StoreThesisDocumentRequest;
-use App\Http\Requests\ThesisDocument\StoreThesisDocumentVersionRequest;
 use App\Models\Thesis;
 use App\Models\ThesisDocument;
 use App\Models\ThesisDocumentVersion;
-use App\Services\ThesisDocumentService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\File;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ThesisDocumentController extends Controller
 {
-    public function __construct(
-        private readonly ThesisDocumentService $documents,
-    ) {}
-
-    public function store(StoreThesisDocumentRequest $request, Thesis $thesis): RedirectResponse
+    public function store(Request $request, Thesis $thesis): RedirectResponse
     {
-        $this->authorize('create', [ThesisDocument::class, $thesis]);
+        abort_unless($thesis->supervisor_id === $request->user()->id, 403);
 
-        $this->documents->createDocument(
+        $validated = $request->validate([
+            'title' => ['required', 'string', 'max:255'],
+            'description' => ['nullable', 'string', 'max:2000'],
+            'category' => ['required', Rule::enum(DocumentCategory::class)],
+            'file' => [
+                'required',
+                File::types(['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png'])
+                    ->max(10 * 1024),
+            ],
+            'change_summary' => ['nullable', 'string', 'max:1000'],
+        ]);
+
+        ThesisDocument::createDocument(
             $thesis,
             $request->user(),
-            $request->safe()->only(['title', 'description', 'category', 'change_summary']),
+            collect($validated)->only(['title', 'description', 'category', 'change_summary'])->all(),
             $request->file('file'),
         );
 
@@ -34,17 +43,24 @@ class ThesisDocumentController extends Controller
             ->with('success', 'Document uploaded successfully.');
     }
 
-    public function storeVersion(StoreThesisDocumentVersionRequest $request, Thesis $thesis, ThesisDocument $document): RedirectResponse
+    public function storeVersion(Request $request, Thesis $thesis, ThesisDocument $document): RedirectResponse
     {
+        $validated = $request->validate([
+            'file' => [
+                'required',
+                File::types(['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png'])
+                    ->max(10 * 1024),
+            ],
+            'change_summary' => ['nullable', 'string', 'max:1000'],
+        ]);
+
         abort_unless($document->thesis_id === $thesis->id, 404);
+        abort_unless($thesis->supervisor_id === $request->user()->id, 403);
 
-        $this->authorize('addVersion', $document);
-
-        $this->documents->storeVersion(
-            $document,
+        $document->storeVersion(
             $request->user(),
             $request->file('file'),
-            $request->validated('change_summary'),
+            $validated['change_summary'] ?? null,
         );
 
         return redirect()->route('supervisor.theses.show', $thesis)
@@ -55,8 +71,7 @@ class ThesisDocumentController extends Controller
     {
         abort_unless($document->thesis_id === $thesis->id, 404);
         abort_unless($version->thesis_document_id === $document->id, 404);
-
-        $this->authorize('view', $document);
+        abort_unless($thesis->supervisor_id === auth()->id(), 403);
 
         return Storage::disk('public')->download($version->file_path, $version->file_name);
     }

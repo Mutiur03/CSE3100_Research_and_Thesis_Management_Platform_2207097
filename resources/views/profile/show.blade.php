@@ -98,39 +98,6 @@
                 </div>
             </div>
 
-            <div class="card">
-                <div class="card-section">
-                    <h3 class="text-sm font-semibold text-stone-900">Email notifications</h3>
-                    <p class="mt-1 text-sm text-stone-500">Choose which updates are sent to your email. In-app notifications always appear in the bell icon.</p>
-                </div>
-                <div class="card-body space-y-4">
-                    @php
-                        $preferences = old('notification_preferences', $user->notification_preferences ?? \App\Enums\NotificationCategory::defaults());
-                    @endphp
-
-                    @foreach($notificationCategories as $category)
-                        @if($category->supportsEmail())
-                            <label class="flex items-start gap-3">
-                                <input type="hidden" name="notification_preferences[{{ $category->value }}]" value="0">
-                                <input type="checkbox"
-                                       name="notification_preferences[{{ $category->value }}]"
-                                       value="1"
-                                       class="mt-1 rounded border-stone-300 text-navy-800 focus:ring-navy-700"
-                                       @checked((bool) ($preferences[$category->value] ?? true))>
-                                <span>
-                                    <span class="block text-sm font-medium text-stone-900">{{ $category->label() }}</span>
-                                </span>
-                            </label>
-                        @else
-                            <div class="rounded border border-stone-100 bg-stone-50 px-4 py-3">
-                                <p class="text-sm font-medium text-stone-900">{{ $category->label() }}</p>
-                                <p class="mt-1 text-sm text-stone-500">In-app only.</p>
-                            </div>
-                        @endif
-                    @endforeach
-                </div>
-            </div>
-
             <div class="flex justify-end">
                 <button type="submit" id="profile-submit" class="btn-primary">Save changes</button>
             </div>

@@ -18,7 +18,7 @@
             <ul class="mt-12 space-y-4 text-base leading-relaxed text-navy-200">
                 <li class="flex items-start gap-4">
                     <span class="mt-2 flex h-2 w-2 shrink-0 rounded-full bg-brand-400" aria-hidden="true"></span>
-                    Role-based access for students, supervisors, reviewers, and administrators
+                    Role-based access for students, supervisors, and administrators
                 </li>
                 <li class="flex items-start gap-4">
                     <span class="mt-2 flex h-2 w-2 shrink-0 rounded-full bg-brand-400" aria-hidden="true"></span>

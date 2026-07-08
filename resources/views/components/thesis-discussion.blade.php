@@ -4,8 +4,8 @@
 ])
 
 @php
-    $canComment = auth()->user()->can('create', [\App\Models\Comment::class, $thesis]);
-    $mentionableUsers = app(\App\Services\CommentService::class)->mentionableUsers($thesis);
+    $canComment = auth()->user()->isStudent() || auth()->user()->isSupervisor();
+    $mentionableUsers = \App\Models\Comment::mentionableUsers($thesis);
     $mentionHint = $mentionableUsers->map(fn ($user) => '@'.$user->email)->join(', ');
 @endphp
 

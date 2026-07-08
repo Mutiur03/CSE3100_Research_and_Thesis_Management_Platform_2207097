@@ -4,48 +4,65 @@ namespace App\Http\Controllers\Supervisor;
 
 use App\Enums\MeetingRsvpStatus;
 use App\Enums\MeetingStatus;
+use App\Enums\MeetingType;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Meeting\StoreMeetingRequest;
-use App\Http\Requests\Meeting\UpdateMeetingRequest;
 use App\Models\Meeting;
 use App\Models\Thesis;
-use App\Services\ThesisNotificationService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class MeetingController extends Controller
 {
-    public function __construct(
-        private readonly ThesisNotificationService $notifications,
-    ) {}
-
-    public function store(StoreMeetingRequest $request, Thesis $thesis): RedirectResponse
+    public function store(Request $request, Thesis $thesis): RedirectResponse
     {
-        $this->authorize('create', [Meeting::class, $thesis]);
+        abort_unless($thesis->supervisor_id === $request->user()->id, 403);
+
+        $validated = $request->validate([
+            'title' => ['required', 'string', 'max:255'],
+            'description' => ['nullable', 'string', 'max:2000'],
+            'type' => ['required', Rule::enum(MeetingType::class)],
+            'scheduled_at' => ['required', 'date', 'after:now'],
+            'duration_minutes' => ['nullable', 'integer', 'min:15', 'max:480'],
+            'location' => ['nullable', 'string', 'max:255'],
+            'meeting_link' => ['nullable', 'url', 'max:500'],
+            'agenda' => ['nullable', 'string', 'max:5000'],
+        ]);
 
         $meeting = $thesis->meetings()->create([
-            ...$request->validated(),
-            'duration_minutes' => $request->validated('duration_minutes') ?? 60,
+            ...$validated,
+            'duration_minutes' => $validated['duration_minutes'] ?? 60,
             'status' => MeetingStatus::Scheduled,
             'organized_by' => $request->user()->id,
         ]);
 
         $this->syncDefaultAttendees($meeting, $thesis);
 
-        $this->notifications->notifyMeetingScheduled($meeting->fresh(['thesis.student', 'thesis.supervisor', 'attendees.user']));
-
         return redirect()->route('supervisor.theses.show', $thesis)
             ->with('success', 'Meeting scheduled successfully.');
     }
 
-    public function update(UpdateMeetingRequest $request, Thesis $thesis, Meeting $meeting): RedirectResponse
+    public function update(Request $request, Thesis $thesis, Meeting $meeting): RedirectResponse
     {
         abort_unless($meeting->thesis_id === $thesis->id, 404);
+        abort_unless($thesis->supervisor_id === $request->user()->id, 403);
 
-        $this->authorize('update', $meeting);
+        $validated = $request->validate([
+            'title' => ['required', 'string', 'max:255'],
+            'description' => ['nullable', 'string', 'max:2000'],
+            'type' => ['required', Rule::enum(MeetingType::class)],
+            'scheduled_at' => ['required', 'date'],
+            'duration_minutes' => ['nullable', 'integer', 'min:15', 'max:480'],
+            'location' => ['nullable', 'string', 'max:255'],
+            'meeting_link' => ['nullable', 'url', 'max:500'],
+            'agenda' => ['nullable', 'string', 'max:5000'],
+            'minutes' => ['nullable', 'string', 'max:10000'],
+            'status' => ['required', Rule::enum(MeetingStatus::class)],
+        ]);
 
         $meeting->update([
-            ...$request->validated(),
-            'duration_minutes' => $request->validated('duration_minutes') ?? 60,
+            ...$validated,
+            'duration_minutes' => $validated['duration_minutes'] ?? 60,
         ]);
 
         return redirect()->route('supervisor.theses.show', $thesis)
@@ -55,8 +72,7 @@ class MeetingController extends Controller
     public function destroy(Thesis $thesis, Meeting $meeting): RedirectResponse
     {
         abort_unless($meeting->thesis_id === $thesis->id, 404);
-
-        $this->authorize('delete', $meeting);
+        abort_unless($thesis->supervisor_id === auth()->id(), 403);
 
         $meeting->delete();
 

@@ -3,21 +3,15 @@
 namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Student\SubmitFinalThesisRequest;
 use App\Models\Thesis;
-use App\Services\ThesisNotificationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class ThesisController extends Controller
 {
-    public function __construct(
-        private readonly ThesisNotificationService $notifications,
-    ) {}
     public function index(Request $request): View
     {
-        $this->authorize('viewAny', Thesis::class);
 
         $theses = Thesis::query()
             ->where('student_id', $request->user()->id)
@@ -32,11 +26,10 @@ class ThesisController extends Controller
 
     public function show(Thesis $thesis): View
     {
-        $this->authorize('view', $thesis);
+        abort_unless($thesis->student_id === auth()->id(), 403);
 
         $thesis->load([
             'supervisor', 'department', 'proposal',
-            'reviews.reviewer',
             'milestones.tasks.assignee',
             'milestones.dependency',
             'meetings.organizer',
@@ -54,11 +47,11 @@ class ThesisController extends Controller
         ]);
     }
 
-    public function submitFinal(SubmitFinalThesisRequest $request, Thesis $thesis): RedirectResponse
+    public function submitFinal(Request $request, Thesis $thesis): RedirectResponse
     {
-        $thesis->update(['final_submitted_at' => now()]);
+        abort_unless($thesis->student_id === $request->user()->id, 403);
 
-        $this->notifications->notifyFinalThesisSubmitted($thesis->fresh(), $request->user());
+        $thesis->update(['final_submitted_at' => now()]);
 
         return redirect()->route('student.theses.show', $thesis)
             ->with('success', 'Final thesis submitted for supervisor review.');
