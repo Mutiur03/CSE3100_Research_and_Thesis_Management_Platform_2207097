@@ -5,12 +5,12 @@
 @section('content')
     <div>
         <h2 class="font-display text-2xl text-stone-900">Complete administrator setup</h2>
-        <p class="mt-2 text-sm text-stone-500">
+        <p class="mt-2 text-sm leading-relaxed text-stone-500">
             Enter the setup code from your email and choose administrator credentials.
         </p>
     </div>
 
-    <form method="POST" action="{{ route('setup.complete.store') }}" class="mt-8 space-y-5">
+    <form method="POST" action="{{ route('setup.complete.store') }}" class="mt-8 space-y-5" data-auth-form>
         @csrf
 
         <div>
@@ -20,6 +20,7 @@
                 id="admin-email"
                 value="{{ $adminEmail }}"
                 disabled
+                spellcheck="false"
                 class="input-field bg-stone-50 text-stone-500"
             >
             <p class="field-hint">Displayed as {{ $maskedEmail }}. This cannot be changed during setup.</p>
@@ -33,12 +34,15 @@
                 id="code"
                 value="{{ old('code') }}"
                 required
+                autofocus
                 autocomplete="one-time-code"
                 class="input-field font-mono tracking-widest @error('code') input-error @enderror"
+                spellcheck="false"
                 placeholder="XXXX-XXXX-XXXX-XXXX"
+                @error('code') aria-invalid="true" aria-describedby="code-error" @enderror
             >
             @error('code')
-                <p class="field-error">{{ $message }}</p>
+                <p id="code-error" class="field-error">{{ $message }}</p>
             @enderror
         </div>
 
@@ -52,40 +56,31 @@
                 required
                 autocomplete="name"
                 class="input-field @error('name') input-error @enderror"
+                @error('name') aria-invalid="true" aria-describedby="name-error" @enderror
             >
             @error('name')
-                <p class="field-error">{{ $message }}</p>
+                <p id="name-error" class="field-error">{{ $message }}</p>
             @enderror
         </div>
 
-        <div>
-            <label for="password" class="field-label">Password</label>
-            <input
-                type="password"
-                name="password"
-                id="password"
-                required
-                autocomplete="new-password"
-                class="input-field @error('password') input-error @enderror"
-            >
-            @error('password')
-                <p class="field-error">{{ $message }}</p>
-            @enderror
-        </div>
+        <x-password-field
+            name="password"
+            label="Password"
+            autocomplete="new-password"
+            hint="Minimum 8 characters."
+        />
 
         <div>
-            <label for="password_confirmation" class="field-label">Confirm password</label>
-            <input
-                type="password"
+            <x-password-field
                 name="password_confirmation"
                 id="password_confirmation"
-                required
+                label="Confirm password"
                 autocomplete="new-password"
-                class="input-field"
-            >
+            />
+            <p class="field-hint mt-1.5 hidden" data-password-match aria-live="polite"></p>
         </div>
 
-        <button type="submit" class="btn-primary w-full">
+        <button type="submit" class="btn-primary w-full" data-loading-label="Creating administrator…">
             Create administrator
         </button>
     </form>

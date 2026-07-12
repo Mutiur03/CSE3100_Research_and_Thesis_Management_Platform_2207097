@@ -38,10 +38,11 @@ Open **http://127.0.0.1:8000**
 
 | Role | Email |
 |------|-------|
-| Admin | `admin@researchhub.test` |
-| Supervisor | `supervisor@researchhub.test` |
-| Student | `student@researchhub.test` |
-| Student (pending proposal) | `student2@researchhub.test` |
+| Supervisor | `mutiur@alturavent.com` |
+| Student | `mutiur5bb@gmail.com` |
+| Student (pending proposal) | `helloworldkuet@gmail.com` |
+
+Create the first admin via `/setup`, then use the accounts above.
 
 Reset demo: `php artisan migrate:fresh --seed --seeder=DemoSeeder`
 

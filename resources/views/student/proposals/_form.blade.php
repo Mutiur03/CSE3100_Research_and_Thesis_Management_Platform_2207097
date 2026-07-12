@@ -19,7 +19,7 @@
                     value="{{ old('title', $proposal?->title) }}"
                     required
                     class="input-field @error('title') input-error @enderror"
-                    placeholder="Research title"
+                    placeholder="Research title…"
                 >
                 @error('title')
                     <p class="field-error">{{ $message }}</p>
@@ -49,7 +49,7 @@
                     rows="5"
                     required
                     class="textarea-field @error('abstract') input-error @enderror"
-                    placeholder="Summarize the research problem, significance, and expected contribution"
+                    placeholder="Summarize the research problem, significance, and expected contribution…"
                 >{{ old('abstract', $proposal?->abstract) }}</textarea>
                 @error('abstract')
                     <p class="field-error">{{ $message }}</p>
@@ -63,7 +63,7 @@
                     id="objectives"
                     rows="4"
                     class="textarea-field @error('objectives') input-error @enderror"
-                    placeholder="List the main research objectives"
+                    placeholder="List the main research objectives…"
                 >{{ old('objectives', $proposal?->objectives) }}</textarea>
                 @error('objectives')
                     <p class="field-error">{{ $message }}</p>
@@ -77,7 +77,7 @@
                     id="methodology"
                     rows="4"
                     class="textarea-field @error('methodology') input-error @enderror"
-                    placeholder="Outline your proposed methods and tools"
+                    placeholder="Outline your proposed methods and tools…"
                 >{{ old('methodology', $proposal?->methodology) }}</textarea>
                 @error('methodology')
                     <p class="field-error">{{ $message }}</p>

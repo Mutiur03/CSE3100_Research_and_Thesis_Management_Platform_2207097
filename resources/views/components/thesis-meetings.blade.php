@@ -6,7 +6,9 @@
 @php
     $canSchedule = auth()->user()->isSupervisor();
     $isSupervisor = $routePrefix === 'supervisor';
-    $showScheduleForm = $errors->hasAny(['title', 'type', 'scheduled_at', 'duration_minutes', 'location', 'meeting_link', 'agenda', 'description']) && ! request('meeting');
+    $showScheduleForm = $errors->hasAny(['title', 'type', 'format', 'scheduled_at', 'duration_minutes', 'location', 'agenda', 'description']) && ! request('meeting');
+    $googleConnected = $canSchedule && auth()->user()->hasGoogleCalendarConnected();
+    $oldFormat = old('format', \App\Enums\MeetingFormat::Online->value);
 @endphp
 
 <div class="card overflow-hidden">
@@ -24,12 +26,22 @@
 
     @if($canSchedule)
         <div id="schedule-meeting-form" class="{{ $showScheduleForm ? '' : 'hidden' }} border-t border-stone-100 bg-stone-50 px-6 py-5">
-            <form method="POST" action="{{ route($routePrefix.'.theses.meetings.store', $thesis) }}" class="space-y-4">
+            @if($googleConnected)
+                <p class="mb-4 text-sm text-stone-600">
+                    Google Calendar is connected — online meetings get a Google Meet link automatically.
+                </p>
+            @else
+                <p class="mb-4 text-sm text-stone-600">
+                    <a href="{{ route('profile.show') }}" class="font-medium text-navy-700 hover:text-navy-900">Connect Google Calendar</a>
+                    in your profile to auto-create Meet links for online meetings.
+                </p>
+            @endif
+            <form method="POST" action="{{ route($routePrefix.'.theses.meetings.store', $thesis) }}" class="space-y-4" data-meeting-form>
                 @csrf
                 <div class="grid gap-4 sm:grid-cols-2">
                     <div class="sm:col-span-2">
                         <label for="meeting-title" class="field-label">Title</label>
-                        <input type="text" name="title" id="meeting-title" value="{{ old('title') }}" required class="input-field @error('title') input-error @enderror" placeholder="e.g. Weekly supervision check-in">
+                        <input type="text" name="title" id="meeting-title" value="{{ old('title') }}" required class="input-field @error('title') input-error @enderror" placeholder="e.g. Weekly supervision check-in…">
                         @error('title')
                             <p class="field-error">{{ $message }}</p>
                         @enderror
@@ -46,7 +58,34 @@
                         @enderror
                     </div>
                     <div>
-                        <label for="meeting-scheduled-at" class="field-label">Date & time</label>
+                        <fieldset>
+                            <legend class="field-label">Format</legend>
+                            <div class="mt-2 grid grid-cols-2 gap-3">
+                                @foreach(\App\Enums\MeetingFormat::cases() as $formatOption)
+                                    <label class="flex cursor-pointer flex-col rounded border border-stone-300 p-3 transition-colors has-[:checked]:border-navy-700 has-[:checked]:bg-navy-50">
+                                        <input
+                                            type="radio"
+                                            name="format"
+                                            value="{{ $formatOption->value }}"
+                                            class="sr-only"
+                                            data-meeting-format
+                                            @checked($oldFormat === $formatOption->value)
+                                            required
+                                        >
+                                        <span class="text-sm font-medium text-stone-800">{{ $formatOption->label() }}</span>
+                                        <span class="mt-0.5 text-xs text-stone-500">
+                                            {{ $formatOption === \App\Enums\MeetingFormat::Online ? 'Video call via Google Meet' : 'Requires a physical location' }}
+                                        </span>
+                                    </label>
+                                @endforeach
+                            </div>
+                        </fieldset>
+                        @error('format')
+                            <p class="field-error">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    <div>
+                        <label for="meeting-scheduled-at" class="field-label">Date & time <span class="font-normal text-stone-400">(Asia/Dhaka)</span></label>
                         <input type="datetime-local" name="scheduled_at" id="meeting-scheduled-at" value="{{ old('scheduled_at') }}" required class="input-field @error('scheduled_at') input-error @enderror">
                         @error('scheduled_at')
                             <p class="field-error">{{ $message }}</p>
@@ -59,30 +98,32 @@
                             <p class="field-error">{{ $message }}</p>
                         @enderror
                     </div>
-                    <div>
-                        <label for="meeting-location" class="field-label">Location <span class="font-normal text-stone-400">(optional)</span></label>
-                        <input type="text" name="location" id="meeting-location" value="{{ old('location') }}" class="input-field @error('location') input-error @enderror" placeholder="Room 204 or Online">
+                    <div class="sm:col-span-2" data-location-field @if($oldFormat !== \App\Enums\MeetingFormat::InPerson->value) hidden @endif>
+                        <label for="meeting-location" class="field-label">Location</label>
+                        <input
+                            type="text"
+                            name="location"
+                            id="meeting-location"
+                            value="{{ old('location') }}"
+                            class="input-field @error('location') input-error @enderror"
+                            placeholder="e.g. Room 204, CSE Building…"
+                            @if($oldFormat === \App\Enums\MeetingFormat::InPerson->value) required @endif
+                            data-location-input
+                        >
                         @error('location')
-                            <p class="field-error">{{ $message }}</p>
-                        @enderror
-                    </div>
-                    <div>
-                        <label for="meeting-link" class="field-label">Video link <span class="font-normal text-stone-400">(optional)</span></label>
-                        <input type="url" name="meeting_link" id="meeting-link" value="{{ old('meeting_link') }}" class="input-field @error('meeting_link') input-error @enderror" placeholder="https://zoom.us/j/...">
-                        @error('meeting_link')
                             <p class="field-error">{{ $message }}</p>
                         @enderror
                     </div>
                     <div class="sm:col-span-2">
                         <label for="meeting-agenda" class="field-label">Agenda <span class="font-normal text-stone-400">(optional)</span></label>
-                        <textarea name="agenda" id="meeting-agenda" rows="3" class="textarea-field @error('agenda') input-error @enderror" placeholder="Topics to cover in this meeting">{{ old('agenda') }}</textarea>
+                        <textarea name="agenda" id="meeting-agenda" rows="3" class="textarea-field @error('agenda') input-error @enderror" placeholder="Topics to cover in this meeting…">{{ old('agenda') }}</textarea>
                         @error('agenda')
                             <p class="field-error">{{ $message }}</p>
                         @enderror
                     </div>
                     <div class="sm:col-span-2">
                         <label for="meeting-description" class="field-label">Notes <span class="font-normal text-stone-400">(optional)</span></label>
-                        <textarea name="description" id="meeting-description" rows="2" class="textarea-field @error('description') input-error @enderror" placeholder="Additional context">{{ old('description') }}</textarea>
+                        <textarea name="description" id="meeting-description" rows="2" class="textarea-field @error('description') input-error @enderror" placeholder="Additional context…">{{ old('description') }}</textarea>
                         @error('description')
                             <p class="field-error">{{ $message }}</p>
                         @enderror
@@ -104,8 +145,10 @@
         <div class="divide-y divide-stone-100">
             @foreach($thesis->meetings as $meeting)
                 @php
-                    $myAttendee = $meeting->attendees->firstWhere('user_id', auth()->id());
                     $showEditForm = request('meeting') == $meeting->id || ($errors->any() && old('_meeting_id') == $meeting->id);
+                    $editFormat = old('_meeting_id') == $meeting->id
+                        ? old('format', $meeting->format->value)
+                        : $meeting->format->value;
                 @endphp
                 <div class="px-6 py-5">
                     <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
@@ -113,16 +156,18 @@
                             <div class="flex flex-wrap items-center gap-2">
                                 <h4 class="text-sm font-semibold text-stone-900">{{ $meeting->title }}</h4>
                                 <x-meeting-type-badge :type="$meeting->type" />
-                                <x-meeting-status-badge :status="$meeting->status" />
+                                <span class="inline-flex items-center rounded-full bg-stone-100 px-2.5 py-0.5 text-xs font-medium text-stone-600 ring-1 ring-stone-200">
+                                    {{ $meeting->format->label() }}
+                                </span>
                             </div>
                             <p class="text-sm text-stone-600">
-                                {{ $meeting->scheduled_at->format('M j, Y g:i A') }}
+                                {{ $meeting->scheduled_at->timezone(config('app.timezone'))->format('M j, Y g:i A') }}
                                 · {{ $meeting->duration_minutes }} min
-                                @if($meeting->location)
+                                @if($meeting->format->requiresLocation() && $meeting->location)
                                     · {{ $meeting->location }}
                                 @endif
                             </p>
-                            @if($meeting->meeting_link)
+                            @if($meeting->format === \App\Enums\MeetingFormat::Online && $meeting->meeting_link)
                                 <p class="text-sm">
                                     <a href="{{ $meeting->meeting_link }}" target="_blank" rel="noopener noreferrer" class="font-medium text-navy-700 hover:text-navy-900">
                                         Join video call →
@@ -144,9 +189,8 @@
                             @if($meeting->attendees->isNotEmpty())
                                 <div class="flex flex-wrap gap-2 pt-1">
                                     @foreach($meeting->attendees as $attendee)
-                                        <span class="inline-flex items-center gap-1 rounded-full bg-stone-100 px-2.5 py-1 text-xs text-stone-700">
+                                        <span class="inline-flex items-center rounded-full bg-stone-100 px-2.5 py-1 text-xs text-stone-700">
                                             {{ $attendee->user->name }}
-                                            <span class="font-medium text-stone-500">· {{ $attendee->rsvp_status->label() }}</span>
                                         </span>
                                     @endforeach
                                 </div>
@@ -166,25 +210,9 @@
                         </div>
                     </div>
 
-                    @if(!$isSupervisor && $myAttendee)
-                        <form method="POST" action="{{ route('student.theses.meetings.rsvp', [$thesis, $meeting]) }}" class="mt-4 flex flex-wrap items-end gap-3 border-t border-stone-100 pt-4">
-                            @csrf
-                            @method('PATCH')
-                            <div>
-                                <label for="rsvp-{{ $meeting->id }}" class="field-label">Your RSVP</label>
-                                <select name="rsvp_status" id="rsvp-{{ $meeting->id }}" class="input-field">
-                                    @foreach(\App\Enums\MeetingRsvpStatus::cases() as $rsvpOption)
-                                        <option value="{{ $rsvpOption->value }}" @selected($myAttendee->rsvp_status === $rsvpOption)>{{ $rsvpOption->label() }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <button type="submit" class="btn-primary btn-sm">Update RSVP</button>
-                        </form>
-                    @endif
-
                     @if($isSupervisor)
                         <div id="edit-meeting-{{ $meeting->id }}" class="{{ $showEditForm ? '' : 'hidden' }} mt-4 border-t border-stone-100 pt-4">
-                            <form method="POST" action="{{ route('supervisor.theses.meetings.update', [$thesis, $meeting]) }}" class="space-y-4">
+                            <form method="POST" action="{{ route('supervisor.theses.meetings.update', [$thesis, $meeting]) }}" class="space-y-4" data-meeting-form>
                                 @csrf
                                 @method('PUT')
                                 <input type="hidden" name="_meeting_id" value="{{ $meeting->id }}">
@@ -202,28 +230,46 @@
                                         </select>
                                     </div>
                                     <div>
-                                        <label for="edit-status-{{ $meeting->id }}" class="field-label">Status</label>
-                                        <select name="status" id="edit-status-{{ $meeting->id }}" required class="input-field">
-                                            @foreach(\App\Enums\MeetingStatus::cases() as $statusOption)
-                                                <option value="{{ $statusOption->value }}" @selected(old('status', $meeting->status->value) === $statusOption->value)>{{ $statusOption->label() }}</option>
-                                            @endforeach
-                                        </select>
+                                        <fieldset>
+                                            <legend class="field-label">Format</legend>
+                                            <div class="mt-2 grid grid-cols-2 gap-3">
+                                                @foreach(\App\Enums\MeetingFormat::cases() as $formatOption)
+                                                    <label class="flex cursor-pointer flex-col rounded border border-stone-300 p-3 transition-colors has-[:checked]:border-navy-700 has-[:checked]:bg-navy-50">
+                                                        <input
+                                                            type="radio"
+                                                            name="format"
+                                                            value="{{ $formatOption->value }}"
+                                                            class="sr-only"
+                                                            data-meeting-format
+                                                            @checked($editFormat === $formatOption->value)
+                                                            required
+                                                        >
+                                                        <span class="text-sm font-medium text-stone-800">{{ $formatOption->label() }}</span>
+                                                    </label>
+                                                @endforeach
+                                            </div>
+                                        </fieldset>
                                     </div>
                                     <div>
-                                        <label for="edit-scheduled-at-{{ $meeting->id }}" class="field-label">Date & time</label>
-                                        <input type="datetime-local" name="scheduled_at" id="edit-scheduled-at-{{ $meeting->id }}" value="{{ old('scheduled_at', $meeting->scheduled_at->format('Y-m-d\TH:i')) }}" required class="input-field">
+                                        <label for="edit-scheduled-at-{{ $meeting->id }}" class="field-label">Date & time <span class="font-normal text-stone-400">(Asia/Dhaka)</span></label>
+                                        <input type="datetime-local" name="scheduled_at" id="edit-scheduled-at-{{ $meeting->id }}" value="{{ old('scheduled_at', $meeting->scheduled_at->timezone(config('app.timezone'))->format('Y-m-d\TH:i')) }}" required class="input-field">
                                     </div>
                                     <div>
                                         <label for="edit-duration-{{ $meeting->id }}" class="field-label">Duration (minutes)</label>
                                         <input type="number" name="duration_minutes" id="edit-duration-{{ $meeting->id }}" value="{{ old('duration_minutes', $meeting->duration_minutes) }}" min="15" max="480" class="input-field">
                                     </div>
-                                    <div>
+                                    <div class="sm:col-span-2" data-location-field @if($editFormat !== \App\Enums\MeetingFormat::InPerson->value) hidden @endif>
                                         <label for="edit-location-{{ $meeting->id }}" class="field-label">Location</label>
-                                        <input type="text" name="location" id="edit-location-{{ $meeting->id }}" value="{{ old('location', $meeting->location) }}" class="input-field">
-                                    </div>
-                                    <div>
-                                        <label for="edit-link-{{ $meeting->id }}" class="field-label">Video link</label>
-                                        <input type="url" name="meeting_link" id="edit-link-{{ $meeting->id }}" value="{{ old('meeting_link', $meeting->meeting_link) }}" class="input-field">
+                                        <input
+                                            type="text"
+                                            name="location"
+                                            id="edit-location-{{ $meeting->id }}"
+                                            value="{{ old('location', $meeting->location) }}"
+                                            class="input-field"
+                                            placeholder="e.g. Room 204, CSE Building…"
+                                            @if($editFormat === \App\Enums\MeetingFormat::InPerson->value) required @endif
+                                            data-location-input
+                                        >
                                     </div>
                                     <div class="sm:col-span-2">
                                         <label for="edit-agenda-{{ $meeting->id }}" class="field-label">Agenda</label>
@@ -231,7 +277,7 @@
                                     </div>
                                     <div class="sm:col-span-2">
                                         <label for="edit-minutes-{{ $meeting->id }}" class="field-label">Minutes</label>
-                                        <textarea name="minutes" id="edit-minutes-{{ $meeting->id }}" rows="4" class="textarea-field" placeholder="Record outcomes and action items">{{ old('minutes', $meeting->minutes) }}</textarea>
+                                        <textarea name="minutes" id="edit-minutes-{{ $meeting->id }}" rows="4" class="textarea-field" placeholder="Record outcomes and action items…">{{ old('minutes', $meeting->minutes) }}</textarea>
                                     </div>
                                     <div class="sm:col-span-2">
                                         <label for="edit-description-{{ $meeting->id }}" class="field-label">Notes</label>
@@ -250,3 +296,29 @@
         </div>
     @endif
 </div>
+
+@once
+    @push('scripts')
+        <script>
+            document.addEventListener('change', function (e) {
+                const input = e.target.closest('[data-meeting-format]');
+                if (!input) return;
+
+                const form = input.closest('[data-meeting-form]');
+                if (!form) return;
+
+                const locationField = form.querySelector('[data-location-field]');
+                const locationInput = form.querySelector('[data-location-input]');
+                const isInPerson = input.value === @json(\App\Enums\MeetingFormat::InPerson->value) && input.checked;
+
+                if (!locationField || !locationInput) return;
+
+                locationField.hidden = !isInPerson;
+                locationInput.required = isInPerson;
+                if (!isInPerson) {
+                    locationInput.value = '';
+                }
+            });
+        </script>
+    @endpush
+@endonce

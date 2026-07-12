@@ -52,75 +52,108 @@
             </div>
         </section>
 
-        <div class="grid gap-6 lg:grid-cols-3">
-            <div class="card lg:col-span-1">
-                <div class="card-section">
-                    <h3 class="text-sm font-semibold text-stone-900">Overview</h3>
-                </div>
-                <div class="card-body space-y-4 text-sm">
-                    <div>
-                        <p class="text-xs font-medium uppercase tracking-wide text-stone-400">Department head</p>
-                        @if($department->head)
-                            <p class="mt-1 font-medium text-stone-800">{{ $department->head->name }}</p>
-                            <p class="text-stone-500">{{ $department->head->email }}</p>
-                        @else
-                            <p class="mt-1 text-stone-500">Not assigned</p>
-                        @endif
-                    </div>
-                    @if($department->description)
-                        <div>
-                            <p class="text-xs font-medium uppercase tracking-wide text-stone-400">Description</p>
-                            <p class="mt-1 text-stone-600">{{ $department->description }}</p>
-                        </div>
-                    @endif
-                    <div>
-                        <p class="text-xs font-medium uppercase tracking-wide text-stone-400">Created</p>
-                        <p class="mt-1 text-stone-600">{{ $department->created_at->format('M d, Y') }}</p>
-                    </div>
-                </div>
+        <div class="mb-6 card lg:max-w-md">
+            <div class="card-section">
+                <h3 class="text-sm font-semibold text-stone-900">Overview</h3>
             </div>
+            <div class="card-body space-y-4 text-sm">
+                <div>
+                    <p class="text-xs font-medium uppercase tracking-wide text-stone-400">Department head</p>
+                    @if($department->head)
+                        <p class="mt-1 font-medium text-stone-800">{{ $department->head->name }}</p>
+                        <p class="text-stone-500">{{ $department->head->email }}</p>
+                    @else
+                        <p class="mt-1 text-stone-500">Not assigned</p>
+                    @endif
+                </div>
+                @if($department->description)
+                    <div>
+                        <p class="text-xs font-medium uppercase tracking-wide text-stone-400">Description</p>
+                        <p class="mt-1 text-stone-600">{{ $department->description }}</p>
+                    </div>
+                @endif
+            </div>
+        </div>
 
-            <div class="card overflow-hidden lg:col-span-2">
+        <div class="grid gap-6 lg:grid-cols-2">
+            <div class="card overflow-hidden">
                 <div class="card-section">
-                    <h3 class="text-sm font-semibold text-stone-900">Members</h3>
-                    <p class="mt-0.5 text-sm text-stone-500">Users affiliated with this department.</p>
+                    <h3 class="text-sm font-semibold text-stone-900">Teachers</h3>
+                    <p class="mt-0.5 text-sm text-stone-500">Supervisors affiliated with this department.</p>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="data-table">
                         <thead class="table-head">
                             <tr>
-                                <th class="px-6 py-3">User</th>
-                                <th class="px-6 py-3">Role</th>
+                                <th class="px-6 py-3">Teacher</th>
                                 <th class="px-6 py-3 text-right">Actions</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-stone-100 bg-white">
-                            @forelse($members as $member)
+                            @forelse($teachers as $teacher)
                                 <tr class="hover:bg-stone-50/80">
                                     <td class="px-6 py-4">
-                                        <p class="font-medium text-stone-800">{{ $member->name }}</p>
-                                        <p class="text-xs text-stone-500">{{ $member->email }}</p>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <x-role-badge :role="$member->role" />
+                                        <p class="font-medium text-stone-800">{{ $teacher->name }}</p>
+                                        <p class="text-xs text-stone-500">{{ $teacher->email }}</p>
                                     </td>
                                     <td class="px-6 py-4 text-right">
-                                        <a wire:navigate.hover href="{{ route('admin.users.edit', $member) }}" class="btn-secondary btn-sm">Edit</a>
+                                        <a wire:navigate.hover href="{{ route('admin.users.edit', $teacher) }}" class="btn-secondary btn-sm">Edit</a>
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="3" class="px-6 py-12 text-center text-sm text-stone-500">
-                                        No members yet. Assign users via user management.
+                                    <td colspan="2" class="px-6 py-12 text-center text-sm text-stone-500">
+                                        No teachers yet. Assign supervisors via user management.
                                     </td>
                                 </tr>
                             @endforelse
                         </tbody>
                     </table>
                 </div>
-                @if($members->hasPages())
+                @if($teachers->hasPages())
                     <div class="border-t border-stone-200 bg-stone-50 px-6 py-3">
-                        {{ $members->links() }}
+                        {{ $teachers->links() }}
+                    </div>
+                @endif
+            </div>
+
+            <div class="card overflow-hidden">
+                <div class="card-section">
+                    <h3 class="text-sm font-semibold text-stone-900">Students</h3>
+                    <p class="mt-0.5 text-sm text-stone-500">Students affiliated with this department.</p>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="data-table">
+                        <thead class="table-head">
+                            <tr>
+                                <th class="px-6 py-3">Student</th>
+                                <th class="px-6 py-3 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-stone-100 bg-white">
+                            @forelse($students as $student)
+                                <tr class="hover:bg-stone-50/80">
+                                    <td class="px-6 py-4">
+                                        <p class="font-medium text-stone-800">{{ $student->name }}</p>
+                                        <p class="text-xs text-stone-500">{{ $student->email }}</p>
+                                    </td>
+                                    <td class="px-6 py-4 text-right">
+                                        <a wire:navigate.hover href="{{ route('admin.users.edit', $student) }}" class="btn-secondary btn-sm">Edit</a>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="2" class="px-6 py-12 text-center text-sm text-stone-500">
+                                        No students yet. Assign students via user management.
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+                @if($students->hasPages())
+                    <div class="border-t border-stone-200 bg-stone-50 px-6 py-3">
+                        {{ $students->links() }}
                     </div>
                 @endif
             </div>

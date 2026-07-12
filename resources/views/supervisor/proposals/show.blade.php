@@ -89,7 +89,7 @@
                                     id="review_notes"
                                     rows="5"
                                     class="textarea-field @error('review_notes') input-error @enderror"
-                                    placeholder="Required for rejection or revision requests"
+                                    placeholder="Required for rejection or revision requests…"
                                 >{{ old('review_notes') }}</textarea>
                                 @error('review_notes')
                                     <p class="field-error">{{ $message }}</p>

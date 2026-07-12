@@ -1,6 +1,9 @@
 @php
     $canReply = auth()->user()->isStudent() || auth()->user()->isSupervisor();
     $canDelete = auth()->id() === $comment->user_id || auth()->user()->isSupervisor();
+    $mentionTargets = $mentionTargets ?? \App\Models\Comment::mentionableUsers($thesis)
+        ->reject(fn ($user) => $user->id === auth()->id())
+        ->values();
 @endphp
 
 <div class="{{ $depth > 0 ? 'border-t border-stone-100 bg-stone-50/60 pl-6' : '' }} px-6 py-5">
@@ -43,10 +46,15 @@
             <form method="POST" action="{{ route($routePrefix.'.theses.comments.store', $thesis) }}" class="space-y-3">
                 @csrf
                 <input type="hidden" name="parent_id" value="{{ $comment->id }}">
-                <div>
-                    <label for="reply-body-{{ $comment->id }}" class="field-label">Reply to {{ $comment->user->name }}</label>
-                    <textarea name="body" id="reply-body-{{ $comment->id }}" rows="2" required class="textarea-field">{{ old('parent_id') == $comment->id ? old('body') : '' }}</textarea>
-                </div>
+                <x-mention-field
+                    :id="'reply-body-'.$comment->id"
+                    :label="'Reply to '.$comment->user->name"
+                    :mentionables="$mentionTargets"
+                    :rows="2"
+                    placeholder="Write a reply…"
+                    :value="old('parent_id') == $comment->id ? old('body') : ''"
+                    :error="old('parent_id') == $comment->id ? $errors->first('body') : null"
+                />
                 <button type="submit" class="btn-primary btn-sm">Post reply</button>
             </form>
         </div>
@@ -58,6 +66,7 @@
             'thesis' => $thesis,
             'routePrefix' => $routePrefix,
             'depth' => 1,
+            'mentionTargets' => $mentionTargets,
         ])
     @endforeach
 </div>

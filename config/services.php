@@ -35,4 +35,10 @@ return [
         ],
     ],
 
+    'composio' => [
+        'key' => env('COMPOSIO_API_KEY'),
+        'base_url' => env('COMPOSIO_BASE_URL', 'https://backend.composio.dev'),
+        'google_calendar_auth_config_id' => env('COMPOSIO_GOOGLE_CALENDAR_AUTH_CONFIG_ID'),
+    ],
+
 ];

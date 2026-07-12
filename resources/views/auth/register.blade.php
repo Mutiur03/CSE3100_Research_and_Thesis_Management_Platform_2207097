@@ -5,10 +5,10 @@
 @section('content')
     <div>
         <h2 class="font-display text-2xl text-stone-900">Create account</h2>
-        <p class="mt-2 text-sm text-stone-500">Register with your institutional email address.</p>
+        <p class="mt-2 text-sm leading-relaxed text-stone-500">Register with your institutional email. Students and supervisors can self-register.</p>
     </div>
 
-    <form method="POST" action="{{ route('register') }}" class="mt-8 space-y-5" id="register-form">
+    <form method="POST" action="{{ route('register') }}" class="mt-8 space-y-5" id="register-form" data-auth-form>
         @csrf
 
         <div>
@@ -22,15 +22,54 @@
                 autofocus
                 autocomplete="name"
                 class="input-field @error('name') input-error @enderror"
-                placeholder="Dr. Jane Smith"
+                placeholder="Your full name"
+                @error('name') aria-invalid="true" aria-describedby="name-error" @enderror
             >
             @error('name')
-                <p class="field-error">{{ $message }}</p>
+                <p id="name-error" class="field-error">{{ $message }}</p>
             @enderror
         </div>
 
+        <fieldset>
+            <legend class="field-label">I am a</legend>
+            <div class="mt-2 grid grid-cols-2 gap-3">
+                <label class="group flex cursor-pointer flex-col rounded border border-stone-300 p-3.5 transition-colors has-[:checked]:border-navy-700 has-[:checked]:bg-navy-50 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-navy-700/20">
+                    <input type="radio" name="role" value="student" class="sr-only" {{ old('role', 'student') === 'student' ? 'checked' : '' }}>
+                    <span class="flex items-center justify-between gap-2">
+                        <span class="text-sm font-medium text-stone-800">Student</span>
+                        <span class="flex h-4 w-4 items-center justify-center rounded-full border border-stone-300 group-has-[:checked]:border-navy-700 group-has-[:checked]:bg-navy-800" aria-hidden="true">
+                            <span class="h-1.5 w-1.5 rounded-full bg-white opacity-0 group-has-[:checked]:opacity-100"></span>
+                        </span>
+                    </span>
+                    <span class="mt-1 text-xs leading-relaxed text-stone-500">Submit proposals and track thesis progress</span>
+                </label>
+                <label class="group flex cursor-pointer flex-col rounded border border-stone-300 p-3.5 transition-colors has-[:checked]:border-navy-700 has-[:checked]:bg-navy-50 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-navy-700/20">
+                    <input type="radio" name="role" value="supervisor" class="sr-only" {{ old('role') === 'supervisor' ? 'checked' : '' }}>
+                    <span class="flex items-center justify-between gap-2">
+                        <span class="text-sm font-medium text-stone-800">Supervisor</span>
+                        <span class="flex h-4 w-4 items-center justify-center rounded-full border border-stone-300 group-has-[:checked]:border-navy-700 group-has-[:checked]:bg-navy-800" aria-hidden="true">
+                            <span class="h-1.5 w-1.5 rounded-full bg-white opacity-0 group-has-[:checked]:opacity-100"></span>
+                        </span>
+                    </span>
+                    <span class="mt-1 text-xs leading-relaxed text-stone-500">Guide students and review submissions</span>
+                </label>
+            </div>
+            @error('role')
+                <p class="field-error">{{ $message }}</p>
+            @enderror
+        </fieldset>
+
         <div>
             <label for="email" class="field-label">Email address</label>
+            @php
+                $selectedRole = old('role', 'student');
+                $emailPlaceholder = $selectedRole === 'supervisor'
+                    ? 'karim@cse.kuet.ac.bd'
+                    : 'rahman21041@stud.kuet.ac.bd';
+                $emailHint = $selectedRole === 'supervisor'
+                    ? 'Use your faculty email (e.g. name@dept.kuet.ac.bd).'
+                    : 'Use your student email (e.g. lastnameroll@stud.kuet.ac.bd).';
+            @endphp
             <input
                 type="email"
                 name="email"
@@ -38,38 +77,24 @@
                 value="{{ old('email') }}"
                 required
                 autocomplete="email"
+                spellcheck="false"
+                inputmode="email"
                 class="input-field @error('email') input-error @enderror"
-                placeholder="name@university.edu"
+                placeholder="{{ $emailPlaceholder }}"
+                aria-describedby="email-hint{{ $errors->has('email') ? ' email-error' : '' }}"
+                @error('email') aria-invalid="true" @enderror
             >
+            <p id="email-hint" class="field-hint" data-email-hint>{{ $emailHint }}</p>
             @error('email')
-                <p class="field-error">{{ $message }}</p>
-            @enderror
-        </div>
-
-        <div>
-            <span class="field-label">Account type</span>
-            <div class="mt-2 grid grid-cols-2 gap-3">
-                <label class="flex cursor-pointer flex-col rounded border border-stone-300 p-3 transition-colors has-[:checked]:border-navy-700 has-[:checked]:bg-navy-50">
-                    <input type="radio" name="role" value="student" class="sr-only" {{ old('role', 'student') === 'student' ? 'checked' : '' }}>
-                    <span class="text-sm font-medium text-stone-800">Student</span>
-                    <span class="mt-0.5 text-xs text-stone-500">Submit and track research</span>
-                </label>
-                <label class="flex cursor-pointer flex-col rounded border border-stone-300 p-3 transition-colors has-[:checked]:border-navy-700 has-[:checked]:bg-navy-50">
-                    <input type="radio" name="role" value="supervisor" class="sr-only" {{ old('role') === 'supervisor' ? 'checked' : '' }}>
-                    <span class="text-sm font-medium text-stone-800">Supervisor</span>
-                    <span class="mt-0.5 text-xs text-stone-500">Guide student research</span>
-                </label>
-            </div>
-            @error('role')
-                <p class="field-error">{{ $message }}</p>
+                <p id="email-error" class="field-error">{{ $message }}</p>
             @enderror
         </div>
 
         @if($departments->isNotEmpty())
             <div>
-                <label for="department_id" class="field-label">Department</label>
-                <select name="department_id" id="department_id" class="select-field @error('department_id') input-error @enderror">
-                    <option value="">Select department (optional)</option>
+                <label for="department_id" class="field-label">Department <span class="font-normal text-stone-400">(optional)</span></label>
+                <select name="department_id" id="department_id" class="select-field @error('department_id') input-error @enderror" @error('department_id') aria-invalid="true" aria-describedby="department-error" @enderror>
+                    <option value="">Select your department</option>
                     @foreach($departments as $department)
                         <option value="{{ $department->id }}" {{ (string) old('department_id') === (string) $department->id ? 'selected' : '' }}>
                             {{ $department->display_name }}
@@ -77,40 +102,29 @@
                     @endforeach
                 </select>
                 @error('department_id')
-                    <p class="field-error">{{ $message }}</p>
+                    <p id="department-error" class="field-error">{{ $message }}</p>
                 @enderror
             </div>
         @endif
 
-        <div>
-            <label for="password" class="field-label">Password</label>
-            <input
-                type="password"
-                name="password"
-                id="password"
-                required
-                autocomplete="new-password"
-                class="input-field @error('password') input-error @enderror"
-            >
-            <p class="field-hint">Minimum 8 characters.</p>
-            @error('password')
-                <p class="field-error">{{ $message }}</p>
-            @enderror
-        </div>
+        <x-password-field
+            name="password"
+            label="Password"
+            autocomplete="new-password"
+            hint="Minimum 8 characters."
+        />
 
         <div>
-            <label for="password_confirmation" class="field-label">Confirm password</label>
-            <input
-                type="password"
+            <x-password-field
                 name="password_confirmation"
                 id="password_confirmation"
-                required
+                label="Confirm password"
                 autocomplete="new-password"
-                class="input-field"
-            >
+            />
+            <p class="field-hint mt-1.5 hidden" data-password-match aria-live="polite"></p>
         </div>
 
-        <button type="submit" id="register-submit" class="btn-primary w-full">
+        <button type="submit" id="register-submit" class="btn-primary w-full" data-loading-label="Creating account…">
             Create account
         </button>
     </form>

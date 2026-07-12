@@ -22,7 +22,7 @@
                             name="search"
                             id="search"
                             value="{{ $search }}"
-                            placeholder="Name, code, or faculty"
+                            placeholder="Name, code, or faculty…"
                             class="input-field"
                         >
                     </div>

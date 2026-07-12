@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\MeetingFormat;
 use App\Enums\MeetingStatus;
 use App\Enums\MeetingType;
 use Database\Factories\MeetingFactory;
@@ -26,10 +27,13 @@ class Meeting extends Model
         'title',
         'description',
         'type',
+        'format',
         'scheduled_at',
         'duration_minutes',
         'location',
         'meeting_link',
+        'google_event_id',
+        'google_html_link',
         'agenda',
         'minutes',
         'status',
@@ -43,6 +47,7 @@ class Meeting extends Model
     {
         return [
             'type' => MeetingType::class,
+            'format' => MeetingFormat::class,
             'status' => MeetingStatus::class,
             'scheduled_at' => 'datetime',
             'duration_minutes' => 'integer',

@@ -36,6 +36,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'research_interests',
         'is_active',
         'last_login_at',
+        'composio_google_connected_account_id',
     ];
 
     /**
@@ -87,6 +88,11 @@ class User extends Authenticatable implements MustVerifyEmail
     public function isStudent(): bool
     {
         return $this->hasRole(UserRole::Student);
+    }
+
+    public function hasGoogleCalendarConnected(): bool
+    {
+        return filled($this->composio_google_connected_account_id);
     }
 
     public static function needsSetup(): bool

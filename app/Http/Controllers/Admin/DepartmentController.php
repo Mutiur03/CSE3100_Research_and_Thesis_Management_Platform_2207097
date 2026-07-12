@@ -91,13 +91,20 @@ class DepartmentController extends Controller
             'users as admins_count' => fn ($q) => $q->where('role', UserRole::Admin),
         ]);
 
-        $members = $department->users()
+        $teachers = $department->users()
+            ->where('role', UserRole::Supervisor)
             ->orderBy('name')
-            ->paginate(10, ['*'], 'members_page');
+            ->paginate(10, ['*'], 'teachers_page');
+
+        $students = $department->users()
+            ->where('role', UserRole::Student)
+            ->orderBy('name')
+            ->paginate(10, ['*'], 'students_page');
 
         return view('admin.departments.show', [
             'department' => $department,
-            'members' => $members,
+            'teachers' => $teachers,
+            'students' => $students,
         ]);
     }
 

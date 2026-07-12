@@ -18,7 +18,7 @@
                     value="{{ old('name', $department?->name) }}"
                     required
                     class="input-field @error('name') input-error @enderror"
-                    placeholder="Computer Science & Engineering"
+                    placeholder="Computer Science & Engineering…"
                 >
                 @error('name')
                     <p class="field-error">{{ $message }}</p>
@@ -35,7 +35,7 @@
                     required
                     maxlength="20"
                     class="input-field @error('code') input-error @enderror"
-                    placeholder="CSE"
+                    placeholder="CSE…"
                 >
                 <p class="field-hint">Short unique code (letters and numbers only).</p>
                 @error('code')
@@ -51,7 +51,7 @@
                     id="faculty"
                     value="{{ old('faculty', $department?->faculty) }}"
                     class="input-field @error('faculty') input-error @enderror"
-                    placeholder="Faculty of Science & Engineering"
+                    placeholder="Faculty of Science & Engineering…"
                 >
                 @error('faculty')
                     <p class="field-error">{{ $message }}</p>
@@ -80,7 +80,7 @@
                     id="description"
                     rows="4"
                     class="textarea-field @error('description') input-error @enderror"
-                    placeholder="Brief overview of the department"
+                    placeholder="Brief overview of the department…"
                 >{{ old('description', $department?->description) }}</textarea>
                 @error('description')
                     <p class="field-error">{{ $message }}</p>

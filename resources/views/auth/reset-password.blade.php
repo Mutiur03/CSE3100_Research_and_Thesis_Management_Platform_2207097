@@ -5,10 +5,10 @@
 @section('content')
     <div>
         <h2 class="font-display text-2xl text-stone-900">Set new password</h2>
-        <p class="mt-2 text-sm text-stone-500">Choose a strong password for your account.</p>
+        <p class="mt-2 text-sm leading-relaxed text-stone-500">Choose a new password for your account, then sign in with it.</p>
     </div>
 
-    <form method="POST" action="{{ route('password.update') }}" class="mt-8 space-y-5" id="reset-password-form">
+    <form method="POST" action="{{ route('password.update') }}" class="mt-8 space-y-5" id="reset-password-form" data-auth-form>
         @csrf
         <input type="hidden" name="token" value="{{ $token }}">
 
@@ -21,43 +21,41 @@
                 value="{{ old('email', $email) }}"
                 required
                 autocomplete="email"
-                class="input-field bg-stone-50 @error('email') input-error @enderror"
+                spellcheck="false"
+                inputmode="email"
+                readonly
+                class="input-field bg-stone-50 text-stone-600 @error('email') input-error @enderror"
+                @error('email') aria-invalid="true" aria-describedby="email-error" @enderror
             >
             @error('email')
-                <p class="field-error">{{ $message }}</p>
+                <p id="email-error" class="field-error">{{ $message }}</p>
             @enderror
         </div>
 
-        <div>
-            <label for="password" class="field-label">New password</label>
-            <input
-                type="password"
-                name="password"
-                id="password"
-                required
-                autofocus
-                autocomplete="new-password"
-                class="input-field @error('password') input-error @enderror"
-            >
-            @error('password')
-                <p class="field-error">{{ $message }}</p>
-            @enderror
-        </div>
+        <x-password-field
+            name="password"
+            label="New password"
+            autocomplete="new-password"
+            :autofocus="true"
+            hint="Minimum 8 characters."
+        />
 
         <div>
-            <label for="password_confirmation" class="field-label">Confirm new password</label>
-            <input
-                type="password"
+            <x-password-field
                 name="password_confirmation"
                 id="password_confirmation"
-                required
+                label="Confirm new password"
                 autocomplete="new-password"
-                class="input-field"
-            >
+            />
+            <p class="field-hint mt-1.5 hidden" data-password-match aria-live="polite"></p>
         </div>
 
-        <button type="submit" id="reset-password-submit" class="btn-primary w-full">
+        <button type="submit" id="reset-password-submit" class="btn-primary w-full" data-loading-label="Updating password…">
             Update password
         </button>
     </form>
+
+    <p class="mt-8 text-center text-sm text-stone-500">
+        <a wire:navigate.hover href="{{ route('login') }}" class="font-medium text-brand-700 hover:text-brand-800">Back to sign in</a>
+    </p>
 @endsection

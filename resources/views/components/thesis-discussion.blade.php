@@ -5,27 +5,30 @@
 
 @php
     $canComment = auth()->user()->isStudent() || auth()->user()->isSupervisor();
-    $mentionableUsers = \App\Models\Comment::mentionableUsers($thesis);
-    $mentionHint = $mentionableUsers->map(fn ($user) => '@'.$user->email)->join(', ');
+    $mentionTargets = \App\Models\Comment::mentionableUsers($thesis)
+        ->reject(fn ($user) => $user->id === auth()->id())
+        ->values();
 @endphp
 
-<div class="card overflow-hidden">
+<div class="card">
     <div class="card-section">
         <h3 class="text-sm font-semibold text-stone-900">Discussion</h3>
-        <p class="mt-0.5 text-sm text-stone-500">Project thread for updates and feedback. Mention someone with their email, e.g. {{ $mentionHint }}.</p>
+        <p class="mt-0.5 text-sm text-stone-500">Project thread for updates and feedback.</p>
     </div>
 
     @if($canComment)
         <div class="border-t border-stone-100 bg-stone-50 px-6 py-5">
             <form method="POST" action="{{ route($routePrefix.'.theses.comments.store', $thesis) }}" class="space-y-4">
                 @csrf
-                <div>
-                    <label for="discussion-body" class="field-label">New comment</label>
-                    <textarea name="body" id="discussion-body" rows="3" required class="textarea-field @error('body') input-error @enderror" placeholder="Share an update or ask a question">{{ old('body') }}</textarea>
-                    @error('body')
-                        <p class="field-error">{{ $message }}</p>
-                    @enderror
-                </div>
+                <x-mention-field
+                    id="discussion-body"
+                    label="New comment"
+                    :mentionables="$mentionTargets"
+                    :rows="3"
+                    placeholder="Share an update or ask a question…"
+                    :value="old('body')"
+                    :error="$errors->first('body')"
+                />
                 @if($routePrefix === 'supervisor')
                     <label class="inline-flex items-center gap-2 text-sm text-stone-600">
                         <input type="checkbox" name="is_private" value="1" @checked(old('is_private')) class="rounded border-stone-300 text-navy-700 focus:ring-navy-500">
@@ -49,6 +52,7 @@
                     'thesis' => $thesis,
                     'routePrefix' => $routePrefix,
                     'depth' => 0,
+                    'mentionTargets' => $mentionTargets,
                 ])
             @endforeach
         </div>

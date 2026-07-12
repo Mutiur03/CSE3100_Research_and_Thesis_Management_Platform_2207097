@@ -84,7 +84,7 @@
                                         <span>{{ $milestone->progress_percentage }}%</span>
                                     </div>
                                     <div class="mt-1 h-2 overflow-hidden rounded-full bg-stone-100">
-                                        <div class="h-full rounded-full bg-brand-600 transition-all" style="width: {{ $milestone->progress_percentage }}%"></div>
+                                        <div class="h-full rounded-full bg-brand-600 transition-[width] duration-300" style="width: {{ $milestone->progress_percentage }}%"></div>
                                     </div>
                                 </div>
                             </div>
@@ -196,7 +196,7 @@
                                         <div class="grid gap-3 sm:grid-cols-2">
                                             <div class="sm:col-span-2">
                                                 <label class="field-label">Task title</label>
-                                                <input type="text" name="title" required class="input-field" placeholder="e.g. Draft introduction section">
+                                                <input type="text" name="title" required class="input-field" placeholder="e.g. Draft introduction section…">
                                             </div>
                                             <div>
                                                 <label class="field-label">Priority</label>
@@ -237,7 +237,7 @@
                     <div class="grid gap-4 sm:grid-cols-2">
                         <div class="sm:col-span-2">
                             <label for="title" class="field-label">Title</label>
-                            <input type="text" name="title" id="title" value="{{ old('title') }}" required class="input-field @error('title') input-error @enderror" placeholder="e.g. Literature review draft">
+                            <input type="text" name="title" id="title" value="{{ old('title') }}" required class="input-field @error('title') input-error @enderror" placeholder="e.g. Literature review draft…">
                             @error('title')<p class="field-error">{{ $message }}</p>@enderror
                         </div>
                         <div>
@@ -257,7 +257,7 @@
                         </div>
                         <div class="sm:col-span-2">
                             <label for="description" class="field-label">Description</label>
-                            <textarea name="description" id="description" rows="2" class="textarea-field @error('description') input-error @enderror" placeholder="Optional details for the student">{{ old('description') }}</textarea>
+                            <textarea name="description" id="description" rows="2" class="textarea-field @error('description') input-error @enderror" placeholder="Optional details for the student…">{{ old('description') }}</textarea>
                             @error('description')<p class="field-error">{{ $message }}</p>@enderror
                         </div>
                     </div>

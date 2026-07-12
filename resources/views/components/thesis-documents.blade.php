@@ -27,7 +27,7 @@
                 <div class="grid gap-4 sm:grid-cols-2">
                     <div class="sm:col-span-2">
                         <label for="doc-title" class="field-label">Title</label>
-                        <input type="text" name="title" id="doc-title" value="{{ old('title') }}" required class="input-field @error('title') input-error @enderror" placeholder="e.g. Chapter 1 draft">
+                        <input type="text" name="title" id="doc-title" value="{{ old('title') }}" required class="input-field @error('title') input-error @enderror" placeholder="e.g. Chapter 1 draft…">
                         @error('title')
                             <p class="field-error">{{ $message }}</p>
                         @enderror
@@ -53,14 +53,14 @@
                     </div>
                     <div class="sm:col-span-2">
                         <label for="doc-description" class="field-label">Description <span class="font-normal text-stone-400">(optional)</span></label>
-                        <textarea name="description" id="doc-description" rows="2" class="textarea-field @error('description') input-error @enderror" placeholder="Brief note about this document">{{ old('description') }}</textarea>
+                        <textarea name="description" id="doc-description" rows="2" class="textarea-field @error('description') input-error @enderror" placeholder="Brief note about this document…">{{ old('description') }}</textarea>
                         @error('description')
                             <p class="field-error">{{ $message }}</p>
                         @enderror
                     </div>
                     <div class="sm:col-span-2">
                         <label for="doc-change-summary" class="field-label">Version notes <span class="font-normal text-stone-400">(optional)</span></label>
-                        <input type="text" name="change_summary" id="doc-change-summary" value="{{ old('change_summary') }}" class="input-field @error('change_summary') input-error @enderror" placeholder="Initial upload">
+                        <input type="text" name="change_summary" id="doc-change-summary" value="{{ old('change_summary') }}" class="input-field @error('change_summary') input-error @enderror" placeholder="Initial upload…">
                         @error('change_summary')
                             <p class="field-error">{{ $message }}</p>
                         @enderror
@@ -127,7 +127,7 @@
                                 </div>
                                 <div>
                                     <label for="version-summary-{{ $document->id }}" class="field-label">Change summary <span class="font-normal text-stone-400">(optional)</span></label>
-                                    <input type="text" name="change_summary" id="version-summary-{{ $document->id }}" value="{{ old('change_summary') }}" class="input-field @error('change_summary') input-error @enderror" placeholder="What changed in this version?">
+                                    <input type="text" name="change_summary" id="version-summary-{{ $document->id }}" value="{{ old('change_summary') }}" class="input-field @error('change_summary') input-error @enderror" placeholder="What changed in this version…">
                                     @error('change_summary')
                                         <p class="field-error">{{ $message }}</p>
                                     @enderror

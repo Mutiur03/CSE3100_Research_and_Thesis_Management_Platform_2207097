@@ -13,14 +13,14 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Setup\SetupController;
 use App\Http\Controllers\Student\MilestoneController as StudentMilestoneController;
 use App\Http\Controllers\Student\MilestoneTaskController as StudentMilestoneTaskController;
-use App\Http\Controllers\Student\MeetingController as StudentMeetingController;
 use App\Http\Controllers\Student\ProposalController as StudentProposalController;
 use App\Http\Controllers\Student\ThesisCommentController as StudentThesisCommentController;
 use App\Http\Controllers\Student\ThesisController as StudentThesisController;
 use App\Http\Controllers\Student\ThesisDocumentController as StudentThesisDocumentController;
+use App\Http\Controllers\Supervisor\GoogleCalendarController as SupervisorGoogleCalendarController;
+use App\Http\Controllers\Supervisor\MeetingController as SupervisorMeetingController;
 use App\Http\Controllers\Supervisor\MilestoneController as SupervisorMilestoneController;
 use App\Http\Controllers\Supervisor\MilestoneTaskController as SupervisorMilestoneTaskController;
-use App\Http\Controllers\Supervisor\MeetingController as SupervisorMeetingController;
 use App\Http\Controllers\Supervisor\ProposalController as SupervisorProposalController;
 use App\Http\Controllers\Supervisor\ThesisCommentController as SupervisorThesisCommentController;
 use App\Http\Controllers\Supervisor\ThesisController as SupervisorThesisController;
@@ -113,7 +113,6 @@ Route::middleware(['auth', 'verified', 'active'])->group(function () {
         Route::post('/theses/{thesis}/submit-final', [StudentThesisController::class, 'submitFinal'])->name('theses.submit-final');
         Route::post('/theses/{thesis}/milestones/{milestone}/complete', [StudentMilestoneController::class, 'complete'])->name('theses.milestones.complete');
         Route::patch('/theses/{thesis}/milestones/{milestone}/tasks/{task}', [StudentMilestoneTaskController::class, 'updateStatus'])->name('theses.milestones.tasks.update-status');
-        Route::patch('/theses/{thesis}/meetings/{meeting}/rsvp', [StudentMeetingController::class, 'updateRsvp'])->name('theses.meetings.rsvp');
         Route::post('/theses/{thesis}/comments', [StudentThesisCommentController::class, 'store'])->name('theses.comments.store');
         Route::delete('/theses/{thesis}/comments/{comment}', [StudentThesisCommentController::class, 'destroy'])->name('theses.comments.destroy');
         Route::post('/theses/{thesis}/documents', [StudentThesisDocumentController::class, 'store'])->name('theses.documents.store');
@@ -123,6 +122,10 @@ Route::middleware(['auth', 'verified', 'active'])->group(function () {
 
     // Supervisor proposal reviews
     Route::middleware('role:supervisor')->prefix('supervisor')->name('supervisor.')->group(function () {
+        Route::post('/google-calendar/connect', [SupervisorGoogleCalendarController::class, 'connect'])->name('google-calendar.connect');
+        Route::get('/google-calendar/callback', [SupervisorGoogleCalendarController::class, 'callback'])->name('google-calendar.callback');
+        Route::delete('/google-calendar/disconnect', [SupervisorGoogleCalendarController::class, 'disconnect'])->name('google-calendar.disconnect');
+
         Route::get('/proposals', [SupervisorProposalController::class, 'index'])->name('proposals.index');
         Route::get('/proposals/{proposal}', [SupervisorProposalController::class, 'show'])->name('proposals.show');
         Route::post('/proposals/{proposal}/review', [SupervisorProposalController::class, 'review'])->name('proposals.review');

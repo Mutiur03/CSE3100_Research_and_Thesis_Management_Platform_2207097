@@ -179,13 +179,20 @@ class Comment extends Model
         $patterns = [];
 
         if ($user->email) {
-            $patterns[] = '/@'.preg_quote($user->email, '/').'/';
+            $patterns[] = '/@'.preg_quote($user->email, '/').'\b/i';
         }
 
-        $nameHandle = str_replace(' ', '', $user->name);
+        $name = trim($user->name);
 
-        if ($nameHandle !== '') {
-            $patterns[] = '/@'.preg_quote($nameHandle, '/').'/';
+        if ($name !== '') {
+            // Natural "@First Last" with spaces (stop at punctuation/end).
+            $patterns[] = '/@'.preg_quote($name, '/').'(?=\s|[.,;:!?)]|$)/iu';
+
+            // Compact handle without spaces, e.g. @FirstLast
+            $nameHandle = str_replace(' ', '', $name);
+            if ($nameHandle !== '' && $nameHandle !== $name) {
+                $patterns[] = '/@'.preg_quote($nameHandle, '/').'\b/iu';
+            }
         }
 
         return $patterns;

@@ -12,11 +12,15 @@
     <link rel="apple-touch-icon" href="{{ asset('images/logo.svg') }}">
 
     <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=ibm-plex-sans:400,500,600,700|libre-baskerville:400,700" rel="stylesheet" />
+    <link href="https://fonts.bunny.net/css?family=ibm-plex-sans:400,500,600,700|libre-baskerville:400,700&display=swap" rel="stylesheet" />
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="min-h-screen font-sans antialiased">
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-white focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-stone-900 focus:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-navy-700">
+        Skip to main content
+    </a>
+
     <div class="flex min-h-screen">
         <x-auth-panel />
 
@@ -24,10 +28,10 @@
         <div class="auth-form-wrap flex-1">
             <x-auth-mobile-header />
 
-            @if(session('success') || session('error'))
-                <div class="mb-6 space-y-2">
-                    @if(session('success'))
-                        <x-alert type="success" :message="session('success')" />
+            @if(session('success') || session('error') || session('status'))
+                <div class="mb-6 space-y-2" aria-live="polite">
+                    @if(session('success') || session('status'))
+                        <x-alert type="success" :message="session('success') ?? session('status')" />
                     @endif
                     @if(session('error'))
                         <x-alert type="error" :message="session('error')" />
@@ -35,7 +39,7 @@
                 </div>
             @endif
 
-            <div class="mx-auto w-full max-w-sm">
+            <div id="main-content" class="mx-auto w-full max-w-md" tabindex="-1">
                 @yield('content')
             </div>
         </div>
