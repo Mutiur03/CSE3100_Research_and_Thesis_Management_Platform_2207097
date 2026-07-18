@@ -21,7 +21,7 @@
                     <img id="avatar-preview" src="{{ $user->avatar_url }}" alt="Profile photo" width="64" height="64" class="h-16 w-16 rounded object-cover ring-1 ring-stone-200">
                     <div>
                         <label for="avatar" class="btn-secondary cursor-pointer">Upload photo</label>
-                        <input type="file" name="avatar" id="avatar" accept="image/*" class="hidden" onchange="previewAvatar(this)">
+                        <input type="file" name="avatar" id="avatar" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" data-max-bytes="2097152" class="hidden" onchange="previewAvatar(this)">
                         <p class="field-hint">JPG, PNG, or WebP. Maximum 2 MB.</p>
                     </div>
                 </div>
@@ -37,7 +37,7 @@
                 <div class="card-body space-y-5">
                     <div>
                         <label for="name" class="field-label">Full name</label>
-                        <input type="text" name="name" id="name" value="{{ old('name', $user->name) }}" required autocomplete="name" class="input-field @error('name') input-error @enderror">
+                        <input type="text" name="name" id="name" value="{{ old('name', $user->name) }}" required maxlength="255" autocomplete="name" class="input-field @error('name') input-error @enderror">
                         @error('name')
                             <p class="field-error">{{ $message }}</p>
                         @enderror
@@ -66,7 +66,21 @@
 
                     <div>
                         <label for="phone" class="field-label">Phone number</label>
-                        <input type="tel" name="phone" id="phone" value="{{ old('phone', $user->phone) }}" autocomplete="tel" class="input-field @error('phone') input-error @enderror" placeholder="+880 1XXX-XXXXXX…">
+                        <input
+                            type="tel"
+                            name="phone"
+                            id="phone"
+                            data-phone-input
+                            value="{{ old('phone', $user->phone) }}"
+                            autocomplete="tel"
+                            inputmode="numeric"
+                            maxlength="11"
+                            pattern="01[0-9]{9}"
+                            title="Must be 11 digits starting with 01 (e.g. 01712345678)."
+                            class="input-field @error('phone') input-error @enderror"
+                            placeholder="01712345678"
+                        >
+                        <p class="field-hint">11 digits starting with 01 (e.g. 01712345678).</p>
                         @error('phone')
                             <p class="field-error">{{ $message }}</p>
                         @enderror
@@ -81,7 +95,7 @@
                 <div class="card-body space-y-5">
                     <div>
                         <label for="bio" class="field-label">Biography</label>
-                        <textarea name="bio" id="bio" rows="4" class="textarea-field @error('bio') input-error @enderror" placeholder="Research background and areas of expertise…">{{ old('bio', $user->bio) }}</textarea>
+                        <textarea name="bio" id="bio" rows="4" maxlength="1000" class="textarea-field @error('bio') input-error @enderror" placeholder="Research background and areas of expertise…">{{ old('bio', $user->bio) }}</textarea>
                         @error('bio')
                             <p class="field-error">{{ $message }}</p>
                         @enderror
@@ -89,7 +103,7 @@
 
                     <div>
                         <label for="research_interests" class="field-label">Research interests</label>
-                        <input type="text" name="research_interests" id="research_interests" value="{{ old('research_interests', $user->research_interests ? implode(', ', $user->research_interests) : '') }}" class="input-field @error('research_interests') input-error @enderror" placeholder="Machine Learning, NLP, Computer Vision…">
+                        <input type="text" name="research_interests" id="research_interests" value="{{ old('research_interests', $user->research_interests ? implode(', ', $user->research_interests) : '') }}" maxlength="1000" class="input-field @error('research_interests') input-error @enderror" placeholder="Machine Learning, NLP, Computer Vision…">
                         <p class="field-hint">Separate multiple interests with commas.</p>
                         @error('research_interests')
                             <p class="field-error">{{ $message }}</p>

@@ -8,9 +8,6 @@ enum UserRole: string
     case Supervisor = 'supervisor';
     case Admin = 'admin';
 
-    /**
-     * Human-readable label for display.
-     */
     public function label(): string
     {
         return match ($this) {
@@ -20,9 +17,6 @@ enum UserRole: string
         };
     }
 
-    /**
-     * Tailwind CSS color classes for role badges.
-     */
     public function color(): string
     {
         return match ($this) {
@@ -33,8 +27,6 @@ enum UserRole: string
     }
 
     /**
-     * Roles available during self-registration.
-     *
      * @return array<string>
      */
     public static function registrableValues(): array
@@ -46,9 +38,6 @@ enum UserRole: string
     }
 
     /**
-     * Roles that can be assigned from the admin user management panel.
-     * Includes administrator for promotion by an existing admin.
-     *
      * @return array<string>
      */
     public static function assignableByAdminValues(): array
@@ -57,8 +46,6 @@ enum UserRole: string
     }
 
     /**
-     * Roles shown in the admin user management panel.
-     *
      * @return list<self>
      */
     public static function manageableCases(): array

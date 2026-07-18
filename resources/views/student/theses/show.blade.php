@@ -9,7 +9,7 @@
                 <div class="mb-2">
                     <x-thesis-status-badge :status="$thesis->status" />
                 </div>
-                <h2 class="page-title">{{ $thesis->title }}</h2>
+                <h1 class="page-title">{{ $thesis->title }}</h1>
                 <p class="page-lead">
                     Supervisor: {{ $thesis->supervisor->name }}
                     @if($thesis->department)
@@ -17,19 +17,20 @@
                     @endif
                 </p>
             </div>
-            <a wire:navigate.hover href="{{ route('student.theses.index') }}" class="btn-secondary">Back to list</a>
+            <a wire:navigate.hover href="{{ route('student.theses.index') }}" class="btn-secondary">Back to List</a>
         </header>
 
         <div class="grid gap-6 lg:grid-cols-3">
             <div class="space-y-6 lg:col-span-2">
                 <div class="card">
                     <div class="card-section">
-                        <h3 class="text-sm font-semibold text-stone-900">Approved proposal</h3>
+                        <h3 class="text-sm font-semibold text-stone-900">Approved Proposal</h3>
                     </div>
                     <div class="card-body space-y-3 text-sm text-stone-600">
                         <p>This thesis project was created from your approved proposal.</p>
                         <a wire:navigate.hover href="{{ route('student.proposals.show', $thesis->proposal) }}" class="inline-flex font-medium text-navy-700 hover:text-navy-900">
-                            View original proposal →
+                            View Original Proposal
+                            <span aria-hidden="true"> →</span>
                         </a>
                     </div>
                 </div>
@@ -40,7 +41,7 @@
                             <h3 class="text-sm font-semibold text-stone-900">Abstract</h3>
                         </div>
                         <div class="card-body">
-                            <p class="whitespace-pre-wrap text-sm leading-relaxed text-stone-700">{{ $thesis->proposal->abstract }}</p>
+                            <p class="whitespace-pre-wrap break-words text-sm leading-relaxed text-stone-700">{{ $thesis->proposal->abstract }}</p>
                         </div>
                     </div>
                 @endif
@@ -64,12 +65,12 @@
                     <div class="card-body space-y-3 text-sm text-stone-600">
                         <div>
                             <p class="text-xs font-medium uppercase tracking-wide text-stone-400">Started</p>
-                            <p>{{ $thesis->started_at->format('M j, Y g:i A') }}</p>
+                            <p class="tabular-nums">{{ $thesis->started_at->format('M j, Y g:i A') }}</p>
                         </div>
                         @if($thesis->completed_at)
                             <div>
                                 <p class="text-xs font-medium uppercase tracking-wide text-stone-400">Completed</p>
-                                <p>{{ $thesis->completed_at->format('M j, Y g:i A') }}</p>
+                                <p class="tabular-nums">{{ $thesis->completed_at->format('M j, Y g:i A') }}</p>
                             </div>
                         @endif
                     </div>

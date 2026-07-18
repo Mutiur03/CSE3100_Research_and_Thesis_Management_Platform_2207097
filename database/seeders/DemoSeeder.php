@@ -49,7 +49,7 @@ class DemoSeeder extends Seeder
             'department_id' => $department->id,
             'email_verified_at' => now(),
             'is_active' => true,
-            'phone' => '+8801711000001',
+            'phone' => '01711000001',
             'bio' => 'Associate Professor, CSE. Research focus: machine learning, NLP, and academic research systems.',
             'research_interests' => ['Machine Learning', 'Natural Language Processing', 'Software Engineering'],
         ]);
@@ -64,7 +64,7 @@ class DemoSeeder extends Seeder
             'department_id' => $department->id,
             'email_verified_at' => now(),
             'is_active' => true,
-            'phone' => '+8801711000002',
+            'phone' => '01711000002',
             'bio' => 'Final-year CSE student working on AI-assisted academic integrity tools.',
             'research_interests' => ['Machine Learning', 'Data Science', 'Information Retrieval'],
         ]);
@@ -77,7 +77,7 @@ class DemoSeeder extends Seeder
             'department_id' => $department->id,
             'email_verified_at' => now(),
             'is_active' => true,
-            'phone' => '+8801711000003',
+            'phone' => '01711000003',
             'bio' => 'CSE student at KUET interested in distributed systems and academic credential security.',
             'research_interests' => ['Blockchain', 'Cybersecurity', 'Distributed Systems'],
         ]);

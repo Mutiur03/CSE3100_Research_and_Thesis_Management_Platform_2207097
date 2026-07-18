@@ -23,10 +23,8 @@
 
     <div class="flex min-h-screen">
 
-        {{-- Mobile sidebar backdrop --}}
         <div id="sidebar-backdrop" class="fixed inset-0 z-20 hidden bg-stone-900/40 lg:hidden" hidden aria-hidden="true"></div>
 
-        {{-- Sidebar --}}
         <aside id="sidebar" class="fixed inset-y-0 left-0 z-30 hidden w-60 flex-col border-r border-stone-200 bg-white pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] lg:flex" aria-label="Primary">
             <div class="flex h-14 items-center border-b border-stone-200 px-5">
                 <x-brand size="md" framed :show-tagline="true" :href="route('dashboard')" class="w-full" />
@@ -96,7 +94,6 @@
             </div>
         </aside>
 
-        {{-- Main --}}
         <div class="flex min-w-0 flex-1 flex-col lg:pl-60">
             <header class="sticky top-0 z-20 flex h-14 items-center justify-between border-b border-stone-200 bg-white px-4 pt-[env(safe-area-inset-top)] sm:px-6 lg:px-8">
                 <div class="flex items-center gap-3">

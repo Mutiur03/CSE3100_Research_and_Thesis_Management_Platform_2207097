@@ -104,6 +104,24 @@ document.addEventListener('submit', (event) => {
         return;
     }
 
+    const password = form.querySelector('#password');
+    const confirmation = form.querySelector('#password_confirmation');
+    if (
+        password instanceof HTMLInputElement
+        && confirmation instanceof HTMLInputElement
+        && confirmation.value
+        && password.value !== confirmation.value
+    ) {
+        confirmation.setCustomValidity('Passwords do not match.');
+        confirmation.reportValidity();
+        event.preventDefault();
+        return;
+    }
+
+    if (confirmation instanceof HTMLInputElement) {
+        confirmation.setCustomValidity('');
+    }
+
     setSubmitLoading(form, true);
 });
 

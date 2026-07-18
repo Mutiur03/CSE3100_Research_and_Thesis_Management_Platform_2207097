@@ -17,13 +17,12 @@ class MilestoneTaskController extends Controller
     public function store(Request $request, Thesis $thesis, Milestone $milestone): RedirectResponse
     {
         abort_unless($milestone->thesis_id === $thesis->id, 404);
-        abort_unless($thesis->supervisor_id === $request->user()->id, 403);
 
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:2000'],
             'priority' => ['required', Rule::enum(MilestoneTaskPriority::class)],
-            'due_date' => ['nullable', 'date'],
+            'due_date' => ['nullable', 'date', 'after_or_equal:today'],
         ]);
 
         $milestone->tasks()->create([
@@ -43,7 +42,6 @@ class MilestoneTaskController extends Controller
     {
         abort_unless($milestone->thesis_id === $thesis->id, 404);
         abort_unless($task->milestone_id === $milestone->id, 404);
-        abort_unless($thesis->supervisor_id === $request->user()->id, 403);
 
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
@@ -74,7 +72,6 @@ class MilestoneTaskController extends Controller
     {
         abort_unless($milestone->thesis_id === $thesis->id, 404);
         abort_unless($task->milestone_id === $milestone->id, 404);
-        abort_unless($thesis->supervisor_id === auth()->id(), 403);
 
         $task->delete();
         $milestone->recalculateProgress();

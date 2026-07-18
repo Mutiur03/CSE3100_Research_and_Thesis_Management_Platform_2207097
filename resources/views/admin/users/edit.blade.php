@@ -57,6 +57,7 @@
                                 value="1"
                                 class="mt-0.5 text-navy-800 focus:ring-navy-700/20"
                                 {{ old('confirm_admin_promotion') ? 'checked' : '' }}
+                                @if(old('role', $user->role->value) === 'admin') required @endif
                             >
                             <span>I confirm this user should receive administrator access.</span>
                         </label>
@@ -105,14 +106,4 @@
             </div>
         </form>
     </div>
-
-    @push('scripts')
-    <script>
-        document.getElementById('role')?.addEventListener('change', function () {
-            const panel = document.getElementById('admin-promotion-confirm');
-            if (!panel) return;
-            panel.classList.toggle('hidden', this.value !== 'admin');
-        });
-    </script>
-    @endpush
 @endsection

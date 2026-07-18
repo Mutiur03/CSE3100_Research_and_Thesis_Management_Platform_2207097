@@ -27,130 +27,105 @@ use App\Http\Controllers\Supervisor\ThesisController as SupervisorThesisControll
 use App\Http\Controllers\Supervisor\ThesisDocumentController as SupervisorThesisDocumentController;
 use Illuminate\Support\Facades\Route;
 
-// ──────────────────────────────────────────────
-// Initial administrator setup (before first admin exists)
-// ──────────────────────────────────────────────
-
 Route::middleware('setup.pending')->prefix('setup')->name('setup.')->group(function () {
     Route::get('/', [SetupController::class, 'index'])->name('index');
-    Route::post('/code', [SetupController::class, 'sendCode'])
-        ->middleware('throttle:3,1')
-        ->name('code.send');
+    Route::post('/code', [SetupController::class, 'sendCode'])->name('code.send');
     Route::get('/complete', [SetupController::class, 'showCompleteForm'])->name('complete');
-    Route::post('/complete', [SetupController::class, 'complete'])
-        ->middleware('throttle:5,1')
-        ->name('complete.store');
+    Route::post('/complete', [SetupController::class, 'complete'])->name('complete.store');
 });
-
-// ──────────────────────────────────────────────
-// Welcome (Public)
-// ──────────────────────────────────────────────
 
 Route::get('/', function () {
     return view('welcome');
 })->name('home');
 
-// ──────────────────────────────────────────────
-// Guest Routes (redirect if authenticated)
-// ──────────────────────────────────────────────
-
 Route::middleware('guest')->group(function () {
-    // Registration
     Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
     Route::post('/register', [RegisterController::class, 'register']);
 
-    // Login
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [LoginController::class, 'login']);
 
-    // Password Reset
     Route::get('/password/reset', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
     Route::post('/password/email', [ForgotPasswordController::class, 'sendResetLink'])->name('password.email');
     Route::get('/password/reset/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');
     Route::post('/password/reset', [ResetPasswordController::class, 'reset'])->name('password.update');
 });
 
-// ──────────────────────────────────────────────
-// Email Verification (authenticated but unverified)
-// ──────────────────────────────────────────────
-
 Route::middleware('auth')->group(function () {
     Route::get('/email/verify', [VerificationController::class, 'notice'])->name('verification.notice');
     Route::get('/email/verify/{id}/{hash}', [VerificationController::class, 'verify'])
         ->middleware('signed')
         ->name('verification.verify');
-    Route::post('/email/resend', [VerificationController::class, 'resend'])
-        ->middleware('throttle:6,1')
-        ->name('verification.resend');
+    Route::post('/email/resend', [VerificationController::class, 'resend'])->name('verification.resend');
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 });
 
-// ──────────────────────────────────────────────
-// Authenticated + Verified + Active
-// ──────────────────────────────────────────────
-
 Route::middleware(['auth', 'verified', 'active'])->group(function () {
-    // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    // Profile
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
 
-    // Student proposals
     Route::middleware('role:student')->prefix('student')->name('student.')->group(function () {
         Route::get('/proposals', [StudentProposalController::class, 'index'])->name('proposals.index');
         Route::get('/proposals/create', [StudentProposalController::class, 'create'])->name('proposals.create');
         Route::post('/proposals', [StudentProposalController::class, 'store'])->name('proposals.store');
-        Route::get('/proposals/{proposal}', [StudentProposalController::class, 'show'])->name('proposals.show');
-        Route::get('/proposals/{proposal}/edit', [StudentProposalController::class, 'edit'])->name('proposals.edit');
-        Route::put('/proposals/{proposal}', [StudentProposalController::class, 'update'])->name('proposals.update');
-        Route::delete('/proposals/{proposal}', [StudentProposalController::class, 'destroy'])->name('proposals.destroy');
-        Route::post('/proposals/{proposal}/submit', [StudentProposalController::class, 'submit'])->name('proposals.submit');
+
+        Route::middleware('owns.proposal:student')->group(function () {
+            Route::get('/proposals/{proposal}', [StudentProposalController::class, 'show'])->name('proposals.show');
+            Route::get('/proposals/{proposal}/edit', [StudentProposalController::class, 'edit'])->name('proposals.edit');
+            Route::put('/proposals/{proposal}', [StudentProposalController::class, 'update'])->name('proposals.update');
+            Route::delete('/proposals/{proposal}', [StudentProposalController::class, 'destroy'])->name('proposals.destroy');
+            Route::post('/proposals/{proposal}/submit', [StudentProposalController::class, 'submit'])->name('proposals.submit');
+        });
 
         Route::get('/theses', [StudentThesisController::class, 'index'])->name('theses.index');
-        Route::get('/theses/{thesis}', [StudentThesisController::class, 'show'])->name('theses.show');
-        Route::post('/theses/{thesis}/submit-final', [StudentThesisController::class, 'submitFinal'])->name('theses.submit-final');
-        Route::post('/theses/{thesis}/milestones/{milestone}/complete', [StudentMilestoneController::class, 'complete'])->name('theses.milestones.complete');
-        Route::patch('/theses/{thesis}/milestones/{milestone}/tasks/{task}', [StudentMilestoneTaskController::class, 'updateStatus'])->name('theses.milestones.tasks.update-status');
-        Route::post('/theses/{thesis}/comments', [StudentThesisCommentController::class, 'store'])->name('theses.comments.store');
-        Route::delete('/theses/{thesis}/comments/{comment}', [StudentThesisCommentController::class, 'destroy'])->name('theses.comments.destroy');
-        Route::post('/theses/{thesis}/documents', [StudentThesisDocumentController::class, 'store'])->name('theses.documents.store');
-        Route::post('/theses/{thesis}/documents/{document}/versions', [StudentThesisDocumentController::class, 'storeVersion'])->name('theses.documents.versions.store');
-        Route::get('/theses/{thesis}/documents/{document}/versions/{version}/download', [StudentThesisDocumentController::class, 'download'])->name('theses.documents.versions.download');
+
+        Route::middleware('owns.thesis:student')->group(function () {
+            Route::get('/theses/{thesis}', [StudentThesisController::class, 'show'])->name('theses.show');
+            Route::post('/theses/{thesis}/submit-final', [StudentThesisController::class, 'submitFinal'])->name('theses.submit-final');
+            Route::post('/theses/{thesis}/milestones/{milestone}/complete', [StudentMilestoneController::class, 'complete'])->name('theses.milestones.complete');
+            Route::patch('/theses/{thesis}/milestones/{milestone}/tasks/{task}', [StudentMilestoneTaskController::class, 'updateStatus'])->name('theses.milestones.tasks.update-status');
+            Route::post('/theses/{thesis}/comments', [StudentThesisCommentController::class, 'store'])->name('theses.comments.store');
+            Route::delete('/theses/{thesis}/comments/{comment}', [StudentThesisCommentController::class, 'destroy'])->name('theses.comments.destroy');
+            Route::post('/theses/{thesis}/documents', [StudentThesisDocumentController::class, 'store'])->name('theses.documents.store');
+            Route::post('/theses/{thesis}/documents/{document}/versions', [StudentThesisDocumentController::class, 'storeVersion'])->name('theses.documents.versions.store');
+            Route::get('/theses/{thesis}/documents/{document}/versions/{version}/download', [StudentThesisDocumentController::class, 'download'])->name('theses.documents.versions.download');
+        });
     });
 
-    // Supervisor proposal reviews
     Route::middleware('role:supervisor')->prefix('supervisor')->name('supervisor.')->group(function () {
         Route::post('/google-calendar/connect', [SupervisorGoogleCalendarController::class, 'connect'])->name('google-calendar.connect');
         Route::get('/google-calendar/callback', [SupervisorGoogleCalendarController::class, 'callback'])->name('google-calendar.callback');
         Route::delete('/google-calendar/disconnect', [SupervisorGoogleCalendarController::class, 'disconnect'])->name('google-calendar.disconnect');
 
         Route::get('/proposals', [SupervisorProposalController::class, 'index'])->name('proposals.index');
-        Route::get('/proposals/{proposal}', [SupervisorProposalController::class, 'show'])->name('proposals.show');
-        Route::post('/proposals/{proposal}/review', [SupervisorProposalController::class, 'review'])->name('proposals.review');
+
+        Route::middleware('owns.proposal:supervisor')->group(function () {
+            Route::get('/proposals/{proposal}', [SupervisorProposalController::class, 'show'])->name('proposals.show');
+            Route::post('/proposals/{proposal}/review', [SupervisorProposalController::class, 'review'])->name('proposals.review');
+        });
 
         Route::get('/theses', [SupervisorThesisController::class, 'index'])->name('theses.index');
-        Route::get('/theses/{thesis}', [SupervisorThesisController::class, 'show'])->name('theses.show');
-        Route::post('/theses/{thesis}/milestones', [SupervisorMilestoneController::class, 'store'])->name('theses.milestones.store');
-        Route::put('/theses/{thesis}/milestones/{milestone}', [SupervisorMilestoneController::class, 'update'])->name('theses.milestones.update');
-        Route::delete('/theses/{thesis}/milestones/{milestone}', [SupervisorMilestoneController::class, 'destroy'])->name('theses.milestones.destroy');
-        Route::post('/theses/{thesis}/milestones/{milestone}/tasks', [SupervisorMilestoneTaskController::class, 'store'])->name('theses.milestones.tasks.store');
-        Route::put('/theses/{thesis}/milestones/{milestone}/tasks/{task}', [SupervisorMilestoneTaskController::class, 'update'])->name('theses.milestones.tasks.update');
-        Route::delete('/theses/{thesis}/milestones/{milestone}/tasks/{task}', [SupervisorMilestoneTaskController::class, 'destroy'])->name('theses.milestones.tasks.destroy');
-        Route::post('/theses/{thesis}/meetings', [SupervisorMeetingController::class, 'store'])->name('theses.meetings.store');
-        Route::put('/theses/{thesis}/meetings/{meeting}', [SupervisorMeetingController::class, 'update'])->name('theses.meetings.update');
-        Route::delete('/theses/{thesis}/meetings/{meeting}', [SupervisorMeetingController::class, 'destroy'])->name('theses.meetings.destroy');
-        Route::post('/theses/{thesis}/comments', [SupervisorThesisCommentController::class, 'store'])->name('theses.comments.store');
-        Route::delete('/theses/{thesis}/comments/{comment}', [SupervisorThesisCommentController::class, 'destroy'])->name('theses.comments.destroy');
-        Route::post('/theses/{thesis}/documents', [SupervisorThesisDocumentController::class, 'store'])->name('theses.documents.store');
-        Route::post('/theses/{thesis}/documents/{document}/versions', [SupervisorThesisDocumentController::class, 'storeVersion'])->name('theses.documents.versions.store');
-        Route::get('/theses/{thesis}/documents/{document}/versions/{version}/download', [SupervisorThesisDocumentController::class, 'download'])->name('theses.documents.versions.download');
-    });
 
-    // ──────────────────────────────────────────
-    // Admin Routes
-    // ──────────────────────────────────────────
+        Route::middleware('owns.thesis:supervisor')->group(function () {
+            Route::get('/theses/{thesis}', [SupervisorThesisController::class, 'show'])->name('theses.show');
+            Route::post('/theses/{thesis}/milestones', [SupervisorMilestoneController::class, 'store'])->name('theses.milestones.store');
+            Route::put('/theses/{thesis}/milestones/{milestone}', [SupervisorMilestoneController::class, 'update'])->name('theses.milestones.update');
+            Route::delete('/theses/{thesis}/milestones/{milestone}', [SupervisorMilestoneController::class, 'destroy'])->name('theses.milestones.destroy');
+            Route::post('/theses/{thesis}/milestones/{milestone}/tasks', [SupervisorMilestoneTaskController::class, 'store'])->name('theses.milestones.tasks.store');
+            Route::put('/theses/{thesis}/milestones/{milestone}/tasks/{task}', [SupervisorMilestoneTaskController::class, 'update'])->name('theses.milestones.tasks.update');
+            Route::delete('/theses/{thesis}/milestones/{milestone}/tasks/{task}', [SupervisorMilestoneTaskController::class, 'destroy'])->name('theses.milestones.tasks.destroy');
+            Route::post('/theses/{thesis}/meetings', [SupervisorMeetingController::class, 'store'])->name('theses.meetings.store');
+            Route::put('/theses/{thesis}/meetings/{meeting}', [SupervisorMeetingController::class, 'update'])->name('theses.meetings.update');
+            Route::delete('/theses/{thesis}/meetings/{meeting}', [SupervisorMeetingController::class, 'destroy'])->name('theses.meetings.destroy');
+            Route::post('/theses/{thesis}/comments', [SupervisorThesisCommentController::class, 'store'])->name('theses.comments.store');
+            Route::delete('/theses/{thesis}/comments/{comment}', [SupervisorThesisCommentController::class, 'destroy'])->name('theses.comments.destroy');
+            Route::post('/theses/{thesis}/documents', [SupervisorThesisDocumentController::class, 'store'])->name('theses.documents.store');
+            Route::post('/theses/{thesis}/documents/{document}/versions', [SupervisorThesisDocumentController::class, 'storeVersion'])->name('theses.documents.versions.store');
+            Route::get('/theses/{thesis}/documents/{document}/versions/{version}/download', [SupervisorThesisDocumentController::class, 'download'])->name('theses.documents.versions.download');
+        });
+    });
 
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
         Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');

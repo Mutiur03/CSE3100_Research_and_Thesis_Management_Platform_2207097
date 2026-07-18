@@ -13,9 +13,6 @@ use Illuminate\View\View;
 
 class UserController extends Controller
 {
-    /**
-     * Display a listing of all users.
-     */
     public function index(Request $request): View
     {
         $query = User::query()
@@ -23,7 +20,6 @@ class UserController extends Controller
             ->where('role', '!=', UserRole::Admin)
             ->orderBy('name');
 
-        // Search filter
         if ($search = $request->input('search')) {
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
@@ -31,12 +27,10 @@ class UserController extends Controller
             });
         }
 
-        // Role filter
         if ($role = $request->input('role')) {
             $query->where('role', $role);
         }
 
-        // Department filter
         if ($departmentId = $request->input('department_id')) {
             $query->where('department_id', $departmentId);
         }
@@ -52,9 +46,6 @@ class UserController extends Controller
         ]);
     }
 
-    /**
-     * Show the form for editing a user's role and status.
-     */
     public function edit(User $user): View
     {
         abort_unless(! $user->isAdmin(), 403);
@@ -65,9 +56,6 @@ class UserController extends Controller
         ]);
     }
 
-    /**
-     * Update the user's role and active status.
-     */
     public function update(Request $request, User $user): RedirectResponse
     {
         abort_unless(! $user->isAdmin(), 403);

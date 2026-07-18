@@ -20,6 +20,7 @@
                 value="{{ old('name') }}"
                 required
                 autofocus
+                maxlength="255"
                 autocomplete="name"
                 class="input-field @error('name') input-error @enderror"
                 placeholder="Your full name"
@@ -111,6 +112,7 @@
             name="password"
             label="Password"
             autocomplete="new-password"
+            :minlength="8"
             hint="Minimum 8 characters."
         />
 
@@ -120,6 +122,7 @@
                 id="password_confirmation"
                 label="Confirm password"
                 autocomplete="new-password"
+                :minlength="8"
             />
             <p class="field-hint mt-1.5 hidden" data-password-match aria-live="polite"></p>
         </div>

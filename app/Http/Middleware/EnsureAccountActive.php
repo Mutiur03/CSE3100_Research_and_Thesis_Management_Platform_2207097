@@ -10,10 +10,6 @@ use Symfony\Component\HttpFoundation\Response;
 class EnsureAccountActive
 {
     /**
-     * Handle an incoming request.
-     *
-     * Logs the user out and redirects with an error if their account is deactivated.
-     *
      * @param  Closure(Request): (Response)  $next
      */
     public function handle(Request $request, Closure $next): Response

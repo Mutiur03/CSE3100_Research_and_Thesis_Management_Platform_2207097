@@ -26,8 +26,6 @@ class ThesisController extends Controller
 
     public function show(Thesis $thesis): View
     {
-        abort_unless($thesis->student_id === auth()->id(), 403);
-
         $thesis->load([
             'supervisor', 'department', 'proposal',
             'milestones.tasks.assignee',
@@ -47,10 +45,8 @@ class ThesisController extends Controller
         ]);
     }
 
-    public function submitFinal(Request $request, Thesis $thesis): RedirectResponse
+    public function submitFinal(Thesis $thesis): RedirectResponse
     {
-        abort_unless($thesis->student_id === $request->user()->id, 403);
-
         $thesis->update(['final_submitted_at' => now()]);
 
         return redirect()->route('student.theses.show', $thesis)

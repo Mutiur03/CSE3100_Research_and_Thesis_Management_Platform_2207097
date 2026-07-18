@@ -15,9 +15,6 @@ use Illuminate\View\View;
 
 class RegisterController extends Controller
 {
-    /**
-     * Display the registration form.
-     */
     public function showRegistrationForm(): View
     {
         return view('auth.register', [
@@ -25,9 +22,6 @@ class RegisterController extends Controller
         ]);
     }
 
-    /**
-     * Handle an incoming registration request.
-     */
     public function register(Request $request): RedirectResponse
     {
         $validated = $request->validate([

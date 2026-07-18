@@ -1,6 +1,6 @@
 # Research & Thesis Management Platform
 
-A centralized web platform for managing the academic thesis lifecycle — from proposal submission through supervision, milestones, document versioning, meetings, discussion, and final submission.
+A centralized web platform for managing the academic thesis lifecycle — from proposal submission through supervision, milestones, document versioning, meetings (including Google Meet), discussion, and final submission.
 
 Built with **Laravel 12**, **Blade**, **Tailwind CSS**, and **Livewire** (SPA-style navigation via `wire:navigate`).
 
@@ -44,6 +44,8 @@ Open **http://127.0.0.1:8000**
 
 Create the first admin via `/setup`, then use the accounts above.
 
+For **Google Meet** on online meetings: set `COMPOSIO_*` in `.env`, then as supervisor open **Profile → Connect Google Calendar**.
+
 Reset demo: `php artisan migrate:fresh --seed --seeder=DemoSeeder`
 
 Details: [docs/setup section in SYSTEM_GUIDE.md](docs/SYSTEM_GUIDE.md#1-quick-start-install--first-login)
@@ -53,8 +55,6 @@ Details: [docs/setup section in SYSTEM_GUIDE.md](docs/SYSTEM_GUIDE.md#1-quick-st
 ```bash
 composer test
 ```
-
-**104** automated tests.
 
 ## License
 

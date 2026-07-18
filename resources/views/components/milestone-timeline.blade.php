@@ -33,14 +33,14 @@
                     @endphp
                     <div class="absolute top-0 -translate-x-1/2" style="left: {{ $left }}%">
                         <div class="flex flex-col items-center">
-                            <div class="h-3 w-3 rounded-full {{ $barColor }} ring-2 ring-white"></div>
+                            <div class="h-3 w-3 rounded-full {{ $barColor }} ring-2 ring-white" aria-hidden="true"></div>
                             <p class="mt-2 max-w-[7rem] truncate text-center text-[11px] font-medium text-stone-700" title="{{ $milestone->title }}">{{ $milestone->title }}</p>
-                            <p class="text-[10px] text-stone-500">{{ $milestone->due_date->format('M j') }}</p>
+                            <p class="text-[10px] tabular-nums text-stone-500">{{ $milestone->due_date->format('M j') }}</p>
                         </div>
                     </div>
                 @endforeach
             </div>
-            <div class="flex justify-between text-[11px] text-stone-500">
+            <div class="flex justify-between text-[11px] tabular-nums text-stone-500">
                 <span>{{ $rangeStart->format('M j, Y') }}</span>
                 <span>{{ $rangeEnd->format('M j, Y') }}</span>
             </div>

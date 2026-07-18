@@ -13,8 +13,6 @@ class ThesisCommentController extends Controller
 {
     public function store(Request $request, Thesis $thesis): RedirectResponse
     {
-        abort_unless($thesis->supervisor_id === $request->user()->id, 403);
-
         if ($request->user()->isStudent()) {
             $request->merge(['is_private' => false]);
         }
@@ -51,7 +49,6 @@ class ThesisCommentController extends Controller
             $comment->commentable_type === Thesis::class && $comment->commentable_id === $thesis->id,
             404,
         );
-        abort_unless($thesis->supervisor_id === auth()->id(), 403);
 
         $comment->delete();
 

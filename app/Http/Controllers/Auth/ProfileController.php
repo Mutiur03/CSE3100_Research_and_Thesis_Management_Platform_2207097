@@ -10,9 +10,6 @@ use Illuminate\View\View;
 
 class ProfileController extends Controller
 {
-    /**
-     * Display the profile edit form.
-     */
     public function show(Request $request): View
     {
         return view('profile.show', [
@@ -20,18 +17,16 @@ class ProfileController extends Controller
         ]);
     }
 
-    /**
-     * Update the user's profile.
-     */
     public function update(Request $request): RedirectResponse
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'bio' => ['nullable', 'string', 'max:1000'],
-            'phone' => ['nullable', 'string', 'max:20'],
+            'phone' => ['nullable', 'string', 'regex:/^01\d{9}$/'],
             'research_interests' => ['nullable', 'string', 'max:1000'],
             'avatar' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
         ], [
+            'phone.regex' => 'The phone must be an 11-digit number starting with 01.',
             'avatar.max' => 'The avatar image must not exceed 2MB.',
             'avatar.image' => 'The avatar must be a valid image file.',
         ]);
@@ -45,9 +40,7 @@ class ProfileController extends Controller
             'research_interests' => $this->parsedResearchInterests($request),
         ];
 
-        // Handle avatar upload
         if ($request->hasFile('avatar')) {
-            // Delete old avatar if exists
             if ($user->avatar) {
                 Storage::disk('public')->delete($user->avatar);
             }
@@ -67,8 +60,6 @@ class ProfileController extends Controller
     }
 
     /**
-     * Parse research interests from comma-separated string to array.
-     *
      * @return array<string>|null
      */
     private function parsedResearchInterests(Request $request): ?array

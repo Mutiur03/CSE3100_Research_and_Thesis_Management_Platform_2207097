@@ -16,8 +16,6 @@ class ComposioClient
     }
 
     /**
-     * Create a Composio Connect Link for Google Calendar OAuth.
-     *
      * @return array{redirect_url: string, connected_account_id: string}
      */
     public function createGoogleCalendarLink(string $userId, string $callbackUrl): array
@@ -55,7 +53,6 @@ class ComposioClient
     }
 
     /**
-     * Proxy an authenticated request to the toolkit upstream API (e.g. Google Calendar).
      * Composio injects OAuth credentials — raw access tokens are masked on account GET.
      *
      * @param  array<string, mixed>  $payload
@@ -94,8 +91,6 @@ class ComposioClient
     }
 
     /**
-     * Lab 12–style Guzzle call: new Client, request, json_decode body.
-     *
      * @param  array<string, mixed>|null  $json
      * @return array<string, mixed>
      */

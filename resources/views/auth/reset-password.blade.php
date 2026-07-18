@@ -37,6 +37,7 @@
             label="New password"
             autocomplete="new-password"
             :autofocus="true"
+            :minlength="8"
             hint="Minimum 8 characters."
         />
 
@@ -46,6 +47,7 @@
                 id="password_confirmation"
                 label="Confirm new password"
                 autocomplete="new-password"
+                :minlength="8"
             />
             <p class="field-hint mt-1.5 hidden" data-password-match aria-live="polite"></p>
         </div>

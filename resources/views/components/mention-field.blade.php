@@ -4,7 +4,7 @@
     'label',
     'mentionables',
     'rows' => 3,
-    'placeholder' => 'Share an update or ask a question…',
+    'placeholder' => 'Share an update or ask a question.',
     'value' => '',
     'required' => true,
     'error' => null,
@@ -22,7 +22,7 @@
         ->toJson();
 @endphp
 
-<div class="relative" data-mention-root data-mentionables="{{ e($mentionablesJson) }}">
+<div class="relative" data-mention-root data-mentionables="{{ $mentionablesJson }}">
     <label for="{{ $id }}" class="field-label">{{ $label }}</label>
     <p class="mt-0.5 text-xs text-stone-500">Type <kbd class="rounded border border-stone-200 bg-stone-50 px-1 font-sans text-[11px]">@</kbd> or pick someone below.</p>
 
@@ -48,6 +48,7 @@
             name="{{ $name }}"
             id="{{ $id }}"
             rows="{{ $rows }}"
+            maxlength="5000"
             @if($required) required @endif
             class="textarea-field !mt-0 @if($error) input-error @endif"
             placeholder="{{ $placeholder }}"

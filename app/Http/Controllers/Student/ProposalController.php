@@ -62,8 +62,6 @@ class ProposalController extends Controller
 
     public function show(Proposal $proposal): View
     {
-        abort_unless($proposal->student_id === auth()->id(), 403);
-
         $proposal->load(['supervisor', 'department', 'thesis']);
 
         return view('student.proposals.show', [
@@ -73,7 +71,6 @@ class ProposalController extends Controller
 
     public function edit(Proposal $proposal): View
     {
-        abort_unless($proposal->student_id === auth()->id(), 403);
         abort_unless($proposal->isEditable(), 403);
 
         return view('student.proposals.edit', [
@@ -84,7 +81,6 @@ class ProposalController extends Controller
 
     public function update(Request $request, Proposal $proposal): RedirectResponse
     {
-        abort_unless($proposal->student_id === $request->user()->id, 403);
         abort_unless($proposal->isEditable(), 403);
 
         $validated = $request->validate([
@@ -103,7 +99,6 @@ class ProposalController extends Controller
 
     public function destroy(Proposal $proposal): RedirectResponse
     {
-        abort_unless($proposal->student_id === auth()->id(), 403);
         abort_unless($proposal->status === ProposalStatus::Draft, 403);
 
         $proposal->delete();
@@ -114,7 +109,6 @@ class ProposalController extends Controller
 
     public function submit(Request $request, Proposal $proposal): RedirectResponse
     {
-        abort_unless($proposal->student_id === $request->user()->id, 403);
         abort_unless($proposal->isSubmittable(), 403);
 
         $proposal->update([

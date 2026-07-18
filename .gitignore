@@ -25,3 +25,7 @@ Homestead.yaml
 Thumbs.db
 docs
 tests/
+*.docx
+*.ppt
+*.pptx
+*.pdf

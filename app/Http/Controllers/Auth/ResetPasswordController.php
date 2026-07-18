@@ -14,9 +14,6 @@ use Illuminate\View\View;
 
 class ResetPasswordController extends Controller
 {
-    /**
-     * Display the password reset form.
-     */
     public function showResetForm(Request $request, string $token): View
     {
         return view('auth.reset-password', [
@@ -25,9 +22,6 @@ class ResetPasswordController extends Controller
         ]);
     }
 
-    /**
-     * Handle resetting the password.
-     */
     public function reset(Request $request): RedirectResponse
     {
         $request->validate([

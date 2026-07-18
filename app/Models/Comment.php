@@ -146,12 +146,12 @@ class Comment extends Model
         $participants = self::mentionableUsers($thesis);
 
         foreach ($participants as $user) {
-            $patterns = self::mentionPatternsForUser($user);
+            $chip = '<span class="font-semibold text-navy-700">@'.e($user->name).'</span>';
 
-            foreach ($patterns as $pattern) {
-                $escaped = preg_replace(
+            foreach (self::mentionPatternsForUser($user) as $pattern) {
+                $escaped = preg_replace_callback(
                     $pattern,
-                    '<span class="font-semibold text-navy-700">$0</span>',
+                    fn () => $chip,
                     $escaped,
                 ) ?? $escaped;
             }

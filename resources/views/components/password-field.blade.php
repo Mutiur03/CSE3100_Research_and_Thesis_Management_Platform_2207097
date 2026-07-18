@@ -8,6 +8,7 @@
     'hint' => null,
     'placeholder' => null,
     'showLabel' => true,
+    'minlength' => null,
 ])
 
 @php
@@ -37,6 +38,7 @@
             @autofocus($autofocus)
             autocomplete="{{ $autocomplete }}"
             @if($placeholder) placeholder="{{ $placeholder }}" @endif
+            @if($minlength) minlength="{{ $minlength }}" @endif
             data-password-input
             class="input-field !mt-0 pr-11 @error($name) input-error @enderror"
             @if($error) aria-invalid="true" @endif

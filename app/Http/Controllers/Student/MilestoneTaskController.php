@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Student;
 
+use App\Enums\MilestoneStatus;
 use App\Enums\MilestoneTaskStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Milestone;
@@ -21,12 +22,16 @@ class MilestoneTaskController extends Controller
 
         abort_unless($milestone->thesis_id === $thesis->id, 404);
         abort_unless($task->milestone_id === $milestone->id, 404);
-        abort_unless($thesis->student_id === $request->user()->id, 403);
 
         $status = $request->enum('status', MilestoneTaskStatus::class);
         $task->syncStatus($status);
+        $milestone->refresh();
+
+        $message = $milestone->status === MilestoneStatus::Completed
+            ? 'Task completed — milestone marked complete.'
+            : 'Task status updated.';
 
         return redirect()->route('student.theses.show', $thesis)
-            ->with('success', 'Task status updated.');
+            ->with('success', $message);
     }
 }

@@ -32,7 +32,7 @@ class UserFactory extends Factory
             'password' => static::$password ??= Hash::make('password'),
             'role' => fake()->randomElement([UserRole::Student, UserRole::Supervisor]),
             'bio' => fake()->optional(0.6)->sentence(12),
-            'phone' => fake()->optional(0.5)->phoneNumber(),
+            'phone' => fake()->optional(0.5)->numerify('01#########'),
             'research_interests' => fake()->optional(0.5)->randomElements(
                 ['Machine Learning', 'NLP', 'Computer Vision', 'Data Science', 'Cybersecurity', 'IoT', 'Cloud Computing', 'Blockchain', 'Bioinformatics', 'Robotics', 'Software Engineering', 'HCI'],
                 fake()->numberBetween(2, 5)

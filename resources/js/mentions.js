@@ -1,6 +1,6 @@
 /**
  * @mention autocomplete + chip insert for thesis discussion.
- * Canonical token inserted: @email (matches Comment::parseMentionedUserIds).
+ * Canonical token inserted: @Name (matches Comment::parseMentionedUserIds name pattern).
  */
 
 function parseMentionables(root) {
@@ -53,8 +53,8 @@ function insertAtCursor(textarea, start, end, text) {
     textarea.focus();
 }
 
-function insertMention(textarea, email, replaceRange = null) {
-    const token = '@' + email;
+function insertMention(textarea, name, replaceRange = null) {
+    const token = '@' + name;
 
     if (replaceRange) {
         insertAtCursor(textarea, replaceRange.start, replaceRange.end, token);
@@ -143,7 +143,7 @@ function bindMentionRoot(root) {
         }
 
         const end = textarea.selectionStart ?? mentionRange.start + 1 + mentionRange.query.length;
-        insertMention(textarea, user.email, {
+        insertMention(textarea, user.name, {
             start: mentionRange.start,
             end,
         });
@@ -164,11 +164,11 @@ function bindMentionRoot(root) {
 
     root.querySelectorAll('[data-mention-chip]').forEach((chip) => {
         chip.addEventListener('click', () => {
-            const email = chip.getAttribute('data-mention-email');
-            if (!email) {
+            const name = chip.getAttribute('data-mention-name');
+            if (!name) {
                 return;
             }
-            insertMention(textarea, email);
+            insertMention(textarea, name);
             closeList();
         });
     });

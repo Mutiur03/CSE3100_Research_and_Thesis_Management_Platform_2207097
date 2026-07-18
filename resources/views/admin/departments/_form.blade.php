@@ -17,6 +17,7 @@
                     id="name"
                     value="{{ old('name', $department?->name) }}"
                     required
+                    maxlength="255"
                     class="input-field @error('name') input-error @enderror"
                     placeholder="Computer Science & Engineering…"
                 >
@@ -34,6 +35,8 @@
                     value="{{ old('code', $department?->code) }}"
                     required
                     maxlength="20"
+                    pattern="[A-Za-z0-9]+"
+                    title="Letters and numbers only."
                     class="input-field @error('code') input-error @enderror"
                     placeholder="CSE…"
                 >
@@ -50,6 +53,7 @@
                     name="faculty"
                     id="faculty"
                     value="{{ old('faculty', $department?->faculty) }}"
+                    maxlength="255"
                     class="input-field @error('faculty') input-error @enderror"
                     placeholder="Faculty of Science & Engineering…"
                 >
@@ -79,6 +83,7 @@
                     name="description"
                     id="description"
                     rows="4"
+                    maxlength="2000"
                     class="textarea-field @error('description') input-error @enderror"
                     placeholder="Brief overview of the department…"
                 >{{ old('description', $department?->description) }}</textarea>

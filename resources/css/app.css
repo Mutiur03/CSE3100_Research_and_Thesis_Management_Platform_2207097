@@ -60,7 +60,7 @@
 }
 
 @utility page-title {
-    @apply font-display text-2xl font-normal tracking-tight text-stone-900;
+    @apply font-display text-pretty text-2xl font-normal tracking-tight break-words text-stone-900;
 }
 
 @utility page-lead {
@@ -108,29 +108,29 @@
 }
 
 @utility input-error {
-    @apply border-red-400 focus:border-red-500 focus:ring-red-500/15;
+    @apply border-red-400 focus-visible:border-red-500 focus-visible:ring-red-500/15;
 }
 
 /* ── Buttons ────────────────────────────────── */
 
 @utility btn {
-    @apply inline-flex items-center justify-center gap-2 rounded px-4 py-2.5 text-sm font-medium touch-manipulation transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50;
+    @apply inline-flex items-center justify-center gap-2 rounded px-4 py-2.5 text-sm font-medium touch-manipulation transition-colors motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50;
 }
 
 @utility btn-primary {
-    @apply btn bg-navy-800 text-white hover:bg-navy-900 focus:ring-navy-700;
+    @apply btn bg-navy-800 text-white hover:bg-navy-900 focus-visible:ring-navy-700;
 }
 
 @utility btn-secondary {
-    @apply btn border border-stone-300 bg-white text-stone-700 hover:bg-stone-50 focus:ring-stone-400;
+    @apply btn border border-stone-300 bg-white text-stone-700 hover:bg-stone-50 focus-visible:ring-stone-400;
 }
 
 @utility btn-ghost {
-    @apply btn text-stone-600 hover:bg-stone-100 hover:text-stone-900 focus:ring-stone-400;
+    @apply btn text-stone-600 hover:bg-stone-100 hover:text-stone-900 focus-visible:ring-stone-400;
 }
 
 @utility btn-danger {
-    @apply btn text-red-700 hover:bg-red-50 focus:ring-red-400;
+    @apply btn text-red-700 hover:bg-red-50 focus-visible:ring-red-400;
 }
 
 @utility btn-sm {
@@ -172,4 +172,19 @@
 /* Account menu: show panel when parent has .dropdown-open */
 .dropdown-open [role='menu'] {
     display: block;
+}
+
+/* Fold/unfold disclosures (details/summary) */
+.disclosure-summary {
+    @apply rounded touch-manipulation focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-700 focus-visible:ring-offset-2;
+}
+
+.disclosure-chevron {
+    @apply h-4 w-4 shrink-0 text-stone-400 transition-transform motion-reduce:transition-none group-open:rotate-90;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .disclosure-chevron {
+        transition: none;
+    }
 }

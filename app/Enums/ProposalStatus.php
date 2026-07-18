@@ -36,8 +36,6 @@ enum ProposalStatus: string
     }
 
     /**
-     * Statuses a student may edit or resubmit from.
-     *
      * @return list<self>
      */
     public static function editableCases(): array
@@ -46,8 +44,6 @@ enum ProposalStatus: string
     }
 
     /**
-     * Statuses visible to supervisors for review.
-     *
      * @return list<self>
      */
     public static function reviewableCases(): array

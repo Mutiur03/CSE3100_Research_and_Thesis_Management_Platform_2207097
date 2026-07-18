@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Middleware\EnsureAccountActive;
+use App\Http\Middleware\EnsureOwnsProposal;
+use App\Http\Middleware\EnsureOwnsThesis;
 use App\Http\Middleware\EnsureSetupComplete;
 use App\Http\Middleware\RedirectIfSetupComplete;
 use App\Http\Middleware\RoleMiddleware;
@@ -19,6 +21,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => RoleMiddleware::class,
             'active' => EnsureAccountActive::class,
             'setup.pending' => RedirectIfSetupComplete::class,
+            'owns.thesis' => EnsureOwnsThesis::class,
+            'owns.proposal' => EnsureOwnsProposal::class,
         ]);
 
         $middleware->web(append: [

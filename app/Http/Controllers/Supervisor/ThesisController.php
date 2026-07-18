@@ -35,8 +35,6 @@ class ThesisController extends Controller
 
     public function show(Thesis $thesis): View
     {
-        abort_unless($thesis->supervisor_id === auth()->id(), 403);
-
         $thesis->load([
             'student', 'department', 'proposal',
             'milestones.tasks.assignee',

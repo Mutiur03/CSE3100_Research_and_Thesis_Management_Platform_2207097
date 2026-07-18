@@ -22,10 +22,6 @@ class GoogleMeetScheduler
             && $supervisor->hasGoogleCalendarConnected();
     }
 
-    /**
-     * Create a Calendar event with Meet and update the local meeting.
-     * Returns true when Meet/Calendar data was applied; false when skipped or failed.
-     */
     public function createForMeeting(Meeting $meeting, Thesis $thesis, User $supervisor): bool
     {
         if (! $this->canAutoCreate($supervisor)) {
@@ -75,9 +71,6 @@ class GoogleMeetScheduler
         }
     }
 
-    /**
-     * Sync an existing Calendar event after a local meeting update.
-     */
     public function syncMeeting(Meeting $meeting, Thesis $thesis, User $supervisor): bool
     {
         if (! filled($meeting->google_event_id) || ! $this->canAutoCreate($supervisor)) {
@@ -126,9 +119,6 @@ class GoogleMeetScheduler
         }
     }
 
-    /**
-     * Best-effort delete of the Calendar event.
-     */
     public function deleteForMeeting(Meeting $meeting, User $supervisor): bool
     {
         if (! filled($meeting->google_event_id) || ! $this->canAutoCreate($supervisor)) {

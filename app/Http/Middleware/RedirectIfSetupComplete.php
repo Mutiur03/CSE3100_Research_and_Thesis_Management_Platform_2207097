@@ -9,9 +9,6 @@ use Symfony\Component\HttpFoundation\Response;
 
 class RedirectIfSetupComplete
 {
-    /**
-     * Block setup routes after the first administrator is created.
-     */
     public function handle(Request $request, Closure $next): Response
     {
         if (! User::needsSetup()) {

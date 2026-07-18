@@ -23,8 +23,6 @@ class MeetingController extends Controller
 
     public function store(Request $request, Thesis $thesis): RedirectResponse
     {
-        abort_unless($thesis->supervisor_id === $request->user()->id, 403);
-
         $validated = $this->validateMeeting($request, requiringFutureSchedule: true);
         $format = MeetingFormat::from($validated['format']);
 
@@ -59,7 +57,6 @@ class MeetingController extends Controller
     public function update(Request $request, Thesis $thesis, Meeting $meeting): RedirectResponse
     {
         abort_unless($meeting->thesis_id === $thesis->id, 404);
-        abort_unless($thesis->supervisor_id === $request->user()->id, 403);
 
         $validated = $this->validateMeeting($request, requiringFutureSchedule: false);
         $format = MeetingFormat::from($validated['format']);
@@ -96,7 +93,6 @@ class MeetingController extends Controller
     public function destroy(Thesis $thesis, Meeting $meeting): RedirectResponse
     {
         abort_unless($meeting->thesis_id === $thesis->id, 404);
-        abort_unless($thesis->supervisor_id === auth()->id(), 403);
 
         $flash = ['success' => 'Meeting deleted.'];
         $hadGoogleEvent = filled($meeting->google_event_id);

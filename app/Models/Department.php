@@ -27,25 +27,16 @@ class Department extends Model
         'description',
     ];
 
-    /**
-     * Department head (supervisor or admin).
-     */
     public function head(): BelongsTo
     {
         return $this->belongsTo(User::class, 'head_id');
     }
 
-    /**
-     * Users affiliated with this department.
-     */
     public function users(): HasMany
     {
         return $this->hasMany(User::class);
     }
 
-    /**
-     * Display label combining code and name.
-     */
     public function getDisplayNameAttribute(): string
     {
         return "{$this->code} — {$this->name}";

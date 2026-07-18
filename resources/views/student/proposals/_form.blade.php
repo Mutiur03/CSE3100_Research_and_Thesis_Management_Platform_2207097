@@ -18,6 +18,7 @@
                     id="title"
                     value="{{ old('title', $proposal?->title) }}"
                     required
+                    maxlength="255"
                     class="input-field @error('title') input-error @enderror"
                     placeholder="Research title…"
                 >
@@ -48,6 +49,7 @@
                     id="abstract"
                     rows="5"
                     required
+                    maxlength="5000"
                     class="textarea-field @error('abstract') input-error @enderror"
                     placeholder="Summarize the research problem, significance, and expected contribution…"
                 >{{ old('abstract', $proposal?->abstract) }}</textarea>
@@ -62,6 +64,7 @@
                     name="objectives"
                     id="objectives"
                     rows="4"
+                    maxlength="5000"
                     class="textarea-field @error('objectives') input-error @enderror"
                     placeholder="List the main research objectives…"
                 >{{ old('objectives', $proposal?->objectives) }}</textarea>
@@ -76,6 +79,7 @@
                     name="methodology"
                     id="methodology"
                     rows="4"
+                    maxlength="5000"
                     class="textarea-field @error('methodology') input-error @enderror"
                     placeholder="Outline your proposed methods and tools…"
                 >{{ old('methodology', $proposal?->methodology) }}</textarea>

@@ -35,6 +35,8 @@
                 value="{{ old('code') }}"
                 required
                 autofocus
+                minlength="8"
+                maxlength="32"
                 autocomplete="one-time-code"
                 class="input-field font-mono tracking-widest @error('code') input-error @enderror"
                 spellcheck="false"
@@ -54,6 +56,7 @@
                 id="name"
                 value="{{ old('name') }}"
                 required
+                maxlength="255"
                 autocomplete="name"
                 class="input-field @error('name') input-error @enderror"
                 @error('name') aria-invalid="true" aria-describedby="name-error" @enderror
@@ -67,6 +70,7 @@
             name="password"
             label="Password"
             autocomplete="new-password"
+            :minlength="8"
             hint="Minimum 8 characters."
         />
 
@@ -76,6 +80,7 @@
                 id="password_confirmation"
                 label="Confirm password"
                 autocomplete="new-password"
+                :minlength="8"
             />
             <p class="field-hint mt-1.5 hidden" data-password-match aria-live="polite"></p>
         </div>

@@ -24,7 +24,6 @@
     <div class="flex min-h-screen">
         <x-auth-panel />
 
-        {{-- Form panel --}}
         <div class="auth-form-wrap flex-1">
             <x-auth-mobile-header />
 

@@ -16,8 +16,6 @@ class MilestoneController extends Controller
 {
     public function store(Request $request, Thesis $thesis): RedirectResponse
     {
-        abort_unless($thesis->supervisor_id === $request->user()->id, 403);
-
         $validator = Validator::make($request->all(), [
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:2000'],
@@ -55,13 +53,12 @@ class MilestoneController extends Controller
     public function update(Request $request, Thesis $thesis, Milestone $milestone): RedirectResponse
     {
         abort_unless($milestone->thesis_id === $thesis->id, 404);
-        abort_unless($thesis->supervisor_id === $request->user()->id, 403);
         abort_unless(in_array($milestone->status, MilestoneStatus::openCases(), true), 403);
 
         $validator = Validator::make($request->all(), [
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:2000'],
-            'due_date' => ['required', 'date', 'after_or_equal:today'],
+            'due_date' => ['required', 'date'],
             'depends_on_id' => [
                 'nullable',
                 'integer',
@@ -98,7 +95,6 @@ class MilestoneController extends Controller
     public function destroy(Thesis $thesis, Milestone $milestone): RedirectResponse
     {
         abort_unless($milestone->thesis_id === $thesis->id, 404);
-        abort_unless($thesis->supervisor_id === auth()->id(), 403);
         abort_unless(in_array($milestone->status, MilestoneStatus::openCases(), true), 403);
 
         $milestone->delete();

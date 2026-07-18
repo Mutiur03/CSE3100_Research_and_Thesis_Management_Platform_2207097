@@ -88,8 +88,10 @@
                                     name="review_notes"
                                     id="review_notes"
                                     rows="5"
+                                    maxlength="5000"
                                     class="textarea-field @error('review_notes') input-error @enderror"
                                     placeholder="Required for rejection or revision requests…"
+                                    @if(in_array(old('decision'), ['reject', 'request_revision'], true)) required @endif
                                 >{{ old('review_notes') }}</textarea>
                                 @error('review_notes')
                                     <p class="field-error">{{ $message }}</p>

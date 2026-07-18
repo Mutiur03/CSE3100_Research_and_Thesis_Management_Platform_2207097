@@ -10,8 +10,6 @@ use Symfony\Component\HttpFoundation\Response;
 class RoleMiddleware
 {
     /**
-     * Handle an incoming request.
-     *
      * @param  Closure(Request): (Response)  $next
      * @param  string  ...$roles  One or more role values (e.g. 'admin', 'supervisor')
      */

@@ -19,11 +19,7 @@ class User extends Authenticatable implements MustVerifyEmail
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
+    /** @var list<string> */
     protected $fillable = [
         'name',
         'email',
@@ -39,19 +35,13 @@ class User extends Authenticatable implements MustVerifyEmail
         'composio_google_connected_account_id',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
+    /** @var list<string> */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
     /**
-     * Get the attributes that should be cast.
-     *
      * @return array<string, string>
      */
     protected function casts(): array
@@ -65,10 +55,6 @@ class User extends Authenticatable implements MustVerifyEmail
             'last_login_at' => 'datetime',
         ];
     }
-
-    // ──────────────────────────────────────────────
-    // Role helpers
-    // ──────────────────────────────────────────────
 
     public function hasRole(UserRole $role): bool
     {
@@ -100,10 +86,6 @@ class User extends Authenticatable implements MustVerifyEmail
         return ! self::query()->where('role', UserRole::Admin)->exists();
     }
 
-    // ──────────────────────────────────────────────
-    // Relationships
-    // ──────────────────────────────────────────────
-
     public function department(): BelongsTo
     {
         return $this->belongsTo(Department::class);
@@ -129,13 +111,6 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Thesis::class, 'supervisor_id');
     }
 
-    // ──────────────────────────────────────────────
-    // Accessors
-    // ──────────────────────────────────────────────
-
-    /**
-     * Get the URL to the user's avatar or a default gravatar.
-     */
     public function getAvatarUrlAttribute(): string
     {
         if ($this->avatar) {

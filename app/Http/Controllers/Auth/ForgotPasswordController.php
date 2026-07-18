@@ -10,17 +10,11 @@ use Illuminate\View\View;
 
 class ForgotPasswordController extends Controller
 {
-    /**
-     * Display the password reset link request form.
-     */
     public function showLinkRequestForm(): View
     {
         return view('auth.forgot-password');
     }
 
-    /**
-     * Handle sending a password reset link.
-     */
     public function sendResetLink(Request $request): RedirectResponse
     {
         $request->validate([

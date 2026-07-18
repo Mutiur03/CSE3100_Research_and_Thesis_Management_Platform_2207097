@@ -42,8 +42,6 @@ class ProposalController extends Controller
 
     public function show(Proposal $proposal): View
     {
-        abort_unless($proposal->supervisor_id === auth()->id(), 403);
-
         if ($proposal->status === ProposalStatus::Submitted) {
             $proposal->update(['status' => ProposalStatus::UnderReview]);
         }
@@ -57,8 +55,6 @@ class ProposalController extends Controller
 
     public function review(Request $request, Proposal $proposal): RedirectResponse
     {
-        abort_unless($proposal->supervisor_id === $request->user()->id, 403);
-
         $request->validate([
             'decision' => ['required', Rule::in(['approve', 'reject', 'request_revision'])],
             'review_notes' => [

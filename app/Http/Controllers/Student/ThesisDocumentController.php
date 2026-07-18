@@ -18,8 +18,6 @@ class ThesisDocumentController extends Controller
 {
     public function store(Request $request, Thesis $thesis): RedirectResponse
     {
-        abort_unless($thesis->student_id === $request->user()->id, 403);
-
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:2000'],
@@ -55,7 +53,6 @@ class ThesisDocumentController extends Controller
         ]);
 
         abort_unless($document->thesis_id === $thesis->id, 404);
-        abort_unless($thesis->student_id === $request->user()->id, 403);
 
         $document->storeVersion(
             $request->user(),
@@ -71,7 +68,6 @@ class ThesisDocumentController extends Controller
     {
         abort_unless($document->thesis_id === $thesis->id, 404);
         abort_unless($version->thesis_document_id === $document->id, 404);
-        abort_unless($thesis->student_id === auth()->id(), 403);
 
         return Storage::disk('public')->download($version->file_path, $version->file_name);
     }

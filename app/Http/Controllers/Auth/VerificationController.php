@@ -10,9 +10,6 @@ use Illuminate\View\View;
 
 class VerificationController extends Controller
 {
-    /**
-     * Display the email verification notice.
-     */
     public function notice(Request $request): View|RedirectResponse
     {
         if ($request->user()->hasVerifiedEmail()) {
@@ -22,9 +19,6 @@ class VerificationController extends Controller
         return view('auth.verify-email');
     }
 
-    /**
-     * Handle the email verification link.
-     */
     public function verify(EmailVerificationRequest $request): RedirectResponse
     {
         $request->fulfill();
@@ -33,9 +27,6 @@ class VerificationController extends Controller
             ->with('success', 'Your email has been verified successfully!');
     }
 
-    /**
-     * Resend the email verification notification.
-     */
     public function resend(Request $request): RedirectResponse
     {
         if ($request->user()->hasVerifiedEmail()) {

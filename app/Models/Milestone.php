@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\MilestoneStatus;
 use App\Enums\MilestoneTaskStatus;
+use App\Enums\ThesisStatus;
 use Database\Factories\MilestoneFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -97,6 +98,7 @@ class Milestone extends Model
     public function recalculateProgress(): void
     {
         $totalTasks = $this->tasks()->count();
+        $wasCompleted = $this->status === MilestoneStatus::Completed;
 
         if ($totalTasks === 0) {
             $progress = match ($this->status) {
@@ -111,15 +113,91 @@ class Milestone extends Model
 
         $attributes = ['progress_percentage' => $progress];
 
-        if ($totalTasks > 0 && $progress > 0 && $progress < 100 && $this->status === MilestoneStatus::Pending) {
-            $attributes['status'] = MilestoneStatus::InProgress;
+        if ($totalTasks > 0 && in_array($this->status, MilestoneStatus::openCases(), true)) {
+            if ($progress > 0 && $this->status === MilestoneStatus::Pending) {
+                $attributes['status'] = MilestoneStatus::InProgress;
+            }
         }
 
-        if ($progress === 100 && $totalTasks > 0 && $this->status === MilestoneStatus::Pending) {
+        if ($wasCompleted && $totalTasks > 0 && $progress < 100) {
             $attributes['status'] = MilestoneStatus::InProgress;
+            $attributes['completed_at'] = null;
         }
 
         $this->update($attributes);
+        $this->refresh();
+
+        if ($totalTasks > 0 && $progress === 100 && $this->isCompletable()) {
+            $this->markCompleted();
+
+            return;
+        }
+
+        if ($wasCompleted && $this->status !== MilestoneStatus::Completed) {
+            $this->reopenThesisIfNeeded();
+        }
+    }
+
+    public function markCompleted(): void
+    {
+        if ($this->status === MilestoneStatus::Completed) {
+            return;
+        }
+
+        $this->update([
+            'status' => MilestoneStatus::Completed,
+            'completed_at' => now(),
+            'progress_percentage' => 100,
+        ]);
+
+        $this->tryCompleteDependents();
+        $this->completeThesisIfAllMilestonesDone();
+    }
+
+    protected function completeThesisIfAllMilestonesDone(): void
+    {
+        $thesis = $this->thesis;
+
+        if (! $thesis->isActive()) {
+            return;
+        }
+
+        if ($thesis->milestones()->exists()
+            && $thesis->milestones()->where('status', '!=', MilestoneStatus::Completed)->doesntExist()) {
+            $thesis->update([
+                'status' => ThesisStatus::Completed,
+                'completed_at' => now(),
+            ]);
+        }
+    }
+
+    protected function reopenThesisIfNeeded(): void
+    {
+        $thesis = $this->thesis;
+
+        if ($thesis->status !== ThesisStatus::Completed) {
+            return;
+        }
+
+        $thesis->update([
+            'status' => ThesisStatus::Active,
+            'completed_at' => null,
+        ]);
+    }
+
+    protected function tryCompleteDependents(): void
+    {
+        self::query()
+            ->where('depends_on_id', $this->id)
+            ->whereIn('status', MilestoneStatus::openCases())
+            ->get()
+            ->each(function (self $dependent): void {
+                if ($dependent->tasks()->exists()
+                    && $dependent->incompleteTasks()->doesntExist()
+                    && $dependent->isCompletable()) {
+                    $dependent->markCompleted();
+                }
+            });
     }
 
     public static function wouldCreateDependencyCycle(int $milestoneId, ?int $dependsOnId): bool
